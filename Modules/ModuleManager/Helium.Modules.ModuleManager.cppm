@@ -1,0 +1,30 @@
+/*
+ * Helium is an open source software distributed under the MIT license.
+ * Please refer to Helium.Main.ixx for full license info.
+ */
+
+module;
+
+#include <unordered_map>
+#include <memory>
+
+export module Helium.Modules.ModuleManager;
+
+import Helium.Base;
+import Helium.Modules.ModuleMetadata;
+import Helium.Modules.Module;
+
+export namespace helium::modules {
+	
+
+	class ModuleManager : public HeliumObject {
+	private:
+		std::unordered_map<ModuleMetadata, std::shared_ptr<Module>, ModuleMetadataHash> module_map;
+
+	public:
+		[[nodiscard]] static auto getInstance() -> ModuleManager& {
+			static ModuleManager instance;
+			return instance;
+		}
+	};
+}
