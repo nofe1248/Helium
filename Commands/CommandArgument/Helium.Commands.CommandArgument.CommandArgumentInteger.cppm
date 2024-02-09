@@ -7,16 +7,20 @@ module;
 
 #include <cstdint>
 #include <concepts>
+#include <functional>
 #include <memory>
 #include <string>
 #include <limits>
 
 #include <proxy/proxy.h>
 
+#define FWD(x) ::std::forward<decltype(x)>(x)
+
 export module Helium.Commands.CommandArgument.CommandArgumentInteger;
 
 import Helium.Base;
 import Helium.Commands.Concepts;
+import Helium.Commands.CommandContext;
 import Helium.Commands.CommandBase;
 
 export namespace helium::commands {
@@ -59,13 +63,24 @@ export namespace helium::commands {
 		using IntegerType = IntegerType_;
 		using IntegerBoundType = IntegerBound<IntegerType>;
 		using super = CommandBase<CommandArgumentInteger<IntegerType>>;
-		friend class CommandBase<CommandArgumentInteger<IntegerType>>;
 
 	private:
 		IntegerBoundType bound_{};
 		std::shared_ptr<CommandNodeDescriptor> node_descriptor_;
+	    std::function<bool()> predicate_;
+	    std::function<void(CommandContext const&)> callback_;
 
 	public:
+	    template <std::invocable Pred_>
+        auto addPredicate(Pred_ && pred) -> void {
+	        this->predicate_ = FWD(pred);
+	    }
+
+	    template <std::invocable Callback_>
+        auto addCallback(Callback_ && callback) -> void {
+	        this->callback_ = FWD(callback_);
+	    }
+
 		auto getNodeDescriptor() const -> std::weak_ptr<CommandNodeDescriptor> { 
 			return this->node_descriptor_; 
 		}

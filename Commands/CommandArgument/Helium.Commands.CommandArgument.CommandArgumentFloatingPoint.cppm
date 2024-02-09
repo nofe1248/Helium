@@ -6,16 +6,20 @@
 module;
 
 #include <concepts>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <string>
 
 #include <proxy/proxy.h>
 
+#define FWD(x) ::std::forward<decltype(x)>(x)
+
 export module Helium.Commands.CommandArgument.CommandArgumentFloatingPoint;
 
 import Helium.Base;
 import Helium.Commands.CommandBase;
+import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 
 export namespace helium::commands {
@@ -61,8 +65,20 @@ export namespace helium::commands {
 	private:
 		FloatingPointBoundType bound_;
 		std::shared_ptr<CommandNodeDescriptor> node_descriptor_;
+	    std::function<bool()> predicate_;
+	    std::function<void(CommandContext const&)> callback_;
 
 	public:
+	    template <std::invocable Pred_>
+        auto addPredicate(Pred_ && pred) -> void {
+	        this->predicate_ = FWD(pred);
+	    }
+
+	    template <std::invocable Callback_>
+        auto addCallback(Callback_ && callback) -> void {
+	        this->callback_ = FWD(callback_);
+	    }
+
 		auto getNodeDescriptor() const -> std::weak_ptr<CommandNodeDescriptor> { 
 			return this->node_descriptor_; 
 		}

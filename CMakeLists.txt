@@ -25,6 +25,7 @@ target_sources(
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.cppm
         Commands/CommandBase/Helium.Commands.CommandBase.cppm
+        Commands/CommandContext/Helium.Commands.CommandContext.cppm
         Commands/CommandDispatcher/Helium.Commands.CommandDispatcher.cppm
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.CommandStringLiteral.cppm
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.cppm

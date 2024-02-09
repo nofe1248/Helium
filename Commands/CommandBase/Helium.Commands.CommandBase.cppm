@@ -47,19 +47,20 @@ export namespace helium::commands {
 		constexpr auto then(Next_&& next_node) && {
 			FWD(next_node).setParentNode(this->underlyingClass().getNodeDescriptor());
 			this->underlyingClass().addChildNode(FWD(next_node).getNodeDescriptor());
-			return Derived(std::move(this->underlyingClass()));
+			return next_node;
 		}
 
 		template <std::invocable Callback_>
-			requires concepts::IsCommandArgument<Derived>
 		[[nodiscard]]
 		constexpr auto execute(Callback_&& callback) && {
+		    this->underlyingClass().addCallback(FWD(callback));
 			return Derived(std::move(this->underlyingClass()));
 		}
 
 		template <std::invocable Pred_>
 		[[nodiscard]]
 		constexpr auto require(Pred_&& pred) && {
+		    this->underlyingClass().addPredicate(FWD(pred));
 			return Derived(std::move(this->underlyingClass()));
 		}
 	};
