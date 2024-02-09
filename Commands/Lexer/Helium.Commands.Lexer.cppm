@@ -6,24 +6,20 @@
 module;
 
 #include <cctype>
+#include <charconv>
 #include <format>
 #include <iterator>
-#include <memory>
 #include <optional>
 #include <print>
-#include <ranges>
-#include <span>
 #include <string>
 
 #include <plf_hive.h>
-
-#include <gsl/gsl>
 
 #include <scope_guard.hpp>
 
 #include <nameof.hpp>
 
-#include <mpark/patterns.hpp>
+#include <simdjson.h>
 
 export module Helium.Commands.Lexer;
 
@@ -60,14 +56,17 @@ export namespace helium::commands {
         using TokenType = Token<StringType>;
 
     private:
+        StringType original_command_;
         StringType raw_command_;
         plf::hive<TokenType> tokens_;
         typename StringType::const_iterator current_iterator_;
 
     public:
-        CommandLexer() : raw_command_(), tokens_(), current_iterator_(this->raw_command_.cbegin()) {}
+        CommandLexer() :
+            original_command_(), raw_command_(), tokens_(), current_iterator_(this->raw_command_.cbegin()) {}
 
-        auto parseCommand(this CommandLexer &self, std::string const &command) -> void {
+        auto parseCommand(this CommandLexer &self, StringType const &command) -> void {
+            self.original_command_ = command;
             self.raw_command_ = command;
             self.current_iterator_ = self.raw_command_.cbegin();
             self.tokens_.clear();
@@ -82,8 +81,8 @@ export namespace helium::commands {
             }
         }
 
-        auto tokenString(this CommandLexer const &self) -> std::string {
-            std::string result;
+        auto tokenString(this CommandLexer const &self) -> StringType {
+            StringType result;
             result.append("[\n");
             result.append(std::format("\tRaw Command : {}\n", self.raw_command_));
             result.append("\tTokens : \n");
@@ -164,75 +163,20 @@ export namespace helium::commands {
                         }
                     }
                     if (find_closing_quote) {
-                        for (; iterator < end_iterator; ++iterator) {
-                            typename StringType::value_type escape_value;
-                            bool is_valid_escape_sequence = true;
-                            if (std::distance(iterator, end_iterator) >= 1 and *iterator == '\\') {
-                                using namespace mpark::patterns;
-                                auto is_octal_digit = [](StringType::value_type c) {
-                                    bool result = false;
-                                    match(c)(pattern(anyof('0', '1', '2', '3', '4', '5', '6', '7')) = [&result] {
-                                        result = true;
-                                    });
-                                    return result;
-                                };
-                                ++iterator;
-                                match (*iterator)(
-                                        pattern('\'') = [&escape_value] { escape_value = '\''; },
-                                        pattern('\"') = [&escape_value] { escape_value = '\"'; },
-                                        pattern('?') = [&escape_value] { escape_value = '?'; },
-                                        pattern('\\') = [&escape_value] { escape_value = '\\'; },
-                                        pattern('a') = [&escape_value] { escape_value = '\a'; },
-                                        pattern('b') = [&escape_value] { escape_value = '\b'; },
-                                        pattern('f') = [&escape_value] { escape_value = '\f'; },
-                                        pattern('n') = [&escape_value] { escape_value = '\n'; },
-                                        pattern('r') = [&escape_value] { escape_value = '\r'; },
-                                        pattern('t') = [&escape_value] { escape_value = '\t'; },
-                                        pattern('v') = [&escape_value] { escape_value = '\v'; },
-                                        pattern(anyof('0', '1', '2', '3', '4', '5', '6', '7', 'o', 'x')) =
-                                                [&escape_value, &iterator, &is_valid_escape_sequence] {
-                                                    match (*iterator)(
-                                                            pattern(anyof('0', '1', '2', '3', '4', '5', '6', '7')) =
-                                                                    [&escape_value, &iterator,
-                                                                     &is_valid_escape_sequence] {
-                                                                        std::string octal_value_str{**iterator};
-                                                                    },
-                                                            pattern('o') =
-                                                                    [&escape_value, &iterator,
-                                                                     &is_valid_escape_sequence] {
+                        using namespace simdjson;
+                        ondemand::parser par;
 
-                                                                    },
-                                                            pattern('x') =
-                                                                    [&escape_value, &iterator,
-                                                                     &is_valid_escape_sequence] {
-
-                                                                    });
-                                                },
-                                        pattern(anyof('u', 'U', 'N')) =
-                                                [&escape_value, &iterator, &is_valid_escape_sequence] {
-                                                    match (*iterator)(
-                                                            pattern('u') =
-                                                                    [&escape_value, &iterator,
-                                                                     &is_valid_escape_sequence] {
-
-                                                                    },
-                                                            pattern('U') =
-                                                                    [&escape_value, &iterator,
-                                                                     &is_valid_escape_sequence] {
-
-                                                                    },
-                                                            pattern('N') =
-                                                                    [&escape_value, &iterator,
-                                                                     &is_valid_escape_sequence] {
-
-                                                                    });
-                                                },
-                                        pattern(_) = [&is_valid_escape_sequence] { is_valid_escape_sequence = false; });
-                            }
-                            if (is_valid_escape_sequence) {
-                            }
-                        }
-                        self.current_iterator_ = end_iterator + 1;
+                        StringType original_string = StringType{self.raw_command_}.substr(
+                                std::distance(self.raw_command_.cbegin(), begin_iterator) + 1,
+                                std::distance(begin_iterator, end_iterator) - 1);
+                        StringType json_str = std::format(R"({{"name":"{}"}})", original_string);
+                        auto json = padded_string(json_str);
+                        ondemand::document doc = par.iterate(json);
+                        StringType escaped_string = StringType{doc.find_field("name").get_string().value()};
+                        self.raw_command_.erase(begin_iterator + 1, end_iterator);
+                        self.raw_command_.insert_range(begin_iterator + 1, escaped_string);
+                        auto offset = original_string.length() - escaped_string.length();
+                        self.current_iterator_ = end_iterator + 1 - offset;
                         return TokenType{TokenCategory::TOKEN_QUOTED_STRING, begin_iterator,
                                          StringViewType{self.raw_command_}.substr(
                                                  std::distance(self.raw_command_.cbegin(), begin_iterator) + 1,

@@ -61,6 +61,8 @@ target_sources(
         Utils/Helium.Utils.cppm
 )
 
+find_package(absl REQUIRED)
+
 find_package(Backward CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE Backward::Backward)
 
@@ -100,8 +102,14 @@ target_link_libraries(Helium PRIVATE nameof::nameof)
 find_path(NEARGYE_SEMVER_INCLUDE_DIRS "neargye/semver.hpp")
 target_include_directories(Helium PRIVATE ${NEARGYE_SEMVER_INCLUDE_DIRS})
 
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
+
 find_path(PLF_COLONY_INCLUDE_DIRS "plf_colony.h")
 target_include_directories(Helium PRIVATE ${PLF_COLONY_INCLUDE_DIRS})
+
+find_package(Poco REQUIRED Foundation)
+target_link_libraries(Helium PRIVATE Poco::Foundation)
 
 find_package(proxy CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE msft_proxy)

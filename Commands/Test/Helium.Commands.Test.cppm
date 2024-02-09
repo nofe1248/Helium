@@ -33,7 +33,7 @@ export namespace helium::commands::test {
 			while(true) {
 			    using namespace std::string_literals;
 			    std::string str;
-			    std::print("Enter command for lexer test > ");
+			    std::print("Enter command for lexer(std::string) test > ");
 			    std::getline(std::cin, str);
 			    if(str == "exit") {
 			        break;
