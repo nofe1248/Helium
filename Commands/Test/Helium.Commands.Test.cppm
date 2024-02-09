@@ -7,6 +7,9 @@ module;
 
 #include <print>
 #include <string>
+#include <iostream>
+
+#include <plf_nanotimer.h>
 
 #define BOOST_UT_DISABLE_MODULE
 #include <boost/ut.hpp>
@@ -27,18 +30,22 @@ export namespace helium::commands::test {
 		boost::ut::test("Helium.Command Module Test (Lexer #1)") = []
 		{
 			CommandLexer<std::string> lex;
-			for(std::string const& str : 
-				{
-					"#helium set true get -135 awa 157.22 -12654.123.59",
-					"#helium backup slot 17 forcepush true compressionlevel 0",
-					"#helium event fire Helium.Events.ServerStop",
-					"#helium modules reload all forcereload true deadline 10",
-					"#helium exit",
-					""
-				})
-			{
-				lex.parseCommand(str);
-				expect(lex.isParsed());
+			while(true) {
+			    using namespace std::string_literals;
+			    std::string str;
+			    std::print("Enter command for lexer test > ");
+			    std::getline(std::cin, str);
+			    if(str == "exit") {
+			        break;
+			    }
+
+                plf::nanotimer timer;
+
+                timer.start();
+			    lex.parseCommand(str);
+			    std::println("Lexer parsing spends {}ns {}μs {}ms", timer.get_elapsed_ns(), timer.get_elapsed_us(), timer.get_elapsed_ms());
+			    std::println("{}", lex.tokenString());
+			    expect(lex.isParsed());
 			}
 		};
 		boost::ut::test("Helium.Command Module Test (Dispatcher #1)") = []

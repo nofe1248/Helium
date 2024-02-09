@@ -117,3 +117,6 @@ target_link_libraries(Helium PRIVATE spdlog::spdlog)
 
 find_package(stdexec CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
+
+find_path(PLF_NANOTIMER_INCLUDE_DIRS "plf_nanotimer.h")
+target_include_directories(Helium PRIVATE ${PLF_NANOTIMER_INCLUDE_DIRS})
