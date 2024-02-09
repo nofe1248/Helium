@@ -23,7 +23,7 @@ import Helium.Commands.CommandContext;
 
 export namespace helium::commands {
 	class CommandStringLiteral
-		: public CommandBase<CommandStringLiteral>, public details::TagCommandLiteral, public HeliumObject
+		: public CommandBase<CommandStringLiteral>, public details::TagCommandLiteral
     {
 	public:
 		using super = CommandBase<CommandStringLiteral>;

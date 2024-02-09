@@ -12,6 +12,8 @@ module;
 
 export module Helium.Config.Test;
 
+import Helium.Config.ConfigManager;
+
 export namespace helium::config::test
 {
 	using namespace boost::ut;

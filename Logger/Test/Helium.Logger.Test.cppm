@@ -12,6 +12,8 @@ module;
 
 export module Helium.Logger.Test;
 
+import Helium.Logger.LoggerImpl;
+
 export namespace helium::logger::test
 {
 	using namespace boost::ut;

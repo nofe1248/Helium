@@ -56,7 +56,8 @@ export namespace helium::commands {
 
 	template <concepts::IsFloatingPoint FPType_>
 	class CommandArgumentFloatingPoint
-		: public CommandBase<CommandArgumentFloatingPoint<FPType_>>, public details::TagCommandArgument, public HeliumObject {
+		: public CommandBase<CommandArgumentFloatingPoint<FPType_>>, public details::TagCommandArgument
+    {
 	public:
 		using FloatingPointType = FPType_;
 		using FloatingPointBoundType = FloatingPointBound<FloatingPointType>;

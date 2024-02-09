@@ -24,7 +24,7 @@ import Helium.Commands.Concepts;
 export namespace helium::commands {
 	template <concepts::IsString StrType_>
 	class CommandArgumentString
-		: public CommandBase<CommandArgumentString<StrType_>>, public details::TagCommandArgument, public HeliumObject
+		: public CommandBase<CommandArgumentString<StrType_>>, public details::TagCommandArgument
 	{
 	public:
 		using StringType = StrType_;

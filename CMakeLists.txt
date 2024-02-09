@@ -33,6 +33,7 @@ target_sources(
         Commands/Lexer/Helium.Commands.Lexer.cppm
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
+        Config/ConfigManager/Helium.Config.ConfigManager.cppm
         Config/Test/Helium.Config.Test.cppm
         Config/Helium.Config.cppm
         Events/Concepts/Helium.Events.Concepts.cppm
@@ -46,6 +47,7 @@ target_sources(
         Events/Helium.Events.cppm
         Exceptions/TerminateHandler/Helium.Exceptions.TerminateHandler.cppm
         Exceptions/Helium.Exceptions.cppm
+        Logger/LoggerImpl/Helium.Logger.LoggerImpl.cppm
         Logger/Test/Helium.Logger.Test.cppm
         Logger/Helium.Logger.cppm
         Main/Helium.Main.cppm

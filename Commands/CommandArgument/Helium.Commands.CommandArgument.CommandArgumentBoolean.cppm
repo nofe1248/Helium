@@ -23,7 +23,8 @@ import Helium.Commands.Concepts;
 
 export namespace helium::commands {
 	class CommandArgumentBoolean
-		: public CommandBase<CommandArgumentBoolean>, public details::TagCommandArgument, public HeliumObject {
+		: public CommandBase<CommandArgumentBoolean>, public details::TagCommandArgument
+    {
 	public:
 		using super = CommandBase<CommandArgumentBoolean>;
 
