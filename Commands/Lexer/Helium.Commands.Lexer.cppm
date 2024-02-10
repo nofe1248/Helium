@@ -9,17 +9,13 @@ module;
 #include <charconv>
 #include <format>
 #include <iterator>
-#include <optional>
-#include <print>
-#include <string>
-
-#include <plf_hive.h>
-
-#include <scope_guard.hpp>
-
 #include <nameof.hpp>
-
+#include <optional>
+#include <plf_hive.h>
+#include <print>
+#include <scope_guard.hpp>
 #include <simdjson.h>
+#include <string>
 
 export module Helium.Commands.Lexer;
 
@@ -220,4 +216,4 @@ export namespace helium::commands {
             return std::nullopt;
         }
     };
-} // namespace helium::commands
+}  // namespace helium::commands

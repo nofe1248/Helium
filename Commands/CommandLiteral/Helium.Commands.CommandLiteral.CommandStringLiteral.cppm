@@ -5,12 +5,9 @@
 
 module;
 
-#include <concepts>
-#include <functional>
 #include <memory>
 #include <string>
-
-#include <proxy/proxy.h>
+#include <optional>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -28,47 +25,16 @@ export namespace helium::commands {
 	public:
 		using super = CommandBase<CommandStringLiteral>;
 
-	private:
-		std::string string_literal_;
-		std::shared_ptr<CommandNodeDescriptor> node_descriptor_;
-        std::function<bool()> predicate_;
-	    std::function<void(CommandContext const&)> callback_;
-
-	public:
-	    template <std::invocable Pred_>
-        auto addPredicate(Pred_ && pred) -> void {
-	        this->predicate_ = FWD(pred);
+	    CommandStringLiteral(CommandInfo info) : CommandBase<CommandStringLiteral>(info) {
+	        this->setProxy();
 	    }
-
-	    template <std::invocable Callback_>
-	    auto addCallback(Callback_ && callback) -> void {
-	        this->callback_ = FWD(callback_);
+	    CommandStringLiteral(std::string command_name, std::string command_help_message = "default",
+                                       std::optional<std::string> command_abbreviated_name = std::nullopt) :
+                    CommandBase(std::move(command_name), std::move(command_help_message), std::move(command_abbreviated_name)) {
+	        this->setProxy();
 	    }
-
-		[[nodiscard]] auto getNodeDescriptor() const -> std::weak_ptr<CommandNodeDescriptor> {
-			return this->node_descriptor_; 
-		}
-		auto setParentNode(std::weak_ptr<CommandNodeDescriptor> parent) -> void { 
-			if(auto ptr = parent.lock()) {
-				this->node_descriptor_->parent_node = ptr; 
-			}
-		}
-		auto addChildNode(std::weak_ptr<CommandNodeDescriptor> child) -> void {
-			if(auto ptr = child.lock()) {
-				this->node_descriptor_->child_nodes.insert(ptr);
-			}
-		}
-
 		auto tryAcceptCommand(std::string_view cmd) -> void {
 
-		}
-	
-		CommandStringLiteral(std::string_view string_literal)
-			: 
-			string_literal_(string_literal), 
-			node_descriptor_(std::make_shared<CommandNodeDescriptor>())
-		{
-			this->node_descriptor_->self = pro::make_proxy<poly::CommandNodeFacade>(*this);
-		}
+	    }
 	};
 }

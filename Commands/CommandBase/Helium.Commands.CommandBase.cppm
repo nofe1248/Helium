@@ -6,10 +6,10 @@
 module;
 
 #include <memory>
-#include <utility>
-#include <string>
-
+#include <optional>
 #include <plf_hive.h>
+#include <string>
+#include <utility>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -18,50 +18,94 @@ module;
 export module Helium.Commands.CommandBase;
 
 import Helium.Base;
+import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 
-namespace helium::commands::details {
-	template <typename Derived_>
-	class CRTPHelper {
-	public:
-		using Derived = Derived_;
-		auto underlyingClass() -> Derived& { return static_cast<Derived&>(*this); }
-		auto underlyingClass() const -> Derived const& { return static_cast<Derived const&>(*this); }
-	};
-}
-
 export namespace helium::commands {
-	struct CommandNodeDescriptor {
-		std::shared_ptr<CommandNodeDescriptor> parent_node;
-		plf::hive<std::shared_ptr<CommandNodeDescriptor>> child_nodes;
-		pro::proxy<poly::CommandNodeFacade> self;
-	};
+    struct CommandNodeDescriptor {
+        std::shared_ptr<CommandNodeDescriptor> parent_node;
+        plf::hive<std::shared_ptr<CommandNodeDescriptor>> child_nodes;
+        pro::proxy<poly::CommandNodeFacade> self;
+    };
 
-	template <typename Derived_>
-	class CommandBase : public details::CRTPHelper<Derived_>, public HeliumObject {
-	public:
-		using Derived = Derived_;
+    struct CommandInfo {
+        std::string name = "default";
+        std::string help_message = "default";
+        std::optional<std::string> abbreviated_name = std::nullopt;
+    };
 
-		template <typename Next_>
-		[[nodiscard]]
-		constexpr auto then(Next_&& next_node) && {
-			FWD(next_node).setParentNode(this->underlyingClass().getNodeDescriptor());
-			this->underlyingClass().addChildNode(FWD(next_node).getNodeDescriptor());
-			return next_node;
-		}
+    template<typename Derived_>
+    class CommandBase : public HeliumObject {
+    public:
+        using Derived = Derived_;
 
-		template <std::invocable Callback_>
-		[[nodiscard]]
-		constexpr auto execute(Callback_&& callback) && {
-		    this->underlyingClass().addCallback(FWD(callback));
-			return Derived(std::move(this->underlyingClass()));
-		}
+    protected:
+        CommandInfo info_;
+        std::function<bool()> predicate_;
+        std::function<void(CommandContext const &)> callback_;
+        std::shared_ptr<CommandNodeDescriptor> node_descriptor_;
 
-		template <std::invocable Pred_>
-		[[nodiscard]]
-		constexpr auto require(Pred_&& pred) && {
-		    this->underlyingClass().addPredicate(FWD(pred));
-			return Derived(std::move(this->underlyingClass()));
-		}
-	};
-}
+        auto setProxy(this auto &&self) -> void {
+            FWD(self).node_descriptor_->self = pro::make_proxy<poly::CommandNodeFacade>(FWD(self));
+        }
+
+        template<std::invocable Pred_>
+        auto addPredicate(this auto &&self, Pred_ &&pred) -> void {
+            FWD(self).predicate_ = FWD(pred);
+        }
+
+        template<std::invocable<CommandContext const &> Callback_>
+        auto addCallback(this auto &&self, Callback_ &&callback) -> void {
+            FWD(self).callback_ = FWD(callback);
+        }
+
+    public:
+        CommandBase(CommandInfo info) :
+            info_(std::move(info)), node_descriptor_(std::make_shared<CommandNodeDescriptor>()) {}
+        CommandBase(std::string command_name, std::string command_help_message = "default",
+                    std::optional<std::string> command_abbreviated_name = std::nullopt) :
+            info_{.name = std::move(command_name),
+                  .help_message = std::move(command_help_message),
+                  .abbreviated_name = std::move(command_abbreviated_name)},
+            node_descriptor_(std::make_shared<CommandNodeDescriptor>()) {}
+        CommandBase() = delete;
+        CommandBase(CommandBase const &) = default;
+        CommandBase(CommandBase &&) noexcept = default;
+
+        auto operator=(CommandBase const &) -> CommandBase & = default;
+        auto operator=(CommandBase &&) noexcept -> CommandBase & = default;
+
+        [[nodiscard]] auto getNodeDescriptor(this auto &&self) -> std::weak_ptr<CommandNodeDescriptor> {
+            return FWD(self).node_descriptor_;
+        }
+        auto setParentNode(this auto &&self, std::weak_ptr<CommandNodeDescriptor> const parent) -> void {
+            if (auto ptr = parent.lock()) {
+                FWD(self).node_descriptor_->parent_node = ptr;
+            }
+        }
+        auto addChildNode(this auto &&self, std::weak_ptr<CommandNodeDescriptor> const child) -> void {
+            if (auto ptr = child.lock()) {
+                FWD(self).node_descriptor_->child_nodes.insert(ptr);
+            }
+        }
+
+        template<typename Next_>
+        [[nodiscard]] constexpr decltype(auto) then(this auto &&self, Next_ &&next_node) {
+            FWD(next_node).setParentNode(FWD(self).getNodeDescriptor());
+            FWD(self).addChildNode(FWD(next_node).getNodeDescriptor());
+            return next_node;
+        }
+
+        template<std::invocable<CommandContext const &> Callback_>
+        [[nodiscard]] constexpr auto execute(this auto &&self, Callback_ &&callback) {
+            FWD(self).addCallback(FWD(callback));
+            return Derived(std::move(FWD(self)));
+        }
+
+        template<std::invocable Pred_>
+        [[nodiscard]] constexpr auto require(this auto &&self, Pred_ &&pred) {
+            FWD(self).addPredicate(FWD(pred));
+            return Derived(std::move(FWD(self)));
+        }
+    };
+} // namespace helium::commands

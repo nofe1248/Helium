@@ -5,10 +5,10 @@
 
 module;
 
-#include <concepts>
 #include <functional>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <proxy/proxy.h>
@@ -23,87 +23,60 @@ import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 
 export namespace helium::commands {
-	template <concepts::IsFloatingPoint FPType_>
-	struct FloatingPointMax { FPType_ max = std::numeric_limits<FPType_>::max(); };
+    template<concepts::IsFloatingPoint FPType_>
+    struct FloatingPointMax {
+        FPType_ max = std::numeric_limits<FPType_>::max();
+    };
 
-	template <concepts::IsFloatingPoint FPType_>
-	struct FloatingPointMin { FPType_ min = std::numeric_limits<FPType_>::min(); };
+    template<concepts::IsFloatingPoint FPType_>
+    struct FloatingPointMin {
+        FPType_ min = std::numeric_limits<FPType_>::min();
+    };
 
-	template <concepts::IsFloatingPoint FPType_>
-	class FloatingPointBound
-	{
-	public:
-		using FloatingPointType = FPType_;
-		using FloatingPointMaxType = FloatingPointMax<FloatingPointType>;
-		using FloatingPointMinType = FloatingPointMin<FloatingPointType>;
+    template<concepts::IsFloatingPoint FPType_>
+    class FloatingPointBound {
+    public:
+        using FloatingPointType = FPType_;
+        using FloatingPointMaxType = FloatingPointMax<FloatingPointType>;
+        using FloatingPointMinType = FloatingPointMin<FloatingPointType>;
 
-	private:
-		FloatingPointMaxType max_{};
-		FloatingPointMinType min_{};
+    private:
+        FloatingPointMaxType max_{};
+        FloatingPointMinType min_{};
 
-	public:
-		constexpr explicit FloatingPointBound(FloatingPointMaxType max, FloatingPointMinType min) : max_(max), min_(min)
-		{}
-		constexpr explicit FloatingPointBound(FloatingPointMinType min) : FloatingPointBound(FloatingPointMaxType{}, min)
-		{}
-		constexpr explicit FloatingPointBound(FloatingPointMaxType max) : FloatingPointBound(max, FloatingPointMinType{})
-		{}
-		constexpr explicit FloatingPointBound(FloatingPointMinType min, FloatingPointMaxType max) : FloatingPointBound(max, min) 
-		{}
-		constexpr explicit FloatingPointBound() : FloatingPointBound(FloatingPointMaxType{}, FloatingPointMinType{})
-		{}
-	};
+    public:
+        constexpr explicit FloatingPointBound(FloatingPointMaxType max, FloatingPointMinType min) :
+            max_(max), min_(min) {}
+        constexpr explicit FloatingPointBound(FloatingPointMinType min) :
+            FloatingPointBound(FloatingPointMaxType{}, min) {}
+        constexpr explicit FloatingPointBound(FloatingPointMaxType max) :
+            FloatingPointBound(max, FloatingPointMinType{}) {}
+        constexpr explicit FloatingPointBound(FloatingPointMinType min, FloatingPointMaxType max) :
+            FloatingPointBound(max, min) {}
+        constexpr explicit FloatingPointBound() : FloatingPointBound(FloatingPointMaxType{}, FloatingPointMinType{}) {}
+    };
 
-	template <concepts::IsFloatingPoint FPType_>
-	class CommandArgumentFloatingPoint
-		: public CommandBase<CommandArgumentFloatingPoint<FPType_>>, public details::TagCommandArgument
-    {
-	public:
-		using FloatingPointType = FPType_;
-		using FloatingPointBoundType = FloatingPointBound<FloatingPointType>;
-		using super = CommandBase<CommandArgumentFloatingPoint<FloatingPointType>>;
+    template<concepts::IsFloatingPoint FPType_>
+    class CommandArgumentFloatingPoint : public CommandBase<CommandArgumentFloatingPoint<FPType_>>,
+                                         public details::TagCommandArgument {
+    public:
+        using FloatingPointType = FPType_;
+        using FloatingPointBoundType = FloatingPointBound<FloatingPointType>;
+        using super = CommandBase<CommandArgumentFloatingPoint<FloatingPointType>>;
 
-	private:
-		FloatingPointBoundType bound_;
-		std::shared_ptr<CommandNodeDescriptor> node_descriptor_;
-	    std::function<bool()> predicate_;
-	    std::function<void(CommandContext const&)> callback_;
+    private:
+        FloatingPointBoundType bound_{};
 
-	public:
-	    template <std::invocable Pred_>
-        auto addPredicate(Pred_ && pred) -> void {
-	        this->predicate_ = FWD(pred);
-	    }
-
-	    template <std::invocable Callback_>
-        auto addCallback(Callback_ && callback) -> void {
-	        this->callback_ = FWD(callback_);
-	    }
-
-		auto getNodeDescriptor() const -> std::weak_ptr<CommandNodeDescriptor> { 
-			return this->node_descriptor_; 
-		}
-		auto setParentNode(std::weak_ptr<CommandNodeDescriptor> parent) -> void { 
-			if(auto ptr = parent.lock()) {
-				this->node_descriptor_->parent_node = ptr; 
-			}
-		}
-		auto addChildNode(std::weak_ptr<CommandNodeDescriptor> child) -> void {
-			if(auto ptr = child.lock()) {
-				this->node_descriptor_->child_nodes.insert(ptr);
-			}
-		}
-
-		auto tryAcceptCommand(std::string_view cmd) -> void {
-
-		}
-
-		CommandArgumentFloatingPoint(FloatingPointBound<FloatingPointType> bound)
-			:
-			bound_(bound),
-			node_descriptor_(std::make_shared<CommandNodeDescriptor>())
-		{
-			this->node_descriptor_->self = pro::make_proxy<poly::CommandNodeFacade>(*this);
-		}
-	};
-}
+    public:
+        CommandArgumentFloatingPoint(CommandInfo info) : CommandBase<CommandArgumentFloatingPoint>(info) {
+            this->setProxy();
+        }
+        CommandArgumentFloatingPoint(std::string command_name, std::string command_help_message = "default",
+                                     std::optional<std::string> command_abbreviated_name = std::nullopt) :
+            CommandBase<CommandArgumentFloatingPoint>(std::move(command_name), std::move(command_help_message),
+                                                      std::move(command_abbreviated_name)) {
+            this->setProxy();
+        }
+        auto tryAcceptCommand(std::string_view cmd) -> void {}
+    };
+} // namespace helium::commands

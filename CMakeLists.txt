@@ -31,6 +31,7 @@ target_sources(
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.cppm
         Commands/Concepts/Helium.Commands.Concepts.cppm
         Commands/Lexer/Helium.Commands.Lexer.cppm
+        Commands/Parser/Helium.Commands.Parser.cppm
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
         Config/ConfigManager/Helium.Config.ConfigManager.cppm

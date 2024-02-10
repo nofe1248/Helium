@@ -11,5 +11,6 @@ export import Helium.Commands.CommandContext;
 export import Helium.Commands.CommandDispatcher;
 export import Helium.Commands.CommandLiteral;
 export import Helium.Commands.Concepts;
-export import Helium.Commands.Test;
 export import Helium.Commands.Lexer;
+export import Helium.Commands.Parser;
+export import Helium.Commands.Test;
