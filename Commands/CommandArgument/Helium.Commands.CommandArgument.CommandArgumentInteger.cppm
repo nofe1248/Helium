@@ -20,6 +20,7 @@ export module Helium.Commands.CommandArgument.CommandArgumentInteger;
 
 import Helium.Base;
 import Helium.Commands.Concepts;
+import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.CommandBase;
 
@@ -54,21 +55,20 @@ export namespace helium::commands {
     };
 
     template<concepts::IsInteger IntegerType_ = std::int64_t>
-    class CommandArgumentInteger : public CommandBase<CommandArgumentInteger<IntegerType_>>,
-                                   public details::TagCommandArgument {
+    class CommandArgumentInteger : public CommandArgumentBase<CommandArgumentInteger<IntegerType_>> {
     public:
         using IntegerType = IntegerType_;
         using IntegerBoundType = IntegerBound<IntegerType>;
-        using super = CommandBase<CommandArgumentInteger<IntegerType>>;
+        using super = CommandArgumentBase<CommandArgumentInteger<IntegerType>>;
 
     private:
         IntegerBoundType bound_{};
 
     public:
-        CommandArgumentInteger(CommandInfo info) : CommandBase<CommandArgumentInteger>(info) { this->setProxy(); }
-        CommandArgumentInteger(std::string command_name, std::string command_help_message = "default",
+        constexpr CommandArgumentInteger(CommandInfo info) : CommandArgumentBase<CommandArgumentInteger>(info) { this->setProxy(); }
+        constexpr CommandArgumentInteger(std::string command_name, std::string command_help_message = "default",
                                std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandBase<CommandArgumentInteger>(std::move(command_name), std::move(command_help_message),
+            CommandArgumentBase<CommandArgumentInteger>(std::move(command_name), std::move(command_help_message),
                                                 std::move(command_abbreviated_name)) {
             this->setProxy();
         }

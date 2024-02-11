@@ -19,6 +19,7 @@ export module Helium.Commands.CommandArgument.CommandArgumentFloatingPoint;
 
 import Helium.Base;
 import Helium.Commands.CommandBase;
+import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 
@@ -57,23 +58,22 @@ export namespace helium::commands {
     };
 
     template<concepts::IsFloatingPoint FPType_>
-    class CommandArgumentFloatingPoint : public CommandBase<CommandArgumentFloatingPoint<FPType_>>,
-                                         public details::TagCommandArgument {
+    class CommandArgumentFloatingPoint : public CommandArgumentBase<CommandArgumentFloatingPoint<FPType_>> {
     public:
         using FloatingPointType = FPType_;
         using FloatingPointBoundType = FloatingPointBound<FloatingPointType>;
-        using super = CommandBase<CommandArgumentFloatingPoint<FloatingPointType>>;
+        using super = CommandArgumentBase<CommandArgumentFloatingPoint<FloatingPointType>>;
 
     private:
         FloatingPointBoundType bound_{};
 
     public:
-        CommandArgumentFloatingPoint(CommandInfo info) : CommandBase<CommandArgumentFloatingPoint>(info) {
+        constexpr CommandArgumentFloatingPoint(CommandInfo info) : CommandArgumentBase<CommandArgumentFloatingPoint>(info) {
             this->setProxy();
         }
-        CommandArgumentFloatingPoint(std::string command_name, std::string command_help_message = "default",
+        constexpr CommandArgumentFloatingPoint(std::string command_name, std::string command_help_message = "default",
                                      std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandBase<CommandArgumentFloatingPoint>(std::move(command_name), std::move(command_help_message),
+            CommandArgumentBase<CommandArgumentFloatingPoint>(std::move(command_name), std::move(command_help_message),
                                                       std::move(command_abbreviated_name)) {
             this->setProxy();
         }

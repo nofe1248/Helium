@@ -66,7 +66,7 @@ export namespace helium::commands::details {
 
 export namespace helium::commands::concepts {
 	template <typename Command_>
-	concept IsCommandBase = std::derived_from<Command_, CommandBase<Command_>>;
+	concept IsCommandNode = std::derived_from<Command_, CommandBase<Command_>>;
 
 	template <typename Command_>
 	concept IsCommandLiteral = std::derived_from<Command_, details::TagCommandLiteral>;

@@ -16,23 +16,23 @@ export module Helium.Commands.CommandArgument.CommandArgumentGreedyString;
 
 import Helium.Base;
 import Helium.Commands.CommandBase;
+import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 
 export namespace helium::commands {
     template<concepts::IsString StrType_>
-    class CommandArgumentGreedyString : public CommandBase<CommandArgumentGreedyString<StrType_>>,
-                                        public details::TagCommandArgument {
+    class CommandArgumentGreedyString : public CommandArgumentBase<CommandArgumentGreedyString<StrType_>> {
     public:
         using StringType = StrType_;
-        using super = CommandBase<CommandArgumentGreedyString>;
+        using super = CommandArgumentBase<CommandArgumentGreedyString>;
 
-        CommandArgumentGreedyString(CommandInfo info) : CommandBase<CommandArgumentGreedyString>(info) {
+        constexpr CommandArgumentGreedyString(CommandInfo info) : CommandArgumentBase<CommandArgumentGreedyString>(info) {
             this->setProxy();
         }
-        CommandArgumentGreedyString(std::string command_name, std::string command_help_message = "default",
+        constexpr CommandArgumentGreedyString(std::string command_name, std::string command_help_message = "default",
                                     std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandBase<CommandArgumentGreedyString>(std::move(command_name), std::move(command_help_message),
+            CommandArgumentBase<CommandArgumentGreedyString>(std::move(command_name), std::move(command_help_message),
                                                      std::move(command_abbreviated_name)) {
             this->setProxy();
         }

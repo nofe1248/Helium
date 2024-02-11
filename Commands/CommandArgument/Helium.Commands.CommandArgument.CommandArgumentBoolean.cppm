@@ -19,18 +19,19 @@ export module Helium.Commands.CommandArgument.CommandArgumentBoolean;
 
 import Helium.Base;
 import Helium.Commands.CommandBase;
+import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 
 export namespace helium::commands {
-    class CommandArgumentBoolean : public CommandBase<CommandArgumentBoolean>, public details::TagCommandArgument {
+    class CommandArgumentBoolean : public CommandArgumentBase<CommandArgumentBoolean> {
     public:
-        using super = CommandBase<CommandArgumentBoolean>;
+        using super = CommandArgumentBase<CommandArgumentBoolean>;
 
-        CommandArgumentBoolean(CommandInfo info) : CommandBase<CommandArgumentBoolean>(info) { this->setProxy(); }
-        CommandArgumentBoolean(std::string command_name, std::string command_help_message = "default",
+        constexpr CommandArgumentBoolean(CommandInfo info) : CommandArgumentBase(info) { this->setProxy(); }
+        constexpr CommandArgumentBoolean(std::string command_name, std::string command_help_message = "default",
                                std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandBase(std::move(command_name), std::move(command_help_message), std::move(command_abbreviated_name)) {
+            CommandArgumentBase(std::move(command_name), std::move(command_help_message), std::move(command_abbreviated_name)) {
             this->setProxy();
         }
 

@@ -17,6 +17,7 @@ target_sources(
         Base/Test/Helium.Base.Test.cppm
         Base/Version/Helium.Base.Version.cppm
         Base/Helium.Base.cppm
+        Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentFloatingPoint.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentGreedyString.cppm
@@ -27,8 +28,11 @@ target_sources(
         Commands/CommandBase/Helium.Commands.CommandBase.cppm
         Commands/CommandContext/Helium.Commands.CommandContext.cppm
         Commands/CommandDispatcher/Helium.Commands.CommandDispatcher.cppm
+        Commands/CommandLiteral/Helium.Commands.CommandLiteral.CommandLiteralBase.cppm
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.CommandStringLiteral.cppm
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.cppm
+        Commands/CommandSource/Helium.Commands.CommandSource.cppm
+        Commands/CommandSource/Helium.Commands.CommandSource.DefaultCommandSource.cppm
         Commands/Concepts/Helium.Commands.Concepts.cppm
         Commands/Lexer/Helium.Commands.Lexer.cppm
         Commands/Parser/Helium.Commands.Parser.cppm
