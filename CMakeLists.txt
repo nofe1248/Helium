@@ -14,6 +14,7 @@ target_sources(
     Helium PRIVATE
     FILE_SET helium_cxx_modules TYPE CXX_MODULES FILES
         Base/HeliumObject/Helium.Base.HeliumObject.cppm
+        Base/HeliumSharedObject/Helium.Base.HeliumSharedObject.cppm
         Base/Test/Helium.Base.Test.cppm
         Base/Version/Helium.Base.Version.cppm
         Base/Helium.Base.cppm
