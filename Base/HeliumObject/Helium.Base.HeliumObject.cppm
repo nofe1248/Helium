@@ -13,7 +13,7 @@ module;
 
 export module Helium.Base.HeliumObject;
 
-export namespace helium {
+export namespace helium::base {
     class HeliumObject {
     public:
         auto toString(this auto const& self) -> std::string {

@@ -9,7 +9,7 @@ import Helium.Base;
 import Helium.Commands.Concepts;
 
 export namespace helium::commands {
-	class CommandDispatcher : public HeliumObject
+	class CommandDispatcher : public base::HeliumObject
     {
 	public:
 		template <typename Command>

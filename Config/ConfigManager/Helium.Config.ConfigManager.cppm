@@ -12,7 +12,5 @@ export module Helium.Config.ConfigManager;
 import Helium.Base;
 
 export namespace helium {
-    class Config : public HeliumObject {
-
-    };
+    class Config : public base::HeliumObject {};
 }

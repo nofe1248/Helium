@@ -42,13 +42,13 @@ export import Helium.Modules;
 export import Helium.Utils;
 
 namespace helium::main {
-    auto logger = logger::Logger::getLogger("Main", "MainThread");
+    auto logger = logger::SharedLogger("Main", "MainThread");
 }
 
 export namespace helium::main {
     auto heliumMain(int argc, const char *argv[]) -> int {
         logger->info("Helium version {} running on OS: {} Version: {} Architecture: {}",
-                     version::helium_version.to_string(), Poco::Environment::osDisplayName(),
+                     base::helium_version.to_string(), Poco::Environment::osDisplayName(),
                      Poco::Environment::osVersion(), Poco::Environment::osArchitecture());
         cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
         options.add_options()("runTest", "Execute tests", cxxopts::value<bool>()->default_value("false"));

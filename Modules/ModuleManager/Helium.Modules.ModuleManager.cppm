@@ -5,8 +5,8 @@
 
 module;
 
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 export module Helium.Modules.ModuleManager;
 
@@ -15,16 +15,14 @@ import Helium.Modules.ModuleMetadata;
 import Helium.Modules.Module;
 
 export namespace helium::modules {
-	
+    class ModuleManager : public base::HeliumObject {
+    private:
+        std::unordered_map<ModuleMetadata, std::shared_ptr<Module>, ModuleMetadataHash> module_map;
 
-	class ModuleManager : public HeliumObject {
-	private:
-		std::unordered_map<ModuleMetadata, std::shared_ptr<Module>, ModuleMetadataHash> module_map;
-
-	public:
-		[[nodiscard]] static auto getInstance() -> ModuleManager& {
-			static ModuleManager instance;
-			return instance;
-		}
-	};
-}
+    public:
+        [[nodiscard]] static auto getInstance() -> ModuleManager & {
+            static ModuleManager instance;
+            return instance;
+        }
+    };
+} // namespace helium::modules

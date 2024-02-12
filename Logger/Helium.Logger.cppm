@@ -6,4 +6,5 @@
 export module Helium.Logger;
 
 export import Helium.Logger.LoggerImpl;
+export import Helium.Logger.SharedLogger;
 export import Helium.Logger.Test;

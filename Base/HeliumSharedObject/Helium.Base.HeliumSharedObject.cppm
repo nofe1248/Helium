@@ -21,7 +21,9 @@ namespace helium::base::details {
 
     template<typename T>
     constexpr inline bool is_const_v<const T> = true;
+} // namespace helium::base::details
 
+export namespace helium::base {
     template<typename T>
     class WeakRef {
     public:
@@ -29,7 +31,7 @@ namespace helium::base::details {
 
     private:
         using StateType = typename RefType::StateType;
-        using PointeeType = std::conditional_t<is_const_v<RefType>, const StateType, StateType>;
+        using PointeeType = std::conditional_t<details::is_const_v<RefType>, const StateType, StateType>;
         std::weak_ptr<PointeeType> weak_ptr_;
 
     public:
@@ -68,17 +70,6 @@ namespace helium::base::details {
     };
 
     template<typename Derived_, typename SharedState_>
-    class HeliumSharedObjectBase;
-
-    template<typename Derived_, typename SharedState_>
-    WeakRef(HeliumSharedObjectBase<Derived_, SharedState_> const&) -> WeakRef<Derived_>;
-
-    template<typename Derived_, typename SharedState_>
-    RefToConst(HeliumSharedObjectBase<Derived_, SharedState_> const&) -> RefToConst<Derived_>;
-} // namespace helium::base::details
-
-export namespace helium::base {
-    template<typename Derived_, typename SharedState_>
     class HeliumSharedObjectBase : public HeliumObject {
     public:
         using StateType = SharedState_;
@@ -87,9 +78,9 @@ export namespace helium::base {
         struct _emplace_ptr_tag {};
         using Derived = Derived_;
 
-        friend details::WeakRef<Derived>;
-        friend details::WeakRef<Derived const>;
-        friend details::RefToConst<Derived>;
+        friend WeakRef<Derived>;
+        friend WeakRef<Derived const>;
+        friend RefToConst<Derived>;
 
         std::shared_ptr<StateType> state_;
 
@@ -125,7 +116,7 @@ export namespace helium::base {
         HeliumSharedObjectBase(_emplace_ptr_tag, std::shared_ptr<StateType> &&ptr) noexcept : state_(std::move(ptr)) {}
 
         [[deprecated("Conversioon would remove 'const' qualifier on reference")]]
-        HeliumSharedObjectBase(details::RefToConst<Derived>) = delete;
+        HeliumSharedObjectBase(RefToConst<Derived>) = delete;
 
         auto operator->() const noexcept -> StateType * { return this->state_.get(); }
 
@@ -148,4 +139,10 @@ export namespace helium::base {
 
         [[nodiscard]] auto useCount() const noexcept -> long { return this->state_.use_count(); }
     };
+
+    template<typename Derived_, typename SharedState_>
+    WeakRef(HeliumSharedObjectBase<Derived_, SharedState_> const &) -> WeakRef<Derived_>;
+
+    template<typename Derived_, typename SharedState_>
+    RefToConst(HeliumSharedObjectBase<Derived_, SharedState_> const &) -> RefToConst<Derived_>;
 } // namespace helium::base

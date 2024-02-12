@@ -35,7 +35,7 @@ export namespace helium::commands {
     };
 
     template<typename Derived_>
-    class CommandBase : public HeliumObject {
+    class CommandBase : public base::HeliumObject {
     public:
         using Derived = Derived_;
 

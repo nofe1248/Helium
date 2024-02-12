@@ -54,6 +54,7 @@ target_sources(
         Exceptions/TerminateHandler/Helium.Exceptions.TerminateHandler.cppm
         Exceptions/Helium.Exceptions.cppm
         Logger/LoggerImpl/Helium.Logger.LoggerImpl.cppm
+        Logger/SharedLogger/Helium.Logger.SharedLogger.cppm
         Logger/Test/Helium.Logger.Test.cppm
         Logger/Helium.Logger.cppm
         Main/Helium.Main.cppm

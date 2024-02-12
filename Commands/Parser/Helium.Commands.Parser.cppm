@@ -14,7 +14,7 @@ import Helium.Commands.Concepts;
 
 export namespace helium::commands {
     template <concepts::IsString StrType_>
-    class CommandsParser : public HeliumObject {
+    class CommandsParser : public base::HeliumObject {
     public:
         using StringType = StrType_;
         using CharType = typename StringType::value_type;

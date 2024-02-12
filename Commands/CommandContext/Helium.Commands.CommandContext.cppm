@@ -10,7 +10,7 @@ export module Helium.Commands.CommandContext;
 import Helium.Base;
 
 export namespace helium::commands {
-    class CommandContext : public HeliumObject {
+    class CommandContext : public base::HeliumObject {
 
     };
 }
