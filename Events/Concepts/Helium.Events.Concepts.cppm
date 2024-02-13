@@ -27,8 +27,8 @@ export namespace helium::events::concepts {
 
     template<typename EventType, typename ListenerType>
     concept IsEventListener = std::movable<ListenerType> and std::copyable<ListenerType> and
-                            requires(EventType event_ins, ListenerType listener_ins) {
-                                { listener_ins.handle(event_ins) } -> std::same_as<void>;
+                              requires(EventType event_ins, ListenerType listener_ins) {
+                                  { listener_ins.handle(event_ins) } -> std::same_as<void>;
                                 { listener_ins.getPriority() } -> std::same_as<std::size_t>;
                             };
 
