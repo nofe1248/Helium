@@ -13,7 +13,7 @@ module;
 export module Helium.Events.Test;
 
 import Helium.Events.EventEmitter;
-import Helium.Events.EventEmitterPolicy;
+import Helium.Events.Policy;
 
 export namespace helium::events::test {
     using namespace boost::ut;
@@ -43,6 +43,9 @@ export namespace helium::events::test {
     auto testModule() -> void {
         boost::ut::test("Helium.Events Module Test #1") = [] {
             EventEmitter<MyPolicy> emitter;
-        }
+            emitter.a();
+            emitter.b();
+            emitter.c();
+        };
     }
 } // namespace helium::events::test

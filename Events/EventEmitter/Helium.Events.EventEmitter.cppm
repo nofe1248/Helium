@@ -9,13 +9,10 @@ module;
 #include <compare>
 #include <concepts>
 #include <string>
-#include <type_traits>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
 #define BOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT
 #endif
-
-#include <boost/mp11.hpp>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -25,10 +22,10 @@ export module Helium.Events.EventEmitter;
 import Helium.Base.HeliumObject;
 
 import Helium.Events.Concepts;
-import Helium.Events.EventEmitterPolicy;
+import Helium.Events.Policy;
 
 export namespace helium::events::details {
-    template<EventEmitterPolicy Policy_, typename MixinRoot_>
+    template<concepts::IsEventEmitterPolicy Policy_, typename MixinRoot_>
     class EventEmitterBase {
     protected:
         using ThisType = EventEmitterBase<Policy_, MixinRoot_>;
@@ -37,7 +34,7 @@ export namespace helium::events::details {
 
         using Policy = Policy_;
 
-        using Mixins = typename SelectMixins<Policy, details::hasTypeMixins<Policy>()>::Type;
+        using Mixins = typename SelectMixins<Policy, details::hasTypeMixins<Policy>>::Type;
 
     public:
         EventEmitterBase() = default;
@@ -49,16 +46,11 @@ export namespace helium::events::details {
 } // namespace helium::events::details
 
 export namespace helium::events {
-    template<EventEmitterPolicy Policy_>
-    class EventEmitter
-        : public details::InheritFromMixins<
-                  details::EventEmitterBase<Policy_, void>,
-                  typename details::SelectMixins<Policy_, details::hasTypeMixins<Policy_>()>::Type>::Type,
-          public base::HeliumObject {
-    public:
-        using super = typename details::InheritFromMixins<
-                details::EventEmitterBase<Policy_, void>,
-                typename details::SelectMixins<Policy_, details::hasTypeMixins<Policy_>()>::Type>::Type;
+    template<concepts::IsEventEmitterPolicy Policy_>
+    class EventEmitter : public BaseHelper<details::EventEmitterBase<Policy_, void>, Policy_>,
+                         public base::HeliumObject {
+    private:
+        using super = BaseHelper<details::EventEmitterBase<Policy_, void>, Policy_>;
 
     public:
         using super::super;

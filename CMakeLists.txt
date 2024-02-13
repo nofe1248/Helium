@@ -48,12 +48,16 @@ target_sources(
         Config/Test/Helium.Config.Test.cppm
         Config/Helium.Config.cppm
         Events/Concepts/Helium.Events.Concepts.cppm
+        Events/EventBus/Helium.Events.EventBus.cppm
         Events/EventEmitter/Helium.Events.EventEmitter.cppm
-        Events/EventEmitterPolicy/Helium.Events.EventEmitterPolicy.cppm
         Events/EventListener/Helium.Events.EventListener.cppm
         Events/EventManager/Helium.Events.EventManager.cppm
         Events/Helium/Helium.Events.Helium.cppm
         Events/ListenerStream/Helium.Events.ListenerStream.cppm
+        Events/Policy/Helium.Events.Policy.cppm
+        Events/Policy/Helium.Events.Policy.EventEmitterPolicy.cppm
+        Events/Policy/Helium.Events.Policy.EventListenerPolicy.cppm
+        Events/Policy/Helium.Events.Policy.PolicyHelper.cppm
         Events/Test/Helium.Events.Test.cppm
         Events/Helium.Events.cppm
         Exceptions/TerminateHandler/Helium.Exceptions.TerminateHandler.cppm
