@@ -12,7 +12,7 @@ module;
 
 export module Helium.Config.Test;
 
-import Helium.Config.ConfigManager;
+import Helium.Config.ConfigImpl;
 
 export namespace helium::config::test
 {

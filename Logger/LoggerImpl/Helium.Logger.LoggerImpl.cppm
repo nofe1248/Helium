@@ -30,7 +30,7 @@ export namespace helium::logger {
 
     class LoggerImpl {
     private:
-		std::string name_;
+        std::string name_;
 	    std::string thread_;
 		std::shared_ptr<spdlog::logger> logger_ptr_;
 
@@ -47,13 +47,12 @@ export namespace helium::logger {
 		}
 	public:
         explicit LoggerImpl(std::string_view const name, std::string_view const thread)
-			:	name_(name),
-	            thread_(thread), logger_ptr_(LoggerImpl::initLogger(this->name_)) {}
+			:	name_(name), thread_(thread), logger_ptr_(LoggerImpl::initLogger(this->name_)) {}
 
         [[nodiscard]] static auto getLogger(std::string_view const name, std::string_view const thread)
                 -> std::shared_ptr<LoggerImpl> {
             auto logger_ptr = std::make_shared<LoggerImpl>(name, thread);
-			return logger_ptr;
+            return logger_ptr;
 		}
 
 		template <typename ... Args>

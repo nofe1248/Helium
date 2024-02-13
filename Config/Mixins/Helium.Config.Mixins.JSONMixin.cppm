@@ -1,5 +1,5 @@
 /*
-* Helium is an open source software distributed under the MIT license.
+ * Helium is an open source software distributed under the MIT license.
  * Please refer to Helium.Main.ixx for full license info.
  */
 
@@ -24,8 +24,10 @@ export namespace helium::config::mixins {
     private:
         fs::path config_path_;
 
-        SimdJsonMixin(fs::path const& config_path) : config_path_(config_path) {}
-        SimdJsonMixin(fs::path && config_path) : config_path_(std::move(config_path)) {}
+        SimdJsonMixin(fs::path const &config_path) : config_path_(config_path) {}
+        SimdJsonMixin(fs::path &&config_path) : config_path_(std::move(config_path)) {}
+
+    public:
     };
 
     class NlohmannJsonMixin {
@@ -34,9 +36,11 @@ export namespace helium::config::mixins {
     private:
         fs::path config_path_;
 
-        NlohmannJsonMixin(fs::path const& config_path) : config_path_(config_path) {}
-        NlohmannJsonMixin(fs::path && config_path) : config_path_(std::move(config_path)) {}
+        NlohmannJsonMixin(fs::path const &config_path) : config_path_(config_path) {}
+        NlohmannJsonMixin(fs::path &&config_path) : config_path_(std::move(config_path)) {}
+
+    public:
     };
 
-    using DefaultJsonMixin = NlohmannJsonMixin;
-}
+    using DefaultJsonMixin = SimdJsonMixin;
+} // namespace helium::config::mixins

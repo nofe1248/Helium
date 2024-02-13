@@ -5,14 +5,14 @@
 
 module;
 
-#include <compare>
 #include <algorithm>
+#include <compare>
 #include <concepts>
+#include <string>
 #include <type_traits>
-#include <string>;
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
-	#define BOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT
+#define BOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT
 #endif
 
 #include <boost/mp11.hpp>
@@ -22,81 +22,45 @@ module;
 
 export module Helium.Events.EventEmitter;
 
+import Helium.Base.HeliumObject;
+
 import Helium.Events.Concepts;
 import Helium.Events.EventEmitterPolicy;
 
-export namespace helium::events::internal {
-	template 
-		<
-			EventEmitterPolicy _Policy,
-			typename _MixinRoot
-		>
-	class EventEmitterBase
-	{
-	protected:
-		using ThisType = EventEmitterBase<_Policy, _MixinRoot>;
+export namespace helium::events::details {
+    template<EventEmitterPolicy Policy_, typename MixinRoot_>
+    class EventEmitterBase {
+    protected:
+        using ThisType = EventEmitterBase<Policy_, MixinRoot_>;
 
-		using MixinRoot = typename std::conditional_t<
-			std::same_as<_MixinRoot, void>,
-			ThisType,
-			_MixinRoot
-		>;
+        using MixinRoot = std::conditional_t<std::same_as<MixinRoot_, void>, ThisType, MixinRoot_>;
 
-		using Policy = _Policy;
+        using Policy = Policy_;
 
-		using Mixins = typename SelectMixins<
-			Policy,
-			internal::hasTypeMixins<Policy>()
-		>::Type;
+        using Mixins = typename SelectMixins<Policy, details::hasTypeMixins<Policy>()>::Type;
 
-	public:
-		EventEmitterBase() = default;
-		EventEmitterBase(EventEmitterBase const& that) = default;
-		EventEmitterBase(EventEmitterBase && that) noexcept = default;
-		auto operator=(EventEmitterBase const& that) -> EventEmitterBase& = default;
-		auto operator=(EventEmitterBase && that) noexcept -> EventEmitterBase& = default;
-	};
-}
+    public:
+        EventEmitterBase() = default;
+        EventEmitterBase(EventEmitterBase const &that) = default;
+        EventEmitterBase(EventEmitterBase &&that) noexcept = default;
+        auto operator=(EventEmitterBase const &that) -> EventEmitterBase & = default;
+        auto operator=(EventEmitterBase &&that) noexcept -> EventEmitterBase & = default;
+    };
+} // namespace helium::events::details
 
 export namespace helium::events {
-	template <EventEmitterPolicy _Policy>
-	class EventEmitter
-		: public 
-		internal::InheritFromMixins<
-			internal::EventEmitterBase<_Policy, void>, 
-			typename internal::SelectMixins<_Policy, internal::hasTypeMixins<_Policy>()>::Type
-		>::Type 
-	{
-	private:
-		using super = internal::InheritFromMixins<
-			internal::EventEmitterBase<_Policy, void>, 
-			typename internal::SelectMixins<_Policy, internal::hasTypeMixins<_Policy>()>::Type
-		>::Type;
-	public:
-		using super::super;
-	};
+    template<EventEmitterPolicy Policy_>
+    class EventEmitter
+        : public details::InheritFromMixins<
+                  details::EventEmitterBase<Policy_, void>,
+                  typename details::SelectMixins<Policy_, details::hasTypeMixins<Policy_>()>::Type>::Type,
+          public base::HeliumObject {
+    public:
+        using super = typename details::InheritFromMixins<
+                details::EventEmitterBase<Policy_, void>,
+                typename details::SelectMixins<Policy_, details::hasTypeMixins<Policy_>()>::Type>::Type;
 
-	template <typename Base> struct A : public Base 
-	{
-		using super = Base;
-		int a() { return 0; };
-	};
-	template <typename Base> struct B : public Base 
-	{
-		using super = Base;
-		double b() { return 1.0f; };
-	};
-	template <typename Base> struct C : public Base 
-	{
-		using super = Base;
-		bool c() { return true; };
-	};
-	struct MyPolicy {
-		using Mixins = EventEmitterMixinList<A, B, C>;
-	};
-
-	void foo() {
-		EventEmitter<MyPolicy> emitter;
-		//emitter.a();
-	}
-}
+    public:
+        using super::super;
+    };
+} // namespace helium::events
