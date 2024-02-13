@@ -39,7 +39,12 @@ target_sources(
         Commands/Parser/Helium.Commands.Parser.cppm
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
-        Config/ConfigManager/Helium.Config.ConfigManager.cppm
+        Config/Concepts/Helium.Config.Concepts.cppm
+        Config/ConfigImpl/Helium.Config.ConfigImpl.cppm
+        Config/Mixins/Helium.Config.Mixins.cppm
+        Config/Mixins/Helium.Config.Mixins.JSONMixin.cppm
+        Config/Mixins/Helium.Config.Mixins.YAMLMixin.cppm
+        Config/SharedConfig/Helium.Config.SharedConfig.cppm
         Config/Test/Helium.Config.Test.cppm
         Config/Helium.Config.cppm
         Events/Concepts/Helium.Events.Concepts.cppm
@@ -135,3 +140,12 @@ target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
 
 find_path(PLF_NANOTIMER_INCLUDE_DIRS "plf_nanotimer.h")
 target_include_directories(Helium PRIVATE ${PLF_NANOTIMER_INCLUDE_DIRS})
+
+find_package(yaml-cpp CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE yaml-cpp::yaml-cpp)
+
+find_package(ryml CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE ryml::ryml)
+
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)

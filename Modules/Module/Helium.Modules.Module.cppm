@@ -23,8 +23,8 @@ export namespace helium::modules {
 		Disabled,
 	};
 
-	class Module : public base::HeliumObject {
-	private:
+    class Module : public base::HeliumObject {
+    private:
 		ModuleState state_{ModuleState::Empty};
 		std::shared_ptr<boost::dll::experimental::smart_library> module_;
 
