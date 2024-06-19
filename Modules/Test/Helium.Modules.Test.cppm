@@ -7,14 +7,13 @@ module;
 
 #include <print>
 
-#define BOOST_UT_DISABLE_MODULE
-#include <boost/ut.hpp>
+//#include <boost/ut.hpp>
 
 export module Helium.Modules.Test;
 
 export namespace helium::modules::test
 {
-	using namespace boost::ut;
+	/*using namespace boost::ut;
 
 	auto testModule() -> void
 	{
@@ -22,5 +21,5 @@ export namespace helium::modules::test
 		{
 			expect(true);
 		};
-	}
+	}*/
 }

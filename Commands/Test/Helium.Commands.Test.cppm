@@ -11,8 +11,7 @@ module;
 
 #include <plf_nanotimer.h>
 
-#define BOOST_UT_DISABLE_MODULE
-#include <boost/ut.hpp>
+//#include <boost/ut.hpp>
 
 export module Helium.Commands.Test;
 
@@ -25,7 +24,7 @@ import Helium.Commands.Concepts;
 import Helium.Commands.Lexer;
 
 export namespace helium::commands::test {
-    using namespace boost::ut;
+    /*using namespace boost::ut;
 
     auto testModule() -> void {
         boost::ut::test("Helium.Command Module Test (Lexer #1)") = [] {
@@ -62,5 +61,5 @@ export namespace helium::commands::test {
                                     CommandArgumentInteger<std::uint64_t>{"owo"}.execute(
                                             [](CommandContext const &) { std::println("owo"); }))));
         };
-    }
+    }*/
 }

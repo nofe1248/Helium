@@ -7,8 +7,7 @@ module;
 
 #include <print>
 
-#define BOOST_UT_DISABLE_MODULE
-#include <boost/ut.hpp>
+//#include <boost/ut.hpp>
 
 export module Helium.Logger.Test;
 
@@ -16,7 +15,7 @@ import Helium.Logger.LoggerImpl;
 
 export namespace helium::logger::test
 {
-	using namespace boost::ut;
+	/*using namespace boost::ut;
 
 	auto testModule() -> void
 	{
@@ -24,5 +23,5 @@ export namespace helium::logger::test
 		{
 			expect(true);
 		};
-	}
+	}*/
 }

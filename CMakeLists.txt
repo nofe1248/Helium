@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
+add_compile_definitions(BOOST_UT_DISABLE_MODULE)
+add_compile_definitions(SPDLOG_USE_STD_FORMAT)
+
 cmake_policy(VERSION 3.28)
 
 add_executable(Helium)
@@ -39,14 +42,6 @@ target_sources(
         Commands/Parser/Helium.Commands.Parser.cppm
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
-        Config/Concepts/Helium.Config.Concepts.cppm
-        Config/ConfigImpl/Helium.Config.ConfigImpl.cppm
-        Config/Mixins/Helium.Config.Mixins.cppm
-        Config/Mixins/Helium.Config.Mixins.JSONMixin.cppm
-        Config/Mixins/Helium.Config.Mixins.YAMLMixin.cppm
-        Config/SharedConfig/Helium.Config.SharedConfig.cppm
-        Config/Test/Helium.Config.Test.cppm
-        Config/Helium.Config.cppm
         Events/Concepts/Helium.Events.Concepts.cppm
         Events/EventBus/Helium.Events.EventBus.cppm
         Events/EventEmitter/Helium.Events.EventEmitter.cppm
@@ -91,17 +86,8 @@ target_link_libraries(Helium PRIVATE Boost::ut)
 find_package(Boost REQUIRED context filesystem program_options regex system thread chrono atomic)
 target_link_libraries(Helium PRIVATE Boost::boost Boost::context Boost::filesystem Boost::program_options Boost::regex Boost::system Boost::thread Boost::chrono Boost::atomic)
 
-#find_package(concurrencpp CONFIG REQUIRED)
-#target_link_libraries(Helium PRIVATE concurrencpp::concurrencpp)
-
-#find_package(flux CONFIG REQUIRED)
-#target_link_libraries(Helium PRIVATE flux::flux)
-
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE fmt::fmt)
-
-#find_package(FunctionalPlus CONFIG REQUIRED)
-#target_link_libraries(Helium PRIVATE FunctionalPlus::fplus)
 
 find_package(libdwarf CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE libdwarf::dwarf)
@@ -115,8 +101,8 @@ target_link_libraries(Helium PRIVATE Microsoft.GSL::GSL)
 find_package(nameof CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE nameof::nameof)
 
-find_path(NEARGYE_SEMVER_INCLUDE_DIRS "neargye/semver.hpp")
-target_include_directories(Helium PRIVATE ${NEARGYE_SEMVER_INCLUDE_DIRS})
+find_path(semver "neargye/semver.hpp")
+target_include_directories(Helium PRIVATE semver)
 
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
@@ -124,20 +110,11 @@ target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
 find_path(PLF_COLONY_INCLUDE_DIRS "plf_colony.h")
 target_include_directories(Helium PRIVATE ${PLF_COLONY_INCLUDE_DIRS})
 
-find_package(Poco REQUIRED Foundation)
-target_link_libraries(Helium PRIVATE Poco::Foundation)
-
 find_package(proxy CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE msft_proxy)
 
-find_path(SCOPE_GUARD_INCLUDE_DIRS "scope_guard.hpp")
-target_include_directories(Helium PRIVATE ${SCOPE_GUARD_INCLUDE_DIRS})
-
-find_package(simdjson CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE simdjson::simdjson)
-
 find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE spdlog::spdlog)
+target_link_libraries(Helium PRIVATE spdlog::spdlog_header_only)
 
 find_package(stdexec CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
@@ -151,5 +128,11 @@ target_link_libraries(Helium PRIVATE yaml-cpp::yaml-cpp)
 find_package(ryml CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE ryml::ryml)
 
-find_package(nlohmann_json CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
+find_package(replxx CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE replxx::replxx)
+
+find_package(cxxopts CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE cxxopts::cxxopts)
+
+find_path(BEXT_SML2_INCLUDE_DIRS ")boost/sml2")
+target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})

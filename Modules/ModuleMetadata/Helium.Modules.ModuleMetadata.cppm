@@ -18,7 +18,7 @@ module;
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include <neargye/semver.hpp>
+#include <semver.hpp>
 
 export module Helium.Modules.ModuleMetadata;
 

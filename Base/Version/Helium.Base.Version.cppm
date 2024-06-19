@@ -4,7 +4,7 @@
  */
 module;
 
-#include <neargye/semver.hpp>
+#include <semver.hpp>
 
 export module Helium.Base.Version;
 

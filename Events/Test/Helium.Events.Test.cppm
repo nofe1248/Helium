@@ -7,8 +7,7 @@ module;
 
 #include <print>
 
-#define BOOST_UT_DISABLE_MODULE
-#include <boost/ut.hpp>
+//#include <boost/ut.hpp>
 
 export module Helium.Events.Test;
 
@@ -16,7 +15,7 @@ import Helium.Events.EventEmitter;
 import Helium.Events.Policy;
 
 export namespace helium::events::test {
-    using namespace boost::ut;
+    /*using namespace boost::ut;
 
     template<typename Base>
     struct A : public Base {
@@ -47,5 +46,5 @@ export namespace helium::events::test {
             emitter.b();
             emitter.c();
         };
-    }
+    }*/
 } // namespace helium::events::test

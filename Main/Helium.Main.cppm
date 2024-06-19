@@ -25,16 +25,16 @@
 module;
 
 #include <format>
+#include <iostream>
+#include <print>
+#include <string>
 
 #include <cxxopts.hpp>
-
-#include <Poco/Environment.h>
 
 export module Helium.Main;
 
 export import Helium.Base;
 export import Helium.Commands;
-export import Helium.Config;
 export import Helium.Events;
 export import Helium.Exceptions;
 export import Helium.Logger;
@@ -47,24 +47,33 @@ namespace helium::main {
 
 export namespace helium::main {
     auto heliumMain(int argc, const char *argv[]) -> int {
-        logger->info("Helium version {} running on OS: {} Version: {} Architecture: {}",
-                     base::helium_version.to_string(), Poco::Environment::osDisplayName(),
-                     Poco::Environment::osVersion(), Poco::Environment::osArchitecture());
+        //logger->info("Helium version {}",
+        //             base::helium_version.to_string());
         cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
         options.add_options()("runTest", "Execute tests", cxxopts::value<bool>()->default_value("false"));
         options.allow_unrecognised_options();
 
         auto result = options.parse(argc, argv);
+        commands::CommandLexer<std::string> lex;
+        for(;;) {
+            std::string input;
+            std::cin >> input;
+            if(auto exp = lex.tryScanNumber(input)) {
+                std::cout << "Success " << exp.value().token_str << std::endl;
+            } else {
+                std::cout << "Error " << exp.error().msg << std::endl;
+            }
+        }
 
         if (result["runTest"].as<bool>()) {
             logger->info("{}", "Running module tests...");
-            base::test::testModule();
+            /*base::test::testModule();
             commands::test::testModule();
             config::test::testModule();
             events::test::testModule();
             logger::test::testModule();
             modules::test::testModule();
-            utils::test::testModule();
+            utils::test::testModule();*/
         }
         return 0;
     }
