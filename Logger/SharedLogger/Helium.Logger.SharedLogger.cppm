@@ -6,6 +6,7 @@
 module;
 
 #include <string>
+#include <memory>
 
 export module Helium.Logger.SharedLogger;
 
@@ -19,5 +20,10 @@ export namespace helium::logger {
 
         SharedLogger(std::string_view const name, std::string_view const thread) :
             HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread))) {}
+
+        [[nodiscard]] static auto getSharedLogger(std::string_view const name, std::string_view const thread)
+                -> SharedLogger {
+            return SharedLogger(name, thread);
+        }
     };
 } // namespace helium::logger

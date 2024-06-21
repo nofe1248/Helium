@@ -7,19 +7,19 @@ module;
 
 #include <print>
 
-//#include <boost/ut.hpp>
+// #include <boost/ut.hpp>
 
 export module Helium.Utils.Test;
 
 export namespace helium::utils::test
 {
-	/*using namespace boost::ut;
+    /*using namespace boost::ut;
 
-	auto testModule() -> void
-	{
-		boost::ut::test("Helium.Utils Module Test #1") = []
-		{
-			expect(true);
-		};
-	}*/
+    auto testModule() -> void
+    {
+        boost::ut::test("Helium.Utils Module Test #1") = []
+        {
+            expect(true);
+        };
+    }*/
 }

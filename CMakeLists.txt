@@ -8,6 +8,7 @@ set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 add_compile_definitions(BOOST_UT_DISABLE_MODULE)
 add_compile_definitions(SPDLOG_USE_STD_FORMAT)
+add_compile_definitions(SPDLOG_NO_TLS)
 
 cmake_policy(VERSION 3.28)
 
