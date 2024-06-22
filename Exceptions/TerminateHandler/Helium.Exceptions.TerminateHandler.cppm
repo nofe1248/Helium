@@ -7,5 +7,5 @@ export module Helium.Exceptions.TerminateHandler;
 
 namespace helium::exceptions
 {
-	backward::SignalHandling sh;
+backward::SignalHandling sh;
 }

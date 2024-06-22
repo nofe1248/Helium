@@ -126,10 +126,8 @@ private:
         ++this->current_iterator_;
         if (this->current_iterator_ >= this->raw_command_.cend())
         {
-            logger->trace("getNext() called, current_iterator out of bound.");
             return std::nullopt;
         }
-        logger->trace("getNext() called, current character: {}", *this->current_iterator_);
         return *this->current_iterator_;
     }
 
@@ -144,26 +142,21 @@ private:
 
     auto tryScanToken() -> std::expected<TokenType, LexError>
     {
-        logger->trace("Skipping whitespaces");
         if (this->skipWhitespace())
         {
             char cur = this->getCurrent().value();
             if (std::isdigit(cur))
             {
-                logger->trace("Try to scan a number");
                 return this->tryScanNumber();
             }
             if (cur == '\"')
             {
-                logger->trace("Try to scan a quoted string");
                 return this->tryScanQuotedString();
             }
             if (auto exp = this->tryScanBooleanLiteral())
             {
-                logger->trace("Try to scan a boolean literal");
                 return exp;
             }
-            logger->trace("Try to scan a plain string");
             return this->tryScanPlainString();
         }
         return std::unexpected{LexError{"End of string"}};
@@ -302,13 +295,14 @@ private:
             };
         };
 
+        --this->current_iterator_;
         for (; this->current_iterator_ < this->raw_command_.cend();)
         {
             using namespace mpark::patterns;
             if (auto opt = this->getNext())
             {
                 char const cur = opt.value();
-                if(std::isblank(cur))
+                if (std::isblank(cur))
                 {
                     break;
                 }
@@ -396,12 +390,19 @@ private:
                     pattern('\"') = [&lex_continue] { lex_continue = false; },
                     pattern('\\') =
                         [this, &add_to_result, &no_lex_error_occurred, &error_str] {
-                            match(this->getNext())(
-                                pattern(char{-1}) =
-                                    [this, &no_lex_error_occurred, &error_str] {
-                                        no_lex_error_occurred = false;
-                                        error_str = std::format("Invalid string: missing closing quote : {}", this->raw_command_);
-                                    },
+                            char cur;
+                            if (auto opt = this->getNext())
+                            {
+                                cur = opt.value();
+                            }
+                            else
+                            {
+                                no_lex_error_occurred = false;
+                                error_str = std::format("Invalid string: missing closing quote : {}", this->raw_command_);
+                                return;
+                            }
+
+                            match(cur)(
                                 pattern('\"') = [&add_to_result] { add_to_result('\"'); }, pattern('\\') = [&add_to_result] { add_to_result('\\'); },
                                 pattern('/') = [&add_to_result] { add_to_result('/'); }, pattern('b') = [&add_to_result] { add_to_result('\b'); },
                                 pattern('f') = [&add_to_result] { add_to_result('\f'); }, pattern('n') = [&add_to_result] { add_to_result('\n'); },
@@ -602,6 +603,7 @@ private:
         }
         if (no_lex_error_occurred)
         {
+            ++this->current_iterator_;
             return Token<std::string>{TokenCategory::TOKEN_QUOTED_STRING, result_str};
         }
         return std::unexpected{LexError{error_str}};

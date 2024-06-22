@@ -24,9 +24,8 @@
 
 module;
 
-#include <format>
+#include <chrono>
 #include <iostream>
-#include <print>
 #include <ranges>
 #include <string>
 
@@ -42,41 +41,54 @@ export import Helium.Logger;
 export import Helium.Modules;
 export import Helium.Utils;
 
-namespace helium::main {
+namespace helium::main
+{
 auto logger = logger::SharedLogger::getSharedLogger("Main", "MainThread");
 }
 
-export namespace helium::main {
-    auto heliumMain(int argc, const char *argv[]) -> int {
-        logger->info("Helium version {}", base::helium_version.to_string());
-        cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
-        options.add_options()("runTest", "Execute tests", cxxopts::value<bool>()->default_value("false"));
-        options.allow_unrecognised_options();
+export namespace helium::main
+{
+auto heliumMain(int argc, const char *argv[]) -> int
+{
+    logger->info("Helium version {}", base::helium_version.to_string());
+    cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
+    options.add_options()("runTest", "Execute tests", cxxopts::value<bool>()->default_value("false"));
+    options.allow_unrecognised_options();
 
-        auto result = options.parse(argc, argv);
-        commands::CommandLexer<std::string> lex;
-        for (;;) {
-            std::string input;
-            std::getline(std::cin, input);
-            auto opt = lex.processCommand(input);
-            if (opt)
-            {
-                std::ranges::for_each(opt.value(), [](commands::Token<std::string> const &tok) { std::cout << tok.toString() << std::endl; });
-            }
+    auto result = options.parse(argc, argv);
+    commands::CommandLexer<std::string> lex;
+    for (;;)
+    {
+        std::string input;
+        std::getline(std::cin, input);
+        auto start = std::chrono::steady_clock::now();
+        auto opt = lex.processCommand(input);
+        auto end = std::chrono::steady_clock::now();
+        if (opt)
+        {
+            std::ranges::for_each(opt.value(), [](commands::Token<std::string> const &tok) { logger->trace("{}", tok.toString()); });
+            std::chrono::duration<double> duration = end - start;
+            logger->trace("Command lexing performance: {} {} {}", std::chrono::duration_cast<std::chrono::milliseconds>(duration),
+                          std::chrono::duration_cast<std::chrono::microseconds>(duration), std::chrono::duration_cast<std::chrono::nanoseconds>(duration));
         }
-
-        if (result["runTest"].as<bool>()) {
-            logger->info("{}", "Running module tests...");
-            /*base::test::testModule();
-            commands::test::testModule();
-            config::test::testModule();
-            events::test::testModule();
-            logger::test::testModule();
-            modules::test::testModule();
-            utils::test::testModule();*/
-        }
-        return 0;
     }
+
+    if (result["runTest"].as<bool>())
+    {
+        logger->info("{}", "Running module tests...");
+        /*base::test::testModule();
+        commands::test::testModule();
+        config::test::testModule();
+        events::test::testModule();
+        logger::test::testModule();
+        modules::test::testModule();
+        utils::test::testModule();*/
+    }
+    return 0;
+}
 } // namespace helium::main
 
-export auto main(int argc, const char *argv[]) -> int { return helium::main::heliumMain(argc, argv); }
+export auto main(int argc, const char *argv[]) -> int
+{
+    return helium::main::heliumMain(argc, argv);
+}

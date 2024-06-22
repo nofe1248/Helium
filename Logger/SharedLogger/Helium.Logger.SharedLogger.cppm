@@ -18,8 +18,8 @@ export namespace helium::logger {
     public:
         using HeliumSharedObjectBase::HeliumSharedObjectBase;
 
-        SharedLogger(std::string_view const name, std::string_view const thread) :
-            HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread))) {
+        SharedLogger(std::string_view const name, std::string_view const thread) : HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread)))
+        {
         }
 
         [[nodiscard]] static auto getSharedLogger(std::string_view const name, std::string_view const thread) -> SharedLogger
