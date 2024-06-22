@@ -13,13 +13,13 @@ export module Helium.Utils.Test;
 
 export namespace helium::utils::test
 {
-    /*using namespace boost::ut;
+/*using namespace boost::ut;
 
-    auto testModule() -> void
+auto testModule() -> void
+{
+    boost::ut::test("Helium.Utils Module Test #1") = []
     {
-        boost::ut::test("Helium.Utils Module Test #1") = []
-        {
-            expect(true);
-        };
-    }*/
+        expect(true);
+    };
+}*/
 }

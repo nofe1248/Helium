@@ -27,8 +27,8 @@ module;
 #include <format>
 #include <iostream>
 #include <print>
-#include <string>
 #include <ranges>
+#include <string>
 
 #include <cxxopts.hpp>
 
@@ -43,13 +43,12 @@ export import Helium.Modules;
 export import Helium.Utils;
 
 namespace helium::main {
-    auto logger = logger::SharedLogger::getSharedLogger("Main", "MainThread");
+auto logger = logger::SharedLogger::getSharedLogger("Main", "MainThread");
 }
 
 export namespace helium::main {
     auto heliumMain(int argc, const char *argv[]) -> int {
-        logger->info("Helium version {}",
-                      base::helium_version.to_string());
+        logger->info("Helium version {}", base::helium_version.to_string());
         cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
         options.add_options()("runTest", "Execute tests", cxxopts::value<bool>()->default_value("false"));
         options.allow_unrecognised_options();
@@ -60,10 +59,9 @@ export namespace helium::main {
             std::string input;
             std::getline(std::cin, input);
             auto opt = lex.processCommand(input);
-            if (opt) {
-                std::ranges::for_each(opt.value(), [](commands::Token<std::string> const& tok ) { std::cout << tok.toString() << std::endl; });
-            } else {
-                std::cout << "Error" << std::endl;
+            if (opt)
+            {
+                std::ranges::for_each(opt.value(), [](commands::Token<std::string> const &tok) { std::cout << tok.toString() << std::endl; });
             }
         }
 

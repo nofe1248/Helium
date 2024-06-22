@@ -42,9 +42,14 @@ private:
     {
         static auto stdout_sink{std::make_shared<spdlog::sinks::stdout_color_sink_mt>()};
         static auto file_sink{std::make_shared<spdlog::sinks::daily_file_sink_mt>("./logs/helium-log.log", 0, 0)};
+        stdout_sink->set_level(spdlog::level::trace);
+        file_sink->set_level(spdlog::level::info);
+
         auto vec = std::vector<spdlog::sink_ptr>{stdout_sink, file_sink};
         auto logger_ptr = std::make_shared<spdlog::logger>(name, begin(vec), end(vec));
         logger_ptr->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] %v");
+        logger_ptr->set_level(spdlog::level::trace);
+
         spdlog::register_logger(logger_ptr);
         return logger_ptr;
     }
