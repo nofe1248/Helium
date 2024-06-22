@@ -479,7 +479,7 @@ private:
                                             else if (codepoint <= 0x7FF)
                                             {
                                                 add_to_result(static_cast<char>(0xC0u | (static_cast<unsigned int>(codepoint) >> 6u)));
-                                                add_to_result(static_cast<char>(0x80u | (static_cast<unsigned int>(codepoint) >> 0x3Fu)));
+                                                add_to_result(static_cast<char>(0x80u | (static_cast<unsigned int>(codepoint) & 0x3Fu)));
                                             }
                                             else if (codepoint <= 0xFFFF)
                                             {

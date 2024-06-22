@@ -24,12 +24,13 @@
 
 module;
 
-#include <chrono>
 #include <iostream>
 #include <ranges>
 #include <string>
 
 #include <cxxopts.hpp>
+
+#include <plf_nanotimer.h>
 
 export module Helium.Main;
 
@@ -61,15 +62,16 @@ auto heliumMain(int argc, const char *argv[]) -> int
     {
         std::string input;
         std::getline(std::cin, input);
-        auto start = std::chrono::steady_clock::now();
+        plf::nanotimer timer;
+        timer.start();
         auto opt = lex.processCommand(input);
-        auto end = std::chrono::steady_clock::now();
+        auto ns = timer.get_elapsed_ns();
+        auto us = timer.get_elapsed_us();
+        auto ms = timer.get_elapsed_ms();
         if (opt)
         {
             std::ranges::for_each(opt.value(), [](commands::Token<std::string> const &tok) { logger->trace("{}", tok.toString()); });
-            std::chrono::duration<double> duration = end - start;
-            logger->trace("Command lexing performance: {} {} {}", std::chrono::duration_cast<std::chrono::milliseconds>(duration),
-                          std::chrono::duration_cast<std::chrono::microseconds>(duration), std::chrono::duration_cast<std::chrono::nanoseconds>(duration));
+            logger->trace("Command lexing performance: {}ms {}μs {}ns", ms, us, ns);
         }
     }
 

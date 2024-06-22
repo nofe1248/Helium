@@ -123,12 +123,6 @@ target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
 find_path(PLF_NANOTIMER_INCLUDE_DIRS "plf_nanotimer.h")
 target_include_directories(Helium PRIVATE ${PLF_NANOTIMER_INCLUDE_DIRS})
 
-find_package(yaml-cpp CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE yaml-cpp::yaml-cpp)
-
-find_package(ryml CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE ryml::ryml)
-
 find_package(replxx CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE replxx::replxx)
 
@@ -137,3 +131,7 @@ target_link_libraries(Helium PRIVATE cxxopts::cxxopts)
 
 find_path(BEXT_SML2_INCLUDE_DIRS ")boost/sml2")
 target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})
+
+find_package(Python COMPONENTS Interpreter Development)
+find_package(pybind11 CONFIG)
+target_link_libraries(Helium PRIVATE pybind11::embed)
