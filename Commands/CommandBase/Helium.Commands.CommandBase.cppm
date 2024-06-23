@@ -38,7 +38,7 @@ struct CommandNodeDescriptor
 
     std::function<bool(Token const &)> try_accept_token;
 
-    CommandNodeDescriptor(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+    CommandNodeDescriptor(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
         : node_name(std::move(command_name)), node_description(std::move(command_description)), node_abbreviated_name(std::move(command_abbreviated_name))
     {
     }
@@ -67,23 +67,24 @@ protected:
     }
 
 private:
-    constexpr auto tryInitCommandNode(this auto&& self) -> void
+    constexpr auto tryInitCommandNode(this auto &&self) -> void
     {
         using SelfType = std::decay_t<decltype(self)>;
-        if constexpr(requires(SelfType s) { s.initCommandNode(); })
+        if constexpr (requires(SelfType s) { s.initCommandNode(); })
         {
             FWD(self).initCommandNode();
         }
     }
 
 public:
-    constexpr CommandNodeBase(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+    constexpr CommandNodeBase(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : node_descriptor_(std::make_shared<CommandNodeDescriptor>())
     {
-        this->node_descriptor_->node_name = command_name;
-        this->node_descriptor_->node_description = command_description;
-        this->node_descriptor_->node_abbreviated_name = command_abbreviated_name;
+        this->node_descriptor_->node_name = std::move(command_name);
+        this->node_descriptor_->node_description = std::move(command_description);
+        this->node_descriptor_->node_abbreviated_name = std::move(command_abbreviated_name);
     }
-    constexpr CommandNodeBase(CommandNodeDescriptor info)
+    constexpr CommandNodeBase(CommandNodeDescriptor info) : node_descriptor_(std::make_shared<CommandNodeDescriptor>())
     {
         *this->node_descriptor_ = std::move(info);
     }
@@ -114,28 +115,28 @@ public:
         }
     }
 
-    template <typename Next_> [[nodiscard]] constexpr decltype(auto) then(this auto &&self, Next_ &&next_node)
+    template <typename... Next_> [[nodiscard]] constexpr decltype(auto) then(this auto &&self, Next_ &&...next_node)
     {
-        FWD(next_node).setParentNode(FWD(self).getNodeDescriptor());
-        FWD(self).addChildNode(FWD(next_node).getNodeDescriptor());
-        return next_node;
+        (FWD(next_node).setParentNode(FWD(self).getNodeDescriptor()), ...);
+        (FWD(self).addChildNode(FWD(next_node).getNodeDescriptor()), ...);
+        return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 
-    template <std::invocable<CommandContext const &> Callback_> [[nodiscard]] constexpr decltype(auto) execute(this auto &&self, Callback_ &&callback)
+    template <std::invocable<CommandContext const &>... Callback_> [[nodiscard]] constexpr decltype(auto) execute(this auto &&self, Callback_ &&...callback)
     {
-        FWD(self).addCallback(FWD(callback));
-        return Derived(std::move(FWD(self)));
+        (FWD(self).addCallback(FWD(callback)), ...);
+        return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 
-    template <std::invocable Pred_> [[nodiscard]] constexpr decltype(auto) require(this auto &&self, Pred_ &&pred)
+    template <std::invocable... Pred_> [[nodiscard]] constexpr decltype(auto) require(this auto &&self, Pred_ &&...pred)
     {
-        FWD(self).addPredicate(FWD(pred));
-        return Derived(std::move(FWD(self)));
+        (FWD(self).addPredicate(FWD(pred)), ...);
+        return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 
     template <concepts::IsCommandNode Redirect_> [[nodiscard]] constexpr decltype(auto) redirect(this auto &&self, Redirect_ &&redirect)
     {
-        return Derived(std::move(FWD(self)));
+        return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 };
 } // namespace helium::commands

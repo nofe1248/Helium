@@ -35,6 +35,7 @@ module;
 export module Helium.Main;
 
 export import Helium.Base;
+export import Helium.CLI;
 export import Helium.Commands;
 export import Helium.Events;
 export import Helium.Exceptions;
@@ -57,23 +58,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
     options.allow_unrecognised_options();
 
     auto result = options.parse(argc, argv);
-    commands::CommandLexer lex;
-    for (;;)
-    {
-        std::string input;
-        std::getline(std::cin, input);
-        plf::nanotimer timer;
-        timer.start();
-        auto opt = lex.processCommand(input);
-        auto ns = timer.get_elapsed_ns();
-        auto us = timer.get_elapsed_us();
-        auto ms = timer.get_elapsed_ms();
-        if (opt)
-        {
-            std::ranges::for_each(opt.value(), [](commands::Token const &tok) { logger->trace("{}", tok.toString()); });
-            logger->trace("Command lexing performance: {}ms {}μs {}ns", ms, us, ns);
-        }
-    }
 
     if (result["runTest"].as<bool>())
     {
@@ -86,6 +70,9 @@ auto heliumMain(int argc, const char *argv[]) -> int
         modules::test::testModule();
         utils::test::testModule();*/
     }
+
+    cli::mainCLILoop();
+
     return 0;
 }
 } // namespace helium::main

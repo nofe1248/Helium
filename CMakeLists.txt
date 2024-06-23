@@ -22,6 +22,8 @@ target_sources(
         Base/Test/Helium.Base.Test.cppm
         Base/Version/Helium.Base.Version.cppm
         Base/Helium.Base.cppm
+        CLI/Helium.CLI.cppm
+        CLI/CLIMainLoop/Helium.CLI.CLIMainLoop.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentFloatingPoint.cppm
@@ -39,7 +41,6 @@ target_sources(
         Commands/CommandSource/Helium.Commands.CommandSource.DefaultCommandSource.cppm
         Commands/Concepts/Helium.Commands.Concepts.cppm
         Commands/Lexer/Helium.Commands.Lexer.cppm
-        Commands/Parser/Helium.Commands.Parser.cppm
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
         Events/Concepts/Helium.Events.Concepts.cppm

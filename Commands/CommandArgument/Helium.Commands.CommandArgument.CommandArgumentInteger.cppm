@@ -43,7 +43,7 @@ private:
     }
 
 public:
-    constexpr CommandArgumentInteger(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+    constexpr CommandArgumentInteger(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
         : CommandArgumentBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
     {
         this->initCommandNode();
