@@ -19,15 +19,33 @@ import Helium.Commands.CommandBase;
 import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
+import Helium.Commands.Lexer;
 
-export namespace helium::commands {
-    template<concepts::IsString StrType_>
-    class CommandArgumentString : public CommandArgumentBase<CommandArgumentString<StrType_>> {
-    public:
-        using StringType = StrType_;
-        using super = CommandArgumentBase<CommandArgumentString>;
+export namespace helium::commands
+{
+class CommandArgumentString : public CommandArgumentBase
+{
+private:
+    auto initCommandNode() -> void
+    {
+        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
+            if (token.token_type == TokenCategory::TOKEN_QUOTED_STRING)
+            {
+                return true;
+            }
+            return false;
+        };
+    }
 
-        using CommandArgumentBase<CommandArgumentString>::CommandArgumentBase;
-        auto tryAcceptCommand(std::string_view cmd) -> void {}
-    };
+public:
+    constexpr CommandArgumentString(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : CommandArgumentBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    {
+        this->initCommandNode();
+    }
+    constexpr CommandArgumentString(CommandNodeDescriptor info) : CommandArgumentBase(std::move(info))
+    {
+        this->initCommandNode();
+    }
+};
 } // namespace helium::commands

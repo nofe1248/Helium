@@ -23,55 +23,34 @@ import Helium.Commands.Concepts;
 import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.CommandBase;
+import Helium.Commands.Lexer;
 
-export namespace helium::commands {
-    template<concepts::IsInteger IntegerType = std::int64_t>
-    struct IntegerBoundMin {
-        IntegerType value = std::numeric_limits<IntegerType>::min();
-    };
+export namespace helium::commands
+{
+template <concepts::IsInteger IntegerType_ = std::int64_t> class CommandArgumentInteger : public CommandArgumentBase
+{
+private:
+    auto initCommandNode() -> void
+    {
+        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
+            if (token.token_type == TokenCategory::TOKEN_INTEGER)
+            {
+                this->recent_accepted_raw_value = token.token_str;
+                return true;
+            }
+            return false;
+        };
+    }
 
-    template<concepts::IsInteger IntegerType = std::int64_t>
-    struct IntegerBoundMax {
-        IntegerType value = std::numeric_limits<IntegerType>::max();
-    };
-
-    template<concepts::IsInteger IntegerType_ = std::int64_t>
-    class IntegerBound {
-    public:
-        using IntegerType = IntegerType_;
-        using IntegerBoundMaxType = IntegerBoundMax<IntegerType>;
-        using IntegerBoundMinType = IntegerBoundMin<IntegerType>;
-
-    private:
-        IntegerBoundMaxType max_{};
-        IntegerBoundMinType min_{};
-
-    public:
-        constexpr explicit IntegerBound(IntegerBoundMaxType max, IntegerBoundMinType min) : max_(max), min_(min) {}
-        constexpr explicit IntegerBound(IntegerBoundMinType min) : IntegerBound(IntegerBoundMaxType{}, min) {}
-        constexpr explicit IntegerBound(IntegerBoundMaxType max) : IntegerBound(max, IntegerBoundMinType{}) {}
-        constexpr explicit IntegerBound(IntegerBoundMinType min, IntegerBoundMaxType max) : IntegerBound(max, min) {}
-        constexpr explicit IntegerBound() : IntegerBound(IntegerBoundMaxType{}, IntegerBoundMinType{}) {}
-    };
-
-    template<concepts::IsInteger IntegerType_ = std::int64_t>
-    class CommandArgumentInteger : public CommandArgumentBase<CommandArgumentInteger<IntegerType_>> {
-    public:
-        using IntegerType = IntegerType_;
-        using IntegerBoundType = IntegerBound<IntegerType>;
-        using super = CommandArgumentBase<CommandArgumentInteger<IntegerType>>;
-
-    private:
-        IntegerBoundType bound_{};
-
-    public:
-        constexpr CommandArgumentInteger(CommandInfo info) : CommandArgumentBase<CommandArgumentInteger>(info) { this->setProxy(); }
-        constexpr CommandArgumentInteger(std::string command_name, std::string command_help_message = "default",
-                               std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandArgumentBase<CommandArgumentInteger>(std::move(command_name), std::move(command_help_message),
-                                                std::move(command_abbreviated_name)) {
-            this->setProxy();
-        }
-        auto tryAcceptCommand(std::string_view cmd) -> void {}
-    };
+public:
+    constexpr CommandArgumentInteger(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : CommandArgumentBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    {
+        this->initCommandNode();
+    }
+    constexpr CommandArgumentInteger(CommandNodeDescriptor info) : CommandArgumentBase(std::move(info))
+    {
+        this->initCommandNode();
+    }
+};
 } // namespace helium::commands

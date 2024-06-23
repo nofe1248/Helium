@@ -6,8 +6,8 @@
 module;
 
 #include <memory>
-#include <string>
 #include <optional>
+#include <string>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -18,24 +18,37 @@ import Helium.Commands.CommandBase;
 import Helium.Commands.CommandLiteral.CommandLiteralBase;
 import Helium.Commands.Concepts;
 import Helium.Commands.CommandContext;
+import Helium.Commands.Lexer;
 
-export namespace helium::commands {
-	class CommandStringLiteral
-		: public CommandLiteralBase<CommandStringLiteral>
+export namespace helium::commands
+{
+class CommandStringLiteral : public CommandLiteralBase
+{
+private:
+    auto initCommandNode() -> void
     {
-	public:
-		using super = CommandLiteralBase<CommandStringLiteral>;
+        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
+            if (token.token_type != TokenCategory::TOKEN_PLAIN_STRING)
+            {
+                return false;
+            }
+            if (this->node_descriptor_->node_abbreviated_name)
+            {
+                return token.token_str == this->node_descriptor_->node_name or token.token_str == this->node_descriptor_->node_abbreviated_name.value();
+            }
+            return token.token_str == this->node_descriptor_->node_name;
+        };
+    }
 
-	    constexpr CommandStringLiteral(CommandInfo info) : CommandLiteralBase<CommandStringLiteral>(info) {
-	        this->setProxy();
-	    }
-	    constexpr CommandStringLiteral(std::string command_name, std::string command_help_message = "default",
-                                       std::optional<std::string> command_abbreviated_name = std::nullopt) :
-                    CommandLiteralBase(std::move(command_name), std::move(command_help_message), std::move(command_abbreviated_name)) {
-	        this->setProxy();
-	    }
-		auto tryAcceptCommand(std::string_view cmd) -> void {
-
-	    }
-	};
-}
+public:
+    constexpr CommandStringLiteral(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : CommandLiteralBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    {
+        this->initCommandNode();
+    }
+    constexpr CommandStringLiteral(CommandNodeDescriptor info) : CommandLiteralBase(std::move(info))
+    {
+        this->initCommandNode();
+    }
+};
+} // namespace helium::commands

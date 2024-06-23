@@ -41,12 +41,10 @@ enum class TokenCategory
     TOKEN_QUOTED_STRING
 };
 
-template <concepts::IsString StrType_ = std::string> struct Token
+struct Token
 {
-    using StringType = StrType_;
-
     TokenCategory token_type;
-    StringType token_str;
+    std::string token_str;
 
     auto toString(this auto const &self) -> std::string
     {
@@ -54,19 +52,13 @@ template <concepts::IsString StrType_ = std::string> struct Token
     }
 };
 
-template <concepts::IsString StrType_ = std::string> class CommandLexer
+class CommandLexer
 {
-public:
-    using StringType = StrType_;
-    using StringViewType = std::basic_string_view<typename StringType::value_type>;
-    using TokenType = Token<StringType>;
-    using TokenHive = plf::hive<TokenType>;
-
 private:
-    StringType original_command_;
-    StringType raw_command_;
-    TokenHive tokens_;
-    typename StringType::const_iterator current_iterator_;
+    std::string original_command_;
+    std::string raw_command_;
+    plf::hive<Token> tokens_;
+    std::string::const_iterator current_iterator_;
 
     struct LexError
     {
@@ -78,13 +70,13 @@ public:
     {
     }
 
-    auto processCommand(StringType const &cmd) -> std::optional<TokenHive>
+    auto processCommand(std::string const &cmd) -> std::optional<plf::hive<Token>>
     {
         this->original_command_ = std::move(cmd);
         this->raw_command_ = boost::trim_copy(this->original_command_);
         this->current_iterator_ = this->raw_command_.cbegin();
 
-        TokenHive hive;
+        plf::hive<Token> hive;
 
         while (this->current_iterator_ < this->raw_command_.cend())
         {
@@ -121,7 +113,7 @@ private:
         return std::distance(this->raw_command_.cbegin(), this->current_iterator_);
     }
 
-    auto getNext() noexcept -> std::optional<typename StringType::value_type>
+    auto getNext() noexcept -> std::optional<typename std::string::value_type>
     {
         ++this->current_iterator_;
         if (this->current_iterator_ >= this->raw_command_.cend())
@@ -131,7 +123,7 @@ private:
         return *this->current_iterator_;
     }
 
-    auto getCurrent() const noexcept -> std::optional<typename StringType::value_type>
+    auto getCurrent() const noexcept -> std::optional<typename std::string::value_type>
     {
         if (this->current_iterator_ >= this->raw_command_.cend())
         {
@@ -140,7 +132,7 @@ private:
         return *this->current_iterator_;
     }
 
-    auto tryScanToken() -> std::expected<TokenType, LexError>
+    auto tryScanToken() -> std::expected<Token, LexError>
     {
         if (this->skipWhitespace())
         {
@@ -162,7 +154,7 @@ private:
         return std::unexpected{LexError{"End of string"}};
     }
 
-    auto tryScanNumber() -> std::expected<TokenType, LexError>
+    auto tryScanNumber() -> std::expected<Token, LexError>
     {
         struct Zero
         {
@@ -194,7 +186,7 @@ private:
 
         bool is_neg = false;
         bool is_floating_point = false;
-        StringType result_str;
+        std::string result_str;
 
         sml::sm number_state_machine = [&is_neg, &result_str, &is_floating_point] {
             auto parse_error = [] {};
@@ -325,32 +317,32 @@ private:
 
         if (is_floating_point)
         {
-            return TokenType{TokenCategory::TOKEN_FLOATING_POINT, result_str};
+            return Token{TokenCategory::TOKEN_FLOATING_POINT, result_str};
         }
         else
         {
-            return TokenType{TokenCategory::TOKEN_INTEGER, result_str};
+            return Token{TokenCategory::TOKEN_INTEGER, result_str};
         }
     }
 
-    auto tryScanBooleanLiteral() -> std::expected<TokenType, LexError>
+    auto tryScanBooleanLiteral() -> std::expected<Token, LexError>
     {
         if (std::distance(this->current_iterator_, this->raw_command_.cend()) >= 4 and this->raw_command_.substr(std::distance(this->raw_command_.cbegin(), this->current_iterator_), 4) == "true")
         {
             this->current_iterator_ += 4;
-            return TokenType{TokenCategory::TOKEN_BOOLEAN, "true"};
+            return Token{TokenCategory::TOKEN_BOOLEAN, "true"};
         }
         if (std::distance(this->current_iterator_, this->raw_command_.cend()) >= 5 and this->raw_command_.substr(std::distance(this->raw_command_.cbegin(), this->current_iterator_), 5) == "false")
         {
             this->current_iterator_ += 5;
-            return TokenType{TokenCategory::TOKEN_BOOLEAN, "false"};
+            return Token{TokenCategory::TOKEN_BOOLEAN, "false"};
         }
         return std::unexpected{LexError{"Invalid boolean literal"}};
     }
 
-    auto tryScanQuotedString() -> std::expected<TokenType, LexError>
+    auto tryScanQuotedString() -> std::expected<Token, LexError>
     {
-        StringType result_str;
+        std::string result_str;
         auto add_to_result = [&result_str](auto const &c) { result_str += c; };
         auto next_byte_in_range = [this, &add_to_result](std::vector<std::pair<char, char>> const &ranges) -> bool {
             add_to_result(this->getCurrent().value());
@@ -410,7 +402,7 @@ private:
                                 pattern('u') =
                                     [this, &add_to_result, &no_lex_error_occurred, &error_str] {
                                         int codepoint = 0;
-                                        StringType first_codepoint = this->raw_command_.substr(this->currentColumn(), 5);
+                                        std::string first_codepoint = this->raw_command_.substr(this->currentColumn(), 5);
                                         if (auto exp = this->tryScanCodepoint())
                                         {
                                             const int codepoint1 = exp.value();
@@ -604,19 +596,19 @@ private:
         if (no_lex_error_occurred)
         {
             ++this->current_iterator_;
-            return Token<std::string>{TokenCategory::TOKEN_QUOTED_STRING, result_str};
+            return Token{TokenCategory::TOKEN_QUOTED_STRING, result_str};
         }
         return std::unexpected{LexError{error_str}};
     }
 
-    auto tryScanPlainString() -> std::expected<TokenType, LexError>
+    auto tryScanPlainString() -> std::expected<Token, LexError>
     {
         auto cur = this->current_iterator_;
         while (this->current_iterator_ < this->raw_command_.cend() and (not std::isblank(*this->current_iterator_)))
         {
             ++this->current_iterator_;
         }
-        return TokenType{TokenCategory::TOKEN_PLAIN_STRING, this->raw_command_.substr(std::distance(this->raw_command_.cbegin(), cur), std::distance(cur, this->current_iterator_))};
+        return Token{TokenCategory::TOKEN_PLAIN_STRING, this->raw_command_.substr(std::distance(this->raw_command_.cbegin(), cur), std::distance(cur, this->current_iterator_))};
     }
 
     auto tryScanCodepoint() -> std::expected<int, LexError>

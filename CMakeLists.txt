@@ -25,7 +25,6 @@ target_sources(
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentFloatingPoint.cppm
-        Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentGreedyString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentInteger.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentQuotedString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentString.cppm

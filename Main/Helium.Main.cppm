@@ -57,7 +57,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     options.allow_unrecognised_options();
 
     auto result = options.parse(argc, argv);
-    commands::CommandLexer<std::string> lex;
+    commands::CommandLexer lex;
     for (;;)
     {
         std::string input;
@@ -70,7 +70,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
         auto ms = timer.get_elapsed_ms();
         if (opt)
         {
-            std::ranges::for_each(opt.value(), [](commands::Token<std::string> const &tok) { logger->trace("{}", tok.toString()); });
+            std::ranges::for_each(opt.value(), [](commands::Token const &tok) { logger->trace("{}", tok.toString()); });
             logger->trace("Command lexing performance: {}ms {}μs {}ns", ms, us, ns);
         }
     }

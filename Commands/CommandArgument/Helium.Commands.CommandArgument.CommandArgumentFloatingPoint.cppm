@@ -22,61 +22,37 @@ import Helium.Commands.CommandBase;
 import Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
+import Helium.Commands.Lexer;
 
-export namespace helium::commands {
-    template<concepts::IsFloatingPoint FPType_>
-    struct FloatingPointMax {
-        FPType_ max = std::numeric_limits<FPType_>::max();
-    };
+export namespace helium::commands
+{
+template <concepts::IsFloatingPoint FPType_> class CommandArgumentFloatingPoint : public CommandArgumentBase
+{
+public:
+    using FloatingPointType = FPType_;
 
-    template<concepts::IsFloatingPoint FPType_>
-    struct FloatingPointMin {
-        FPType_ min = std::numeric_limits<FPType_>::min();
-    };
+private:
+    auto initCommandNode() -> void
+    {
+        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
+            if (token.token_type == TokenCategory::TOKEN_FLOATING_POINT)
+            {
+                this->recent_accepted_raw_value = token.token_str;
+                return true;
+            }
+            return false;
+        };
+    }
 
-    template<concepts::IsFloatingPoint FPType_>
-    class FloatingPointBound {
-    public:
-        using FloatingPointType = FPType_;
-        using FloatingPointMaxType = FloatingPointMax<FloatingPointType>;
-        using FloatingPointMinType = FloatingPointMin<FloatingPointType>;
-
-    private:
-        FloatingPointMaxType max_{};
-        FloatingPointMinType min_{};
-
-    public:
-        constexpr explicit FloatingPointBound(FloatingPointMaxType max, FloatingPointMinType min) :
-            max_(max), min_(min) {}
-        constexpr explicit FloatingPointBound(FloatingPointMinType min) :
-            FloatingPointBound(FloatingPointMaxType{}, min) {}
-        constexpr explicit FloatingPointBound(FloatingPointMaxType max) :
-            FloatingPointBound(max, FloatingPointMinType{}) {}
-        constexpr explicit FloatingPointBound(FloatingPointMinType min, FloatingPointMaxType max) :
-            FloatingPointBound(max, min) {}
-        constexpr explicit FloatingPointBound() : FloatingPointBound(FloatingPointMaxType{}, FloatingPointMinType{}) {}
-    };
-
-    template<concepts::IsFloatingPoint FPType_>
-    class CommandArgumentFloatingPoint : public CommandArgumentBase<CommandArgumentFloatingPoint<FPType_>> {
-    public:
-        using FloatingPointType = FPType_;
-        using FloatingPointBoundType = FloatingPointBound<FloatingPointType>;
-        using super = CommandArgumentBase<CommandArgumentFloatingPoint<FloatingPointType>>;
-
-    private:
-        FloatingPointBoundType bound_{};
-
-    public:
-        constexpr CommandArgumentFloatingPoint(CommandInfo info) : CommandArgumentBase<CommandArgumentFloatingPoint>(info) {
-            this->setProxy();
-        }
-        constexpr CommandArgumentFloatingPoint(std::string command_name, std::string command_help_message = "default",
-                                     std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandArgumentBase<CommandArgumentFloatingPoint>(std::move(command_name), std::move(command_help_message),
-                                                      std::move(command_abbreviated_name)) {
-            this->setProxy();
-        }
-        auto tryAcceptCommand(std::string_view cmd) -> void {}
-    };
+public:
+    constexpr CommandArgumentFloatingPoint(std::string command_name, std::string command_description, std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : CommandArgumentBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    {
+        this->initCommandNode();
+    }
+    constexpr CommandArgumentFloatingPoint(CommandNodeDescriptor info) : CommandArgumentBase(std::move(info))
+    {
+        this->initCommandNode();
+    }
+};
 } // namespace helium::commands

@@ -13,16 +13,14 @@ export module Helium.Commands.CommandArgument.CommandArgumentBase;
 import Helium.Commands.Concepts;
 import Helium.Commands.CommandBase;
 
-export namespace helium::commands {
-    template<typename Derived_>
-    class CommandArgumentBase : public CommandBase<CommandArgumentBase<Derived_>>, public details::TagCommandArgument {
-    public:
-        using super = CommandBase<CommandArgumentBase<Derived_>>;
+export namespace helium::commands
+{
+class CommandArgumentBase : public CommandNodeBase, public details::TagCommandArgument
+{
+protected:
+    std::string recent_accepted_raw_value;
 
-        constexpr CommandArgumentBase(CommandInfo info) : CommandBase<CommandArgumentBase>(info) {}
-        constexpr CommandArgumentBase(std::string command_name, std::string command_help_message = "default",
-                                      std::optional<std::string> command_abbreviated_name = std::nullopt) :
-            CommandBase<CommandArgumentBase>(std::move(command_name), std::move(command_help_message),
-                                             std::move(command_abbreviated_name)) {}
-    };
+public:
+    using CommandNodeBase::CommandNodeBase;
+};
 } // namespace helium::commands
