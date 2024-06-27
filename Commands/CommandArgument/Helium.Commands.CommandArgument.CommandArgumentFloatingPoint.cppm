@@ -39,7 +39,7 @@ public:
         {
             this->node_descriptor_->recent_accepted_token = tok;
             return true;
-            }
+        }
             return false;
     }
     auto tokenSimilarity(Token const &tok) const noexcept -> std::size_t

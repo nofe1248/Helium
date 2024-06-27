@@ -44,13 +44,13 @@ public:
     }
     auto convertRawTokenToTargetType(Token const &tok) const noexcept -> bool
     {
-        if(tok.token_type == TokenCategory::TOKEN_BOOLEAN)
+        if (tok.token_type == TokenCategory::TOKEN_BOOLEAN)
         {
-            if(tok.token_string == "true")
+            if (tok.token_string == "true")
             {
                 return true;
             }
-            if(tok.token_string == "false")
+            if (tok.token_string == "false")
             {
                 return false;
             }
