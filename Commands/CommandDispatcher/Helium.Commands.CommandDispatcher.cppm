@@ -39,11 +39,10 @@ public:
     auto tryExecuteCommand(std::string command)
     {
         this->recent_executed_command_ = std::move(command);
-        if(auto opt = this->lexer_.processCommand(this->recent_executed_command_))
+        if (auto opt = this->lexer_.processCommand(this->recent_executed_command_))
         {
-            for(auto const& tok : opt.value())
+            for (auto const &tok : opt.value())
             {
-
             }
         }
     }

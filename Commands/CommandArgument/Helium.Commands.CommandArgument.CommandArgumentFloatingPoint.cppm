@@ -33,16 +33,16 @@ public:
 
     using FloatingPointType = FPType_;
 
-    auto tryAcceptToken(Token const& tok) const noexcept -> bool
+    auto tryAcceptToken(Token const &tok) const noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_FLOATING_POINT)
-            {
-                this->node_descriptor_->recent_accepted_token = tok;
-                return true;
+        {
+            this->node_descriptor_->recent_accepted_token = tok;
+            return true;
             }
             return false;
     }
-    auto tokenSimilarity(Token const& tok) const noexcept -> std::size_t
+    auto tokenSimilarity(Token const &tok) const noexcept -> std::size_t
     {
         return 0;
     }
