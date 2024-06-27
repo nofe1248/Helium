@@ -29,30 +29,22 @@ export namespace helium::commands
 template <concepts::IsFloatingPoint FPType_> class CommandArgumentFloatingPoint : public CommandArgumentBase
 {
 public:
+    using CommandArgumentBase::CommandArgumentBase;
+
     using FloatingPointType = FPType_;
 
-private:
-    auto initCommandNode() -> void
+    auto tryAcceptToken(Token const& tok) const noexcept -> bool
     {
-        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
-            if (token.token_type == TokenCategory::TOKEN_FLOATING_POINT)
+        if (tok.token_type == TokenCategory::TOKEN_FLOATING_POINT)
             {
-                this->recent_accepted_raw_value = token.token_str;
+                this->node_descriptor_->recent_accepted_token = tok;
                 return true;
             }
             return false;
-        };
     }
-
-public:
-    constexpr CommandArgumentFloatingPoint(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
-        : CommandArgumentBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    auto tokenSimilarity(Token const& tok) const noexcept -> std::size_t
     {
-        this->initCommandNode();
-    }
-    constexpr CommandArgumentFloatingPoint(CommandNodeDescriptor info) : CommandArgumentBase(std::move(info))
-    {
-        this->initCommandNode();
+        return 0;
     }
 };
 } // namespace helium::commands

@@ -24,31 +24,33 @@ export namespace helium::commands
 {
 class CommandStringLiteral : public CommandLiteralBase
 {
-private:
-    auto initCommandNode() -> void
-    {
-        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
-            if (token.token_type != TokenCategory::TOKEN_PLAIN_STRING)
-            {
-                return false;
-            }
-            if (this->node_descriptor_->node_abbreviated_name)
-            {
-                return token.token_str == this->node_descriptor_->node_name or token.token_str == this->node_descriptor_->node_abbreviated_name.value();
-            }
-            return token.token_str == this->node_descriptor_->node_name;
-        };
-    }
-
 public:
-    constexpr CommandStringLiteral(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
-        : CommandLiteralBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    using CommandLiteralBase::CommandLiteralBase;
+
+    auto tryAcceptToken(Token const& tok) const noexcept -> bool
     {
-        this->initCommandNode();
+        if (tok.token_type != TokenCategory::TOKEN_PLAIN_STRING)
+        {
+            return false;
+        }
+        if (this->node_descriptor_->node_abbreviated_name.has_value())
+        {
+            if(tok.token_string == this->node_descriptor_->node_name or tok.token_string == this->node_descriptor_->node_abbreviated_name.value())
+            {
+                this->node_descriptor_->recent_accepted_token = tok;
+                return true;
+            }
+        }
+        if(tok.token_string == this->node_descriptor_->node_name)
+        {
+            this->node_descriptor_->recent_accepted_token = tok;
+            return true;
+        }
+        return false;
     }
-    constexpr CommandStringLiteral(CommandNodeDescriptor info) : CommandLiteralBase(std::move(info))
+    auto tokenSimilarity(Token const& tok) const noexcept -> std::size_t
     {
-        this->initCommandNode();
+        return 0;
     }
 };
 } // namespace helium::commands

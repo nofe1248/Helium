@@ -5,8 +5,10 @@
 
 module;
 
-#include <optional>
+#include <concepts>
 #include <string>
+
+#define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Commands.CommandArgument.CommandArgumentBase;
 
@@ -17,9 +19,6 @@ export namespace helium::commands
 {
 class CommandArgumentBase : public CommandNodeBase, public details::TagCommandArgument
 {
-protected:
-    std::string recent_accepted_raw_value;
-
 public:
     using CommandNodeBase::CommandNodeBase;
 };

@@ -29,28 +29,23 @@ export namespace helium::commands
 {
 template <concepts::IsInteger IntegerType_ = std::int64_t> class CommandArgumentInteger : public CommandArgumentBase
 {
-private:
-    auto initCommandNode() -> void
-    {
-        this->node_descriptor_->try_accept_token = [this](Token const &token) -> bool {
-            if (token.token_type == TokenCategory::TOKEN_INTEGER)
-            {
-                this->recent_accepted_raw_value = token.token_str;
-                return true;
-            }
-            return false;
-        };
-    }
-
 public:
-    constexpr CommandArgumentInteger(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
-        : CommandArgumentBase(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name))
+    using CommandArgumentBase::CommandArgumentBase;
+
+    using IntegerType = IntegerType_;
+
+    auto tryAcceptToken(Token const &tok) noexcept -> bool
     {
-        this->initCommandNode();
+        if (tok.token_type == TokenCategory::TOKEN_INTEGER)
+        {
+            this->node_descriptor_->recent_accepted_token = tok;
+            return true;
+        }
+        return false;
     }
-    constexpr CommandArgumentInteger(CommandNodeDescriptor info) : CommandArgumentBase(std::move(info))
+    auto tokenSimilarity(Token const &tok) const noexcept -> std::size_t
     {
-        this->initCommandNode();
+        return 0;
     }
 };
 } // namespace helium::commands

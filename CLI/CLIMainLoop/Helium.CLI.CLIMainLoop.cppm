@@ -20,9 +20,9 @@ auto mainCLILoop()
 {
     logger->info("Entering main CLI loop.");
 
-    // clang-format off
-
     using namespace commands;
+
+    // clang-format off
     dispatcher.registerCommand(
         CommandStringLiteral("#helium")
         .then(

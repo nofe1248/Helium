@@ -44,11 +44,11 @@ enum class TokenCategory
 struct Token
 {
     TokenCategory token_type;
-    std::string token_str;
+    std::string token_string;
 
     auto toString(this auto const &self) -> std::string
     {
-        return std::format("Token[.token_type = {}, .token_str = {}]", nameof::nameof_enum(self.token_type), self.token_str);
+        return std::format("Token[.token_type = {}, .token_str = {}]", nameof::nameof_enum(self.token_type), self.token_string);
     }
 };
 
@@ -57,7 +57,6 @@ class CommandLexer
 private:
     std::string original_command_;
     std::string raw_command_;
-    plf::hive<Token> tokens_;
     std::string::const_iterator current_iterator_;
 
     struct LexError
@@ -66,7 +65,7 @@ private:
     };
 
 public:
-    CommandLexer() : original_command_(), raw_command_(), tokens_(), current_iterator_(this->raw_command_.cbegin())
+    CommandLexer() : original_command_(), raw_command_(), current_iterator_(this->raw_command_.cbegin())
     {
     }
 

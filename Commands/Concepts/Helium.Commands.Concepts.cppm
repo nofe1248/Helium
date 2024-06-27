@@ -11,11 +11,6 @@ module;
 
 export module Helium.Commands.Concepts;
 
-namespace helium::commands
-{
-class CommandNodeBase;
-}
-
 export namespace helium::commands::details
 {
 struct TagCommandLiteral
@@ -56,9 +51,6 @@ template <typename StrType_> constexpr bool IsStringTypeTraitV = IsStringTypeTra
 
 export namespace helium::commands::concepts
 {
-template <typename Command_>
-concept IsCommandNode = std::derived_from<Command_, CommandNodeBase>;
-
 template <typename Command_>
 concept IsCommandLiteral = std::derived_from<Command_, details::TagCommandLiteral>;
 

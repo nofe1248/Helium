@@ -5,15 +5,16 @@
 
 module;
 
+#include <concepts>
 #include <memory>
 #include <optional>
-#include <plf_hive.h>
 #include <string>
 #include <utility>
+#include <vector>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
-#include <proxy/proxy.h>
+#include <plf_hive.h>
 
 export module Helium.Commands.CommandBase;
 
@@ -33,10 +34,13 @@ struct CommandNodeDescriptor
     std::string node_description = "default_node_description";
     std::optional<std::string> node_abbreviated_name = std::nullopt;
 
+    Token recent_accepted_token = {TokenCategory::TOKEN_PLAIN_STRING, ""};
+
     std::optional<std::function<bool()>> node_predicate = std::nullopt;
-    std::optional<std::function<void(CommandContext const &)>> node_callback = std::nullopt;
+    std::optional<std::vector<std::function<void(CommandContext const &, Token const &)>>> node_callback = std::nullopt;
 
     std::function<bool(Token const &)> try_accept_token;
+    std::function<std::size_t(Token const &)> token_similarity;
 
     CommandNodeDescriptor(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
         : node_name(std::move(command_name)), node_description(std::move(command_description)), node_abbreviated_name(std::move(command_abbreviated_name))
@@ -51,9 +55,40 @@ struct CommandNodeDescriptor
     constexpr auto operator=(CommandNodeDescriptor &&) noexcept -> CommandNodeDescriptor & = default;
 };
 
+class CommandNodeBase;
+} // namespace helium::commands
+
+export namespace helium::commands::concepts
+{
+template <typename Command_>
+concept IsCommandNode = std::derived_from<Command_, commands::CommandNodeBase> and std::copyable<Command_> and std::movable<Command_> and requires(Command_ cmd, Token tok) {
+    typename Command_::RawTokenStringConversionTarget;
+    {
+        cmd.tryAcceptToken(tok)
+    } -> std::same_as<bool>;
+    {
+        cmd.tokenSimilarity(tok)
+    } -> std::same_as<std::size_t>;
+    {
+        cmd.convertRawTokenToTargetType(tok)
+    } -> std::same_as<typename Command_::RawTokenStringConversionTarget>;
+} or requires(Command_ cmd, Token tok) {
+    {
+        cmd.tryAcceptToken(tok)
+    } -> std::same_as<bool>;
+    {
+        cmd.tokenSimilarity(tok)
+    } -> std::same_as<std::size_t>;
+};
+} // namespace helium::commands::concepts
+
+namespace helium::commands
+{
+
 class CommandNodeBase : public base::HeliumObject
 {
 protected:
+    bool descriptor_initialized_ = false;
     std::shared_ptr<CommandNodeDescriptor> node_descriptor_;
 
     template <std::invocable Pred_> constexpr auto addPredicate(this auto &&self, Pred_ &&pred) -> void
@@ -64,16 +99,6 @@ protected:
     template <std::invocable<CommandContext const &> Callback_> constexpr auto addCallback(this auto &&self, Callback_ &&callback) -> void
     {
         FWD(self).node_descriptor->parent_node = FWD(callback);
-    }
-
-private:
-    constexpr auto tryInitCommandNode(this auto &&self) -> void
-    {
-        using SelfType = std::decay_t<decltype(self)>;
-        if constexpr (requires(SelfType s) { s.initCommandNode(); })
-        {
-            FWD(self).initCommandNode();
-        }
     }
 
 public:
@@ -96,45 +121,72 @@ public:
     constexpr auto operator=(CommandNodeBase const &) -> CommandNodeBase & = default;
     constexpr auto operator=(CommandNodeBase &&) noexcept -> CommandNodeBase & = default;
 
-    [[nodiscard]] auto getNodeDescriptor(this auto &&self) -> std::weak_ptr<CommandNodeDescriptor>
+    [[nodiscard]] auto getNodeDescriptor(this auto &&self) -> std::shared_ptr<CommandNodeDescriptor>
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
+        if (not self.descriptor_initialized_)
+        {
+            self.node_descriptor_->try_accept_token = [self](Token const &tok) noexcept(noexcept(self.tryAcceptToken(tok))) -> bool { return self.tryAcceptToken(tok); };
+            self.node_descriptor_->token_similarity = [self](Token const &tok) noexcept(noexcept(self.tokenSimilarity(tok))) -> std::size_t { return self.tokenSimilarity(tok); };
+            self.descriptor_initialized_ = true;
+        }
         return FWD(self).node_descriptor_;
     }
-    auto setParentNode(this auto &&self, std::weak_ptr<CommandNodeDescriptor> const parent) -> void
+    [[nodiscard]] auto getRecentAcceptedToken(this auto &&self) noexcept -> std::string
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
-        if (auto ptr = parent.lock())
-        {
-            FWD(self).node_descriptor_->parent_node = ptr;
-        }
+        return FWD(self).node_descriptor_->recent_accepted_token;
     }
-    auto addChildNode(this auto &&self, std::weak_ptr<CommandNodeDescriptor> const child) -> void
+    auto setParentNode(this auto &&self, std::shared_ptr<CommandNodeDescriptor> const parent) -> void
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
-        if (auto ptr = child.lock())
-        {
-            FWD(self).node_descriptor_->child_nodes.insert(ptr);
-        }
+        FWD(self).node_descriptor_->parent_node = parent;
+    }
+    auto addChildNode(this auto &&self, std::shared_ptr<CommandNodeDescriptor> const child) -> void
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
+    {
+        FWD(self).node_descriptor_->child_nodes.insert(child);
     }
 
-    template <typename... Next_> [[nodiscard]] constexpr decltype(auto) then(this auto &&self, Next_ &&...next_node)
+    template <typename... Next_>
+    [[nodiscard]] constexpr decltype(auto) then(this auto &&self, Next_ &&...next_node)
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>> and (concepts::IsCommandNode<Next_> and ...)
     {
         (FWD(next_node).setParentNode(FWD(self).getNodeDescriptor()), ...);
         (FWD(self).addChildNode(FWD(next_node).getNodeDescriptor()), ...);
         return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 
-    template <std::invocable<CommandContext const &>... Callback_> [[nodiscard]] constexpr decltype(auto) execute(this auto &&self, Callback_ &&...callback)
+    template <std::invocable... Callback_>
+    [[nodiscard]] constexpr decltype(auto) execute(this auto &&self, Callback_ &&...callback)
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
-        (FWD(self).addCallback(FWD(callback)), ...);
+        FWD(self).addCallback([self, callback...](CommandContext const &context, Token const &tok) {
+            using SelfT = std::decay_t<decltype(self)>;
+            if constexpr (requires { typename SelfT::RawTokenStringConversionTarget; })
+            {
+                typename SelfT::RawTokenStringConversionTarget converted = self.convertRawTokenToTargetType(tok);
+                (callback(context, converted), ...);
+            }
+            else
+            {
+                (callback(context), ...);
+            }
+        });
         return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 
-    template <std::invocable... Pred_> [[nodiscard]] constexpr decltype(auto) require(this auto &&self, Pred_ &&...pred)
+    template <std::invocable... Pred_>
+    [[nodiscard]] constexpr decltype(auto) require(this auto &&self, Pred_ &&...pred)
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
         (FWD(self).addPredicate(FWD(pred)), ...);
         return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
 
-    template <concepts::IsCommandNode Redirect_> [[nodiscard]] constexpr decltype(auto) redirect(this auto &&self, Redirect_ &&redirect)
+    template <concepts::IsCommandNode Redirect_>
+    [[nodiscard]] constexpr decltype(auto) redirect(this auto &&self, Redirect_ &&redirect)
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
         return static_cast<std::decay_t<decltype(self)>>(std::move(FWD(self)));
     }
