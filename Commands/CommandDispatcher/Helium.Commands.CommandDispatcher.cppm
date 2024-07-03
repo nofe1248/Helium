@@ -33,7 +33,7 @@ public:
     constexpr auto registerCommand(Command &&command) -> void
         requires concepts::IsCommandNode<Command>
     {
-        command_roots_.insert(FWD(command).getNodeDescriptor());
+        command_roots_.insert(FWD(command).getNodeDescriptor().lock());
     }
 
     auto tryExecuteCommand(std::string command)

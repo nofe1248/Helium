@@ -7,7 +7,6 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 add_compile_definitions(BOOST_UT_DISABLE_MODULE)
-add_compile_definitions(SPDLOG_USE_STD_FORMAT)
 add_compile_definitions(SPDLOG_NO_TLS)
 
 cmake_policy(VERSION 3.28)
@@ -73,7 +72,13 @@ target_sources(
         Utils/Helium.Utils.cppm
 )
 
-find_package(absl REQUIRED)
+find_package(libdwarf CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE libdwarf::dwarf)
+
+set(LIBDL_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-windows\\include\\libdwarf")
+set(LIBELF_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-windows\\include\\libdwarf")
+set(LIBELF_LIBRARY "C:\\vcpkg\\installed\\x64-windows\\tools\\libdwarf")
+set(LIBDL_LIBRARY "C:\\vcpkg\\installed\\x64-windows\\tools\\libdwarf")
 
 find_package(Backward CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE Backward::Backward)
@@ -88,10 +93,7 @@ find_package(Boost REQUIRED context filesystem program_options regex system thre
 target_link_libraries(Helium PRIVATE Boost::boost Boost::context Boost::filesystem Boost::program_options Boost::regex Boost::system Boost::thread Boost::chrono Boost::atomic)
 
 find_package(fmt CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE fmt::fmt)
-
-find_package(libdwarf CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE libdwarf::dwarf)
+target_link_libraries(Helium PRIVATE fmt::fmt-header-only)
 
 find_package(mpark_patterns CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE mpark_patterns)
@@ -108,8 +110,8 @@ target_include_directories(Helium PRIVATE semver)
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
 
-find_path(PLF_COLONY_INCLUDE_DIRS "plf_colony.h")
-target_include_directories(Helium PRIVATE ${PLF_COLONY_INCLUDE_DIRS})
+find_path(PLF_HIVE_INCLUDE_DIRS "plf_hive.h")
+target_include_directories(Helium PRIVATE ${PLF_HIVE_INCLUDE_DIRS})
 
 find_package(proxy CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE msft_proxy)

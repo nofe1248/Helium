@@ -7,8 +7,8 @@ module;
 
 #include <functional>
 #include <string>
-
-#include <proxy/proxy.h>
+#include <memory>
+#include <utility>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -29,20 +29,20 @@ public:
     using CommandArgumentBase::CommandArgumentBase;
     using RawTokenStringConversionTarget = bool;
 
-    auto tryAcceptToken(Token const &tok) noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_BOOLEAN)
         {
-            this->node_descriptor_->recent_accepted_token = tok;
+            node_descriptor->recent_accepted_token = tok;
             return true;
         }
         return false;
     }
-    auto tokenSimilarity(Token const &tok) const noexcept -> std::size_t
+    static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> std::size_t
     {
         return 0;
     }
-    auto convertRawTokenToTargetType(Token const &tok) const noexcept -> bool
+    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_BOOLEAN)
         {

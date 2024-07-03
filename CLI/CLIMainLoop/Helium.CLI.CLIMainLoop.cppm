@@ -28,8 +28,14 @@ auto mainCLILoop()
         .then(
             CommandStringLiteral("show")
             .then(
-                CommandStringLiteral("warranty"),
+                CommandStringLiteral("warranty")
+                .execute([](CommandContext const &ctx) -> void {
+                    logger->trace("#helium show warranty command executed.");
+                }),
                 CommandStringLiteral("copyright")
+                .execute([](CommandContext const &ctx) -> void {
+                    logger->trace("#helium show copyright command executed.");
+                })
             )
         )
     );
@@ -40,6 +46,10 @@ auto mainCLILoop()
     while (true)
     {
         std::getline(std::cin, input_command);
+        if(not input_command.empty())
+        {
+            dispatcher.tryExecuteCommand(input_command);
+        }
     }
 }
 } // namespace helium::cli
