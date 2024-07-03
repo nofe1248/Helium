@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
+cmake_policy(VERSION 3.30)
 
-project(Helium CXX)
+project(Helium LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
@@ -8,8 +9,6 @@ set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 add_compile_definitions(BOOST_UT_DISABLE_MODULE)
 add_compile_definitions(SPDLOG_NO_TLS)
-
-cmake_policy(VERSION 3.28)
 
 add_executable(Helium)
 
@@ -30,6 +29,7 @@ target_sources(
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentQuotedString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.cppm
+        Commands/CommandRoot/Helium.Commands.CommandRoot.cppm
         Commands/CommandBase/Helium.Commands.CommandBase.cppm
         Commands/CommandContext/Helium.Commands.CommandContext.cppm
         Commands/CommandDispatcher/Helium.Commands.CommandDispatcher.cppm
@@ -37,7 +37,6 @@ target_sources(
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.CommandStringLiteral.cppm
         Commands/CommandLiteral/Helium.Commands.CommandLiteral.cppm
         Commands/CommandSource/Helium.Commands.CommandSource.cppm
-        Commands/CommandSource/Helium.Commands.CommandSource.DefaultCommandSource.cppm
         Commands/Concepts/Helium.Commands.Concepts.cppm
         Commands/Lexer/Helium.Commands.Lexer.cppm
         Commands/Test/Helium.Commands.Test.cppm
@@ -75,10 +74,10 @@ target_sources(
 find_package(libdwarf CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE libdwarf::dwarf)
 
-set(LIBDL_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-windows\\include\\libdwarf")
-set(LIBELF_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-windows\\include\\libdwarf")
-set(LIBELF_LIBRARY "C:\\vcpkg\\installed\\x64-windows\\tools\\libdwarf")
-set(LIBDL_LIBRARY "C:\\vcpkg\\installed\\x64-windows\\tools\\libdwarf")
+set(LIBDL_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-mingw-shared\\include\\libdwarf")
+set(LIBELF_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-mingw-shared\\include\\libdwarf")
+set(LIBELF_LIBRARY "C:\\vcpkg\\installed\\x64-mingw-shared\\tools\\libdwarf")
+set(LIBDL_LIBRARY "C:\\vcpkg\\installed\\x64-mingw-shared\\tools\\libdwarf")
 
 find_package(Backward CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE Backward::Backward)

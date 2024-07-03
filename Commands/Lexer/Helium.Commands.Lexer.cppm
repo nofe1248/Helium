@@ -27,10 +27,13 @@ export module Helium.Commands.Lexer;
 import Helium.Commands.Concepts;
 import Helium.Logger;
 
+namespace helium::commands
+{
+auto lexer_logger = logger::SharedLogger::getSharedLogger("Command", "CommandLexer");
+}
+
 export namespace helium::commands
 {
-
-auto logger = logger::SharedLogger::getSharedLogger("Command", "CommandLexer");
 
 enum class TokenCategory
 {
@@ -85,7 +88,7 @@ public:
             }
             else
             {
-                logger->error("{}", exp.error().msg);
+                lexer_logger->error("{}", exp.error().msg);
                 return std::nullopt;
             }
         }

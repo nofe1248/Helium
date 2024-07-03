@@ -23,6 +23,7 @@ auto mainCLILoop()
     using namespace commands;
 
     // clang-format off
+    /*
     dispatcher.registerCommand(
         CommandStringLiteral("#helium")
         .then(
@@ -30,25 +31,55 @@ auto mainCLILoop()
             .then(
                 CommandStringLiteral("warranty")
                 .execute([](CommandContext const &ctx) -> void {
-                    logger->trace("#helium show warranty command executed.");
+                    logger->debug("#helium show warranty command executed.");
                 }),
                 CommandStringLiteral("copyright")
                 .execute([](CommandContext const &ctx) -> void {
-                    logger->trace("#helium show copyright command executed.");
+                    logger->debug("#helium show copyright command executed.");
                 })
             )
         )
+    );*/
+    int result = 0;
+    auto calc = CommandStringLiteral("#calc");
+    auto add = CommandStringLiteral("add");
+    auto _ = add.then(
+        CommandArgumentInteger<int>("add_number")
+        .require([](CommandContext const &ctx, int num) -> bool {
+            if (num < 0)
+            {
+                return false;
+            }
+            return true;
+        })
+        .execute([&result](CommandContext const &ctx, int num) -> void {
+            result += num;
+        })
+        .redirect(calc)
+    );
+    _ = calc.then(
+        CommandStringLiteral("print")
+        .execute([&result](CommandContext const &ctx) -> void {
+            logger->debug("Add result : {}", result);
+            result = 0;
+        })
+        .redirect(calc)
+    );
+    _ = calc.then(add);
+    dispatcher.registerCommand(
+        calc
     );
     // clang-format on
 
     std::string input_command;
+    CommandSource console_source{};
 
     while (true)
     {
         std::getline(std::cin, input_command);
-        if(not input_command.empty())
+        if (not input_command.empty())
         {
-            dispatcher.tryExecuteCommand(input_command);
+            bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command);
         }
     }
 }

@@ -5,4 +5,12 @@
 
 export module Helium.Commands.CommandSource;
 
-export import Helium.Commands.CommandSource.DefaultCommandSource;
+import Helium.Base.HeliumObject;
+
+export namespace helium::commands
+{
+    class CommandSource : base::HeliumObject
+    {
+
+    };
+}
