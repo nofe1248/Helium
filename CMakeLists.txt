@@ -8,7 +8,6 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 add_compile_definitions(BOOST_UT_DISABLE_MODULE)
-add_compile_definitions(SPDLOG_NO_TLS)
 
 add_executable(Helium)
 
@@ -41,6 +40,7 @@ target_sources(
         Commands/Lexer/Helium.Commands.Lexer.cppm
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
+        Config/Helium.Config.cppm
         Events/Concepts/Helium.Events.Concepts.cppm
         Events/EventBus/Helium.Events.EventBus.cppm
         Events/EventEmitter/Helium.Events.EventEmitter.cppm
@@ -61,11 +61,13 @@ target_sources(
         Logger/Test/Helium.Logger.Test.cppm
         Logger/Helium.Logger.cppm
         Main/Helium.Main.cppm
-        Modules/Helium.Modules.cppm
-        Modules/Module/Helium.Modules.Module.cppm
-        Modules/ModuleManager/Helium.Modules.ModuleManager.cppm
-        Modules/ModuleMetadata/Helium.Modules.ModuleMetadata.cppm
-        Modules/Test/Helium.Modules.Test.cppm
+        Parser/Helium.Parser.cppm
+        Plugins/Helium.Plugins.cppm
+        Plugins/Plugin/Helium.Plugins.PluginInstance.cppm
+        Plugins/PluginManager/Helium.Plugins.PluginManager.cppm
+        Plugins/PluginMetadata/Helium.Plugins.PluginMetadata.cppm
+        Plugins/Test/Helium.Plugins.Test.cppm
+        Server/Helium.Server.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
         Utils/Test/Helium.Utils.Test.cppm
         Utils/Helium.Utils.cppm
@@ -83,14 +85,14 @@ target_link_libraries(Helium PRIVATE cpptrace::cpptrace)
 find_path(BEXT_SML2_INCLUDE_DIRS "boost/sml2")
 target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})
 
-find_package(ut CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE Boost::ut)
+find_package(Catch2 3 REQUIRED)
+target_link_libraries(Helium PRIVATE Catch2::Catch2)
 
 find_package(Boost REQUIRED context filesystem program_options regex system thread chrono atomic)
 target_link_libraries(Helium PRIVATE Boost::boost Boost::context Boost::filesystem Boost::program_options Boost::regex Boost::system Boost::thread Boost::chrono Boost::atomic)
 
 find_package(fmt CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE fmt::fmt-header-only)
+target_link_libraries(Helium PRIVATE fmt::fmt)
 
 find_package(mpark_patterns CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE mpark_patterns)
@@ -111,7 +113,7 @@ find_path(PLF_HIVE_INCLUDE_DIRS "plf_hive.h")
 target_include_directories(Helium PRIVATE ${PLF_HIVE_INCLUDE_DIRS})
 
 find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE spdlog::spdlog_header_only)
+target_link_libraries(Helium PRIVATE spdlog::spdlog)
 
 find_package(stdexec CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE STDEXEC::stdexec)

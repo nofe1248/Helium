@@ -1,6 +1,6 @@
 /*
  * Helium is an open source software distributed under the MIT license.
- * Please refer to Helium.Main.ixx for full license info.
+ * Please refer to Helium.Main.cppm for full license info.
  */
 
 module;
@@ -20,11 +20,11 @@ module;
 
 #include <semver.hpp>
 
-export module Helium.Modules.ModuleMetadata;
+export module Helium.Plugins.PluginMetadata;
 
-export namespace helium::modules {
-	struct ModuleMetadata {
-		ModuleMetadata() {
+export namespace helium::plugins {
+	struct PluginMetadata {
+		PluginMetadata() {
 			this->uuid = boost::uuids::random_generator()();
 		}
 
@@ -44,8 +44,8 @@ export namespace helium::modules {
 		std::optional<std::vector<ModuleDependency>>	load_before;
 	};
 
-	struct ModuleMetadataHash {
-		auto operator()(helium::modules::ModuleMetadata const& metadata) const noexcept -> std::size_t {
+	struct PluginMetadataHash {
+		auto operator()(helium::plugins::PluginMetadata const& metadata) const noexcept -> std::size_t {
 			return boost::hash<boost::uuids::uuid>()(metadata.uuid);
 		}
 	};

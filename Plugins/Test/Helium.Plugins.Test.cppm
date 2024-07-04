@@ -1,6 +1,6 @@
 /*
  * Helium is an open source software distributed under the MIT license.
- * Please refer to Helium.Main.ixx for full license info.
+ * Please refer to Helium.Main.cppm for full license info.
  */
 
 module;
@@ -9,9 +9,9 @@ module;
 
 //#include <boost/ut.hpp>
 
-export module Helium.Modules.Test;
+export module Helium.Plugins.Test;
 
-export namespace helium::modules::test
+export namespace helium::plugins::test
 {
 	/*using namespace boost::ut;
 

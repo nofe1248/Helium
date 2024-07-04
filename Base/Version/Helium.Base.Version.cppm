@@ -1,7 +1,8 @@
 /*
  * Helium is an open source software distributed under the MIT license.
- * Please refer to Helium.Main.ixx for full license info.
+ * Please refer to Helium.Main.cppm for full license info.
  */
+
 module;
 
 #include <semver.hpp>
@@ -9,5 +10,5 @@ module;
 export module Helium.Base.Version;
 
 export namespace helium::base {
-constexpr semver::version helium_version{0, 0, 1, semver::prerelease::alpha, 15};
+constexpr semver::version helium_version{0, 0, 1, semver::prerelease::alpha, 16};
 }

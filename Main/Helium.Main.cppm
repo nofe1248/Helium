@@ -36,10 +36,13 @@ export module Helium.Main;
 export import Helium.Base;
 export import Helium.CLI;
 export import Helium.Commands;
+export import Helium.Config;
 export import Helium.Events;
 export import Helium.Exceptions;
 export import Helium.Logger;
-export import Helium.Modules;
+export import Helium.Parser;
+export import Helium.Plugins;
+export import Helium.Server;
 export import Helium.Utils;
 
 namespace helium::main
