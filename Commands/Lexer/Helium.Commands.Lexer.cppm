@@ -72,7 +72,7 @@ public:
     {
     }
 
-    auto processCommand(std::string const &cmd) -> std::optional<plf::hive<Token>>
+    auto processCommand(std::string const &cmd, bool report_errors = true) -> std::optional<plf::hive<Token>>
     {
         this->original_command_ = std::move(cmd);
         this->raw_command_ = boost::trim_copy(this->original_command_);
@@ -88,7 +88,9 @@ public:
             }
             else
             {
-                lexer_logger->error("{}", exp.error().msg);
+                if(report_errors) {
+                    lexer_logger->error("{}", exp.error().msg);
+                }
                 return std::nullopt;
             }
         }

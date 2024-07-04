@@ -11,6 +11,8 @@ module;
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <ranges>
+#include <regex>
 
 #include <replxx.hxx>
 
@@ -32,38 +34,147 @@ export namespace helium::cli
 commands::CommandDispatcher dispatcher;
 
 using syntax_highlight_t = std::vector<std::pair<std::string, repl::Replxx::Color>>;
-using keywords_highlight_t = std::unordered_map<std::string, repl::Replxx::Color>;
+using keyword_highlight_t = std::unordered_map<std::string, repl::Replxx::Color>;
+
+auto utf8stringCodepointLength( char const* s, std::size_t utf8len ) -> int {
+    int codepointLen = 0;
+    constexpr unsigned char m4 = 128 + 64 + 32 + 16;
+    constexpr unsigned char m3 = 128 + 64 + 32;
+    constexpr unsigned char m2 = 128 + 64;
+    for ( int i = 0; i < utf8len; ++ i, ++ codepointLen ) {
+        char c = s[i];
+        if ( ( c & m4 ) == m4 ) {
+            i += 3;
+        } else if ( ( c & m3 ) == m3 ) {
+            i += 2;
+        } else if ( ( c & m2 ) == m2 ) {
+            i += 1;
+        }
+    }
+    return codepointLen;
+}
 
 auto completionHook(std::string const &context, int &context_len) -> repl::Replxx::completions_t
 {
+    auto suggestions = dispatcher.getSuggestions(context, 50.0f);
     repl::Replxx::completions_t completions;
-    auto suggestions = dispatcher.getSuggestions(context);
-    logger->trace("");
-    for(auto const &str : suggestions)
+    if (context_len <= 1)
     {
-        logger->trace("completions : {}", str);
+        return completions;
     }
+    completions = suggestions | std::views::transform([](auto const &suggestion) { return repl::Replxx::Completion{ suggestion, repl::Replxx::Color::CYAN }; }) | std::ranges::to<repl::Replxx::completions_t>();
     return completions;
 }
 auto hintHook(std::string const &context, int &context_len, repl::Replxx::Color &color) -> repl::Replxx::hints_t
 {
     repl::Replxx::hints_t hints;
-    auto suggestions = dispatcher.getSuggestions(context);
-    logger->trace("");
-    for(auto const &str : suggestions)
+    if (context_len <= 1)
     {
-        logger->trace("hints : {}", str);
+        return hints;
+    }
+    hints = dispatcher.getSuggestions(context, 60.0f);
+    if(hints.size() == 1)
+    {
+        color = repl::Replxx::Color::GREEN;
     }
     return hints;
 }
-auto colorHook(std::string const &str, repl::Replxx::colors_t &colors) -> void
+auto colorHook(std::string const &context, repl::Replxx::colors_t &colors) -> void
 {
+    syntax_highlight_t regex_color {
+		{"[\\-|+]{0,1}[0-9]+", repl::Replxx::Color::YELLOW}, // integers
+        {"[\\-|+]{0,1}[0-9]*\\.[0-9]+", repl::Replxx::Color::YELLOW}, // decimals
+        {"[\\-|+]{0,1}[0-9]+e[\\-|+]{0,1}[0-9]+", repl::Replxx::Color::YELLOW}, // scientific notation
+        {"\".*?\"", repl::Replxx::Color::CYAN}, // double quotes
+        {"\'.*?\'", repl::Replxx::Color::CYAN}, // single quotes
+    };
+    keyword_highlight_t word_color {
+		{"`", repl::Replxx::Color::BRIGHTCYAN},
+        {"'", repl::Replxx::Color::CYAN},
+        {"\"", repl::Replxx::Color::CYAN},
+        {"-", repl::Replxx::Color::BRIGHTBLUE},
+        {"+", repl::Replxx::Color::BRIGHTBLUE},
+        {"=", repl::Replxx::Color::BRIGHTBLUE},
+        {"/", repl::Replxx::Color::BRIGHTBLUE},
+        {"*", repl::Replxx::Color::BRIGHTBLUE},
+        {"^", repl::Replxx::Color::BRIGHTBLUE},
+        {".", repl::Replxx::Color::BRIGHTMAGENTA},
+        {"(", repl::Replxx::Color::BRIGHTMAGENTA},
+        {")", repl::Replxx::Color::BRIGHTMAGENTA},
+        {"[", repl::Replxx::Color::BRIGHTMAGENTA},
+        {"]", repl::Replxx::Color::BRIGHTMAGENTA},
+        {"{", repl::Replxx::Color::BRIGHTMAGENTA},
+        {"}", repl::Replxx::Color::BRIGHTMAGENTA},
+    };
+    // highlight matching regex sequences
+	for (auto const& e : regex_color) {
+		std::size_t pos = 0;
+		std::string str = context;
+		std::smatch match;
+
+		while(std::regex_search(str, match, std::regex(e.first))) {
+			std::string c = match[0];
+			std::string prefix(match.prefix().str());
+			pos += utf8stringCodepointLength(prefix.c_str(), static_cast<int>( prefix.length()));
+			int len( utf8stringCodepointLength(c.c_str(), static_cast<int>(c.length())));
+
+			for (int i = 0; i < len; ++i) {
+				colors.at(pos + i) = e.second;
+			}
+
+			pos += len;
+			str = match.suffix();
+		}
+	}
+    auto is_keyword = [](char c) -> bool { return std::isalnum(c) or c == '_'; };
+    bool in_word = false;
+    std::size_t word_start = 0;
+    std::size_t word_end = 0;
+    std::size_t color_offset = 0;
+    auto do_highlight = [&](std::size_t i) {
+        in_word = false;
+        std::string const intermission = context.substr(word_end, word_start - word_end);
+        color_offset += utf8stringCodepointLength(intermission.c_str(), intermission.length());
+        std::size_t const wordLen = i - word_start;
+        std::string const keyword = context.substr(word_start, wordLen);
+        auto const it = word_color.find(keyword);
+        auto color = repl::Replxx::Color::DEFAULT;
+        if (it != word_color.end()) {
+            color = it->second;
+        }
+        for (int k = 0; k < wordLen; ++k) {
+            repl::Replxx::Color& c = colors.at(color_offset + k);
+            if (color != repl::Replxx::Color::DEFAULT) {
+                c = color;
+            }
+        }
+        color_offset += wordLen;
+        word_end = i;
+    };
+    for (int i = 0; i < static_cast<int>(context.length()); ++i) {
+        if (not in_word) {
+            if (is_keyword(context[i])) {
+                in_word = true;
+                word_start = i;
+            }
+        }
+        else if (in_word and not is_keyword(context[i])) {
+            do_highlight(i);
+        }
+        if (context[i] != '_' and std::ispunct(context[i])) {
+            word_start = i;
+            do_highlight(i + 1);
+        }
+    }
+    if (in_word) {
+        do_highlight(context.length());
+    }
 }
 auto modifyHook(std::string &line, int &cursor_position, repl::Replxx *)
 {
 }
 
-auto message(repl::Replxx &replxx, std::string s, char32_t) -> repl::Replxx::ACTION_RESULT
+auto message(repl::Replxx &replxx, std::string const &s, char32_t) -> repl::Replxx::ACTION_RESULT
 {
     replxx.invoke(repl::Replxx::ACTION::CLEAR_SELF, 0);
     replxx.print("%s\n", s.c_str());
@@ -82,6 +193,11 @@ auto mainCLILoop()
         CommandStringLiteral("#helium")
         .then(
             CommandStringLiteral("help"),
+            CommandStringLiteral("server")
+            .then(
+                CommandStringLiteral("start"),
+                CommandStringLiteral("stop")
+            ),
             CommandStringLiteral("show")
             .then(
                 CommandStringLiteral("warranty")
@@ -91,6 +207,20 @@ auto mainCLILoop()
                 CommandStringLiteral("copyright")
                 .execute([](CommandContext const &ctx) -> void {
                     logger->debug("#helium show copyright command executed.");
+                })
+            ),
+            CommandStringLiteral("debug")
+            .then(
+                CommandArgumentBoolean("debug_enable")
+                .execute([](CommandContext const &ctx, bool enabled) -> void {
+                    if(enabled)
+                    {
+                        logger->debug("Debug mode enabled.");
+                    }
+                    else
+                    {
+                        logger->debug("Debug mode disabled.");
+                    }
                 })
             )
         )
@@ -167,54 +297,54 @@ auto mainCLILoop()
     rx.bind_key_internal(repl::Replxx::KEY::meta('c'), "capitalize_word");
     rx.bind_key_internal('a', "insert_character");
     rx.bind_key_internal(repl::Replxx::KEY::INSERT, "toggle_overwrite_mode");
-    rx.bind_key(repl::Replxx::KEY::F1, std::bind(&message, std::ref(rx), "<F1>", _1));
-    rx.bind_key(repl::Replxx::KEY::F2, std::bind(&message, std::ref(rx), "<F2>", _1));
-    rx.bind_key(repl::Replxx::KEY::F3, std::bind(&message, std::ref(rx), "<F3>", _1));
-    rx.bind_key(repl::Replxx::KEY::F4, std::bind(&message, std::ref(rx), "<F4>", _1));
-    rx.bind_key(repl::Replxx::KEY::F5, std::bind(&message, std::ref(rx), "<F5>", _1));
-    rx.bind_key(repl::Replxx::KEY::F6, std::bind(&message, std::ref(rx), "<F6>", _1));
-    rx.bind_key(repl::Replxx::KEY::F7, std::bind(&message, std::ref(rx), "<F7>", _1));
-    rx.bind_key(repl::Replxx::KEY::F8, std::bind(&message, std::ref(rx), "<F8>", _1));
-    rx.bind_key(repl::Replxx::KEY::F9, std::bind(&message, std::ref(rx), "<F9>", _1));
-    rx.bind_key(repl::Replxx::KEY::F10, std::bind(&message, std::ref(rx), "<F10>", _1));
-    rx.bind_key(repl::Replxx::KEY::F11, std::bind(&message, std::ref(rx), "<F11>", _1));
-    rx.bind_key(repl::Replxx::KEY::F12, std::bind(&message, std::ref(rx), "<F12>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F1), std::bind(&message, std::ref(rx), "<S-F1>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F2), std::bind(&message, std::ref(rx), "<S-F2>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F3), std::bind(&message, std::ref(rx), "<S-F3>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F4), std::bind(&message, std::ref(rx), "<S-F4>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F5), std::bind(&message, std::ref(rx), "<S-F5>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F6), std::bind(&message, std::ref(rx), "<S-F6>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F7), std::bind(&message, std::ref(rx), "<S-F7>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F8), std::bind(&message, std::ref(rx), "<S-F8>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F9), std::bind(&message, std::ref(rx), "<S-F9>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F10), std::bind(&message, std::ref(rx), "<S-F10>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F11), std::bind(&message, std::ref(rx), "<S-F11>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F12), std::bind(&message, std::ref(rx), "<S-F12>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F1), std::bind(&message, std::ref(rx), "<C-F1>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F2), std::bind(&message, std::ref(rx), "<C-F2>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F3), std::bind(&message, std::ref(rx), "<C-F3>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F4), std::bind(&message, std::ref(rx), "<C-F4>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F5), std::bind(&message, std::ref(rx), "<C-F5>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F6), std::bind(&message, std::ref(rx), "<C-F6>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F7), std::bind(&message, std::ref(rx), "<C-F7>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F8), std::bind(&message, std::ref(rx), "<C-F8>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F9), std::bind(&message, std::ref(rx), "<C-F9>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F10), std::bind(&message, std::ref(rx), "<C-F10>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F11), std::bind(&message, std::ref(rx), "<C-F11>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F12), std::bind(&message, std::ref(rx), "<C-F12>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::TAB), std::bind(&message, std::ref(rx), "<S-Tab>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::HOME), std::bind(&message, std::ref(rx), "<C-Home>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::HOME), std::bind(&message, std::ref(rx), "<S-Home>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::END), std::bind(&message, std::ref(rx), "<C-End>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::END), std::bind(&message, std::ref(rx), "<S-End>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::PAGE_UP), std::bind(&message, std::ref(rx), "<C-PgUp>", _1));
-    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::PAGE_DOWN), std::bind(&message, std::ref(rx), "<C-PgDn>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::LEFT), std::bind(&message, std::ref(rx), "<S-Left>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::RIGHT), std::bind(&message, std::ref(rx), "<S-Right>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::UP), std::bind(&message, std::ref(rx), "<S-Up>", _1));
-    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::DOWN), std::bind(&message, std::ref(rx), "<S-Down>", _1));
-    rx.bind_key(repl::Replxx::KEY::meta('\r'), std::bind(&message, std::ref(rx), "<M-Enter>", _1));
+    rx.bind_key(repl::Replxx::KEY::F1, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F1>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F2, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F2>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F3, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F3>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F4, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F4>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F5, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F5>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F6, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F6>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F7, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F7>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F8, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F8>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F9, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F9>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F10, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F10>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F11, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F11>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::F12, [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<F12>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F1), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F1>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F2), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F2>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F3), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F3>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F4), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F4>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F5), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F5>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F6), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F6>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F7), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F7>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F8), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F8>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F9), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F9>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F10), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F10>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F11), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F11>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::F12), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-F12>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F1), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F1>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F2), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F2>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F3), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F3>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F4), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F4>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F5), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F5>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F6), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F6>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F7), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F7>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F8), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F8>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F9), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F9>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F10), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F10>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F11), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F11>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::F12), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-F12>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::TAB), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-Tab>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::HOME), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-Home>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::HOME), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-Home>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::END), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-End>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::END), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-End>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::PAGE_UP), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-PgUp>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::control(repl::Replxx::KEY::PAGE_DOWN), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<C-PgDn>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::LEFT), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-Left>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::RIGHT), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-Right>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::UP), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-Up>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::shift(repl::Replxx::KEY::DOWN), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<S-Down>", std::forward<T0>(PH1)); });
+    rx.bind_key(repl::Replxx::KEY::meta('\r'), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<M-Enter>", std::forward<T0>(PH1)); });
 
     logger->info("REPL initialized");
 
@@ -231,6 +361,7 @@ auto mainCLILoop()
 
         if (not input_command.empty())
         {
+            rx.print("%s\n", input_command.c_str());
             bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command);
             rx.history_add(input_command);
         }

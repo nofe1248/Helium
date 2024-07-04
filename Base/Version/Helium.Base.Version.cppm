@@ -9,5 +9,5 @@ module;
 export module Helium.Base.Version;
 
 export namespace helium::base {
-constexpr semver::version helium_version{0, 0, 1, semver::prerelease::alpha, 13};
+constexpr semver::version helium_version{0, 0, 1, semver::prerelease::alpha, 15};
 }

@@ -16,7 +16,7 @@ namespace helium::exceptions
 {
 auto printTerminateTrace() -> void
 {
-    cpptrace::generate_trace().print_with_snippets();
+    cpptrace::generate_trace(3).print_with_snippets();
 }
 auto terminateHandler() -> void
 {
