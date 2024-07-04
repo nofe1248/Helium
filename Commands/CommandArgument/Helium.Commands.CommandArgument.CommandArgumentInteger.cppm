@@ -5,15 +5,10 @@
 
 module;
 
-#include <cstdint>
-#include <functional>
 #include <memory>
 #include <charconv>
 #include <string>
-
-#include <proxy/proxy.h>
-
-#define FWD(x) ::std::forward<decltype(x)>(x)
+#include <utility>
 
 export module Helium.Commands.CommandArgument.CommandArgumentInteger;
 
@@ -34,7 +29,7 @@ public:
     using IntegerType = IntegerType_;
     using RawTokenStringConversionTarget = IntegerType;
 
-    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_INTEGER)
         {
@@ -43,11 +38,7 @@ public:
         }
         return false;
     }
-    static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> std::size_t
-    {
-        return 0;
-    }
-    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> IntegerType
+    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> IntegerType
     {
         if (tok.token_type == TokenCategory::TOKEN_INTEGER)
         {

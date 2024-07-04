@@ -19,9 +19,9 @@ export namespace helium::commands {
         {
             return false;
         }
-        static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> std::size_t
+        static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> double
         {
-            return 0;
+            return 0.0f;
         }
     };
 }

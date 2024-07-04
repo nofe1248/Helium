@@ -8,7 +8,8 @@ module;
 #include <memory>
 #include <optional>
 #include <string>
-#include <memory>
+
+#include <rapidfuzz/fuzz.hpp>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -28,7 +29,7 @@ class CommandStringLiteral : public CommandLiteralBase
 public:
     using CommandLiteralBase::CommandLiteralBase;
 
-    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type != TokenCategory::TOKEN_PLAIN_STRING)
         {
@@ -49,9 +50,15 @@ public:
         }
         return false;
     }
-    static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> std::size_t
+    static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> double
     {
-        return 0;
+        return node_descriptor->node_abbreviated_name.has_value() ? std::max(rapidfuzz::fuzz::partial_ratio(tok.token_string, node_descriptor->node_abbreviated_name.value()),
+                                                                             rapidfuzz::fuzz::partial_ratio(tok.token_string, node_descriptor->node_name))
+                                                                  : rapidfuzz::fuzz::partial_ratio(tok.token_string, node_descriptor->node_name);
+    }
+    static auto getSuggestion(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> std::string
+    {
+        return node_descriptor->node_name;
     }
 };
 } // namespace helium::commands

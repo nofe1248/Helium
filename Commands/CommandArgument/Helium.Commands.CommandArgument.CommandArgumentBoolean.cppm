@@ -5,12 +5,11 @@
 
 module;
 
-#include <functional>
 #include <string>
 #include <memory>
 #include <utility>
 
-#define FWD(x) ::std::forward<decltype(x)>(x)
+#include <rapidfuzz/fuzz.hpp>
 
 export module Helium.Commands.CommandArgument.CommandArgumentBoolean;
 
@@ -29,7 +28,7 @@ public:
     using CommandArgumentBase::CommandArgumentBase;
     using RawTokenStringConversionTarget = bool;
 
-    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_BOOLEAN)
         {
@@ -38,11 +37,7 @@ public:
         }
         return false;
     }
-    static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> std::size_t
-    {
-        return 0;
-    }
-    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
+    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_BOOLEAN)
         {

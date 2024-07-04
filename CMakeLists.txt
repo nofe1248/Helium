@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
-cmake_policy(VERSION 3.30)
+cmake_minimum_required(VERSION 3.29 FATAL_ERROR)
+cmake_policy(VERSION 3.29)
 
 project(Helium LANGUAGES CXX)
 
@@ -71,16 +71,14 @@ target_sources(
         Utils/Helium.Utils.cppm
 )
 
-find_package(libdwarf CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE libdwarf::dwarf)
-
-set(LIBDL_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-mingw-shared\\include\\libdwarf")
-set(LIBELF_INCLUDE_DIR "C:\\vcpkg\\installed\\x64-mingw-shared\\include\\libdwarf")
-set(LIBELF_LIBRARY "C:\\vcpkg\\installed\\x64-mingw-shared\\tools\\libdwarf")
-set(LIBDL_LIBRARY "C:\\vcpkg\\installed\\x64-mingw-shared\\tools\\libdwarf")
-
-find_package(Backward CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE Backward::Backward)
+include(FetchContent)
+FetchContent_Declare(
+        cpptrace
+        GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace.git
+        GIT_TAG        v0.6.2 # <HASH or TAG>
+)
+FetchContent_MakeAvailable(cpptrace)
+target_link_libraries(Helium PRIVATE cpptrace::cpptrace)
 
 find_path(BEXT_SML2_INCLUDE_DIRS "boost/sml2")
 target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})
@@ -112,27 +110,22 @@ target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
 find_path(PLF_HIVE_INCLUDE_DIRS "plf_hive.h")
 target_include_directories(Helium PRIVATE ${PLF_HIVE_INCLUDE_DIRS})
 
-find_package(proxy CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE msft_proxy)
-
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE spdlog::spdlog_header_only)
 
 find_package(stdexec CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
 
-find_path(PLF_NANOTIMER_INCLUDE_DIRS "plf_nanotimer.h")
-target_include_directories(Helium PRIVATE ${PLF_NANOTIMER_INCLUDE_DIRS})
-
-find_package(replxx CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE replxx::replxx)
-
 find_package(cxxopts CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE cxxopts::cxxopts)
-
-find_path(BEXT_SML2_INCLUDE_DIRS ")boost/sml2")
-target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})
 
 find_package(Python COMPONENTS Interpreter Development)
 find_package(pybind11 CONFIG)
 target_link_libraries(Helium PRIVATE pybind11::embed)
+
+find_package(rapidfuzz CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE rapidfuzz::rapidfuzz)
+
+#list(APPEND CMAKE_MODULE_PATH "C:\\Program Files (x86)\\replxx\\share\\cmake\\replxx")
+find_package(replxx CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE replxx::replxx)

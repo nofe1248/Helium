@@ -45,7 +45,10 @@ public:
     std::optional<std::vector<std::function<void(CommandContext const &, Token const &)>>> node_callback = std::nullopt;
 
     std::function<bool(Token const &)> try_accept_token;
-    std::function<std::size_t(Token const &)> token_similarity;
+
+    bool auto_completable = false;
+    std::function<double(Token const &)> token_similarity;
+    std::function<std::string(Token const &)> get_suggestion;
 
     CommandNodeDescriptor(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
         : node_name(std::move(command_name)), node_description(std::move(command_description)), node_abbreviated_name(std::move(command_abbreviated_name))
@@ -66,7 +69,7 @@ public:
         return std::format("CommandNodeDescriptor[.node_name = {}, .node_description = {}, .is_redirected = {}]", self.node_name, self.node_description, self.is_redirected);
     }
 
-    auto tryAcceptToken(this auto &&self, CommandContext const &context, Token const &tok) noexcept -> bool
+    auto tryAcceptToken(this auto &&self, Token const &tok) noexcept -> bool
     {
         if (not self.try_accept_token and not self.token_similarity)
         {
@@ -90,9 +93,9 @@ public:
                 }
             }
         }
-        if(self.node_callback.has_value())
+        if (self.node_callback.has_value())
         {
-            for(auto const& callback : self.node_callback.value())
+            for (auto const &callback : self.node_callback.value())
             {
                 callback(context, tok);
             }
@@ -107,26 +110,28 @@ class CommandNodeBase;
 export namespace helium::commands::concepts
 {
 template <typename Command_>
-concept IsCommandNode =
-    std::derived_from<Command_, commands::CommandNodeBase> and std::copyable<Command_> and std::movable<Command_> and requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
-        typename std::decay_t<Command_>::RawTokenStringConversionTarget;
-        {
-            std::decay_t<Command_>::tryAcceptToken(descriptor, tok)
-        } -> std::same_as<bool>;
-        {
-            std::decay_t<Command_>::tokenSimilarity(descriptor, tok)
-        } -> std::same_as<std::size_t>;
-        {
-            std::decay_t<Command_>::convertRawTokenToTargetType(descriptor, tok)
-        } -> std::same_as<typename std::decay_t<Command_>::RawTokenStringConversionTarget>;
-    } or requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
-        {
-            std::decay_t<Command_>::tryAcceptToken(descriptor, tok)
-        } -> std::same_as<bool>;
-        {
-            std::decay_t<Command_>::tokenSimilarity(descriptor, tok)
-        } -> std::same_as<std::size_t>;
-    };
+concept IsCommandNode = std::derived_from<std::decay_t<Command_>, commands::CommandNodeBase> and std::copyable<std::decay_t<Command_>> and std::movable<std::decay_t<Command_>> and
+                        requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
+                            {
+                                std::decay_t<Command_>::tryAcceptToken(descriptor, tok)
+                            } -> std::same_as<bool>;
+                        };
+template <typename Command_>
+concept IsCommandNodeHasConversionTarget = IsCommandNode<Command_> and requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
+    typename std::decay_t<Command_>::RawTokenStringConversionTarget;
+    {
+        std::decay_t<Command_>::convertRawTokenToTargetType(descriptor, tok)
+    } -> std::same_as<typename std::decay_t<Command_>::RawTokenStringConversionTarget>;
+};
+template <typename Command_>
+concept IsCommandNodeAutocompletable = IsCommandNode<Command_> and requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
+    {
+        std::decay_t<Command_>::tokenSimilarity(descriptor, tok)
+    } -> std::same_as<double>;
+    {
+        std::decay_t<Command_>::getSuggestion(descriptor, tok)
+    } -> std::same_as<std::string>;
+};
 } // namespace helium::commands::concepts
 
 namespace helium::commands
@@ -163,8 +168,14 @@ protected:
         {
             self.node_descriptor_->try_accept_token = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tryAcceptToken(
                                                           std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> bool { return SelfT::tryAcceptToken(descriptor, tok); };
-            self.node_descriptor_->token_similarity = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tokenSimilarity(
-                                                          std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> std::size_t { return SelfT::tokenSimilarity(descriptor, tok); };
+            if constexpr (concepts::IsCommandNodeAutocompletable<SelfT>)
+            {
+                self.node_descriptor_->auto_completable = true;
+                self.node_descriptor_->token_similarity = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tokenSimilarity(
+                                                              std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> double { return SelfT::tokenSimilarity(descriptor, tok); };
+                self.node_descriptor_->get_suggestion = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::getSuggestion(
+                                                              std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> std::string { return SelfT::getSuggestion(descriptor, tok); };
+            }
             self.descriptor_initialized_ = true;
         }
     }
@@ -210,7 +221,7 @@ public:
     auto addForwardNode(this auto &&self, std::shared_ptr<CommandNodeDescriptor> const forward_node) -> void
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
-        if(not FWD(self).node_descriptor_->forward_nodes.has_value())
+        if (not FWD(self).node_descriptor_->forward_nodes.has_value())
         {
             FWD(self).node_descriptor_->forward_nodes = plf::hive<std::shared_ptr<CommandNodeDescriptor>>{};
         }

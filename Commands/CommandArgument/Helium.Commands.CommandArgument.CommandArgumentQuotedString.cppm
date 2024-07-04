@@ -5,12 +5,9 @@
 
 module;
 
-#include <functional>
 #include <memory>
-#include <optional>
 #include <string>
-
-#define FWD(x) ::std::forward<decltype(x)>(x)
+#include <utility>
 
 export module Helium.Commands.CommandArgument.CommandArgumentQuotedString;
 
@@ -28,18 +25,24 @@ class CommandArgumentQuotedString : public CommandArgumentBase
 public:
     using CommandArgumentBase::CommandArgumentBase;
 
-    auto tryAcceptToken(Token const &tok) noexcept -> bool
+    using RawTokenStringConversionTarget = std::string;
+
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_QUOTED_STRING)
         {
-            this->node_descriptor_->recent_accepted_token = tok;
+            node_descriptor->recent_accepted_token = tok;
             return true;
         }
         return false;
     }
-    auto tokenSimilarity(Token const &tok) const noexcept -> std::size_t
+    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> std::string
     {
-        return 0;
+        if (tok.token_type == TokenCategory::TOKEN_QUOTED_STRING)
+        {
+            return tok.token_string;
+        }
+        std::unreachable();
     }
 };
 } // namespace helium::commands

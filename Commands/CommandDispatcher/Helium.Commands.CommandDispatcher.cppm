@@ -4,9 +4,13 @@
  */
 module;
 
+#include <algorithm>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include <plf_hive.h>
 
@@ -35,7 +39,6 @@ class CommandDispatcher final : public base::HeliumObject
 private:
     CommandRoot command_root_{};
     CommandLexer lexer_;
-    std::string recent_executed_command_;
     plf::hive<Token> tokens_cache_;
 
 public:
@@ -46,10 +49,9 @@ public:
         this->command_root_.then(FWD(command));
     }
 
-    auto tryExecuteCommand(CommandSource const &source, std::string command) -> bool
+    auto tryExecuteCommand(CommandSource const &source, std::string const &command) -> bool
     {
-        this->recent_executed_command_ = std::move(command);
-        if (auto opt = this->lexer_.processCommand(this->recent_executed_command_))
+        if (auto opt = this->lexer_.processCommand(command))
         {
             this->tokens_cache_ = std::move(opt.value());
         }
@@ -68,11 +70,11 @@ public:
                 {
                     for (auto redirect_node : current_node->forward_nodes.value())
                     {
-                        if(redirect_node->child_nodes.size() > 0)
+                        if (redirect_node->child_nodes.size() > 0)
                         {
-                            for(auto child_node_of_redirected : redirect_node->child_nodes)
+                            for (auto child_node_of_redirected : redirect_node->child_nodes)
                             {
-                                if (child_node_of_redirected->tryAcceptToken(context, *tok_it))
+                                if (child_node_of_redirected->tryAcceptToken(*tok_it))
                                 {
                                     current_node = child_node_of_redirected;
                                     matched = true;
@@ -82,7 +84,7 @@ public:
                         }
                     }
                 }
-                if(not matched)
+                if (not matched)
                 {
                     return false;
                 }
@@ -94,11 +96,11 @@ public:
             else
             {
                 bool matched = false;
-                if(current_node->child_nodes.size() > 0)
+                if (current_node->child_nodes.size() > 0)
                 {
-                    for(auto child_node : current_node->child_nodes)
+                    for (auto child_node : current_node->child_nodes)
                     {
-                        if (child_node->tryAcceptToken(context, *tok_it))
+                        if (child_node->tryAcceptToken(*tok_it))
                         {
                             current_node = child_node;
                             matched = true;
@@ -106,15 +108,15 @@ public:
                         }
                     }
                 }
-                if(current_node->forward_nodes.has_value() and not matched)
+                if (current_node->forward_nodes.has_value() and not matched)
                 {
                     for (auto forward_node : current_node->forward_nodes.value())
                     {
-                        if(forward_node->child_nodes.size() > 0)
+                        if (forward_node->child_nodes.size() > 0)
                         {
-                            for(auto child_node_of_forked : forward_node->child_nodes)
+                            for (auto child_node_of_forked : forward_node->child_nodes)
                             {
-                                if (child_node_of_forked->tryAcceptToken(context, *tok_it))
+                                if (child_node_of_forked->tryAcceptToken(*tok_it))
                                 {
                                     current_node = child_node_of_forked;
                                     matched = true;
@@ -124,7 +126,7 @@ public:
                         }
                     }
                 }
-                if(not matched)
+                if (not matched)
                 {
                     return false;
                 }
@@ -139,7 +141,228 @@ public:
             return true;
         }
         return false;
-        return false;
+    }
+
+    auto getSuggestions(std::string const &command) -> std::vector<std::string>
+    {
+        if (auto opt = this->lexer_.processCommand(command))
+        {
+            this->tokens_cache_ = std::move(opt.value());
+        }
+        else
+        {
+            return {};
+        }
+
+        auto current_node = this->command_root_.getNodeDescriptor().lock();
+        auto tok_it = this->tokens_cache_.begin();
+
+        if (this->tokens_cache_.size() == 1)
+        {
+            if (current_node->is_redirected)
+            {
+                bool matched = false;
+                if (current_node->forward_nodes.has_value())
+                {
+                    for (auto redirect_node : current_node->forward_nodes.value())
+                    {
+                        if (redirect_node->child_nodes.size() > 0)
+                        {
+                            std::vector<std::pair<std::string, double>> node_similarity;
+                            for (auto child_node_of_redirected : redirect_node->child_nodes)
+                            {
+                                if (child_node_of_redirected->auto_completable)
+                                {
+                                    node_similarity.push_back({child_node_of_redirected->node_name, child_node_of_redirected->token_similarity(*tok_it)});
+                                }
+                            }
+                            std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+                            return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+                        }
+                    }
+                }
+                if (not matched)
+                {
+                    return {};
+                }
+            }
+            else
+            {
+                bool matched = false;
+                if (current_node->child_nodes.size() > 0)
+                {
+                    for (auto child_node : current_node->child_nodes)
+                    {
+                        std::vector<std::pair<std::string, double>> node_similarity;
+                        if (child_node->auto_completable)
+                        {
+                            node_similarity.push_back({child_node->node_name, child_node->token_similarity(*tok_it)});
+                        }
+                        std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+                        return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+                    }
+                }
+                if (current_node->forward_nodes.has_value() and not matched)
+                {
+                    for (auto forward_node : current_node->forward_nodes.value())
+                    {
+                        if (forward_node->child_nodes.size() > 0)
+                        {
+                            for (auto child_node_of_forked : forward_node->child_nodes)
+                            {
+                                std::vector<std::pair<std::string, double>> node_similarity;
+                                if (child_node_of_forked->auto_completable)
+                                {
+                                    node_similarity.push_back({child_node_of_forked->node_name, child_node_of_forked->token_similarity(*tok_it)});
+                                }
+                                std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+                                return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+                            }
+                        }
+                    }
+                }
+                if (not matched)
+                {
+                    return {};
+                }
+            }
+        }
+
+        for (; std::distance(tok_it, this->tokens_cache_.end()) >= 2; ++tok_it)
+        {
+            if (current_node->is_redirected)
+            {
+                bool matched = false;
+                if (current_node->forward_nodes.has_value())
+                {
+                    for (auto redirect_node : current_node->forward_nodes.value())
+                    {
+                        if (redirect_node->child_nodes.size() > 0)
+                        {
+                            for (auto child_node_of_redirected : redirect_node->child_nodes)
+                            {
+                                if (child_node_of_redirected->tryAcceptToken(*tok_it))
+                                {
+                                    current_node = child_node_of_redirected;
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (not matched)
+                {
+                    return {};
+                }
+            }
+            else
+            {
+                bool matched = false;
+                if (current_node->child_nodes.size() > 0)
+                {
+                    for (auto child_node : current_node->child_nodes)
+                    {
+                        if (child_node->tryAcceptToken(*tok_it))
+                        {
+                            current_node = child_node;
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                if (current_node->forward_nodes.has_value() and not matched)
+                {
+                    for (auto forward_node : current_node->forward_nodes.value())
+                    {
+                        if (forward_node->child_nodes.size() > 0)
+                        {
+                            for (auto child_node_of_forked : forward_node->child_nodes)
+                            {
+                                if (child_node_of_forked->tryAcceptToken(*tok_it))
+                                {
+                                    current_node = child_node_of_forked;
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (not matched)
+                {
+                    return {};
+                }
+            }
+        }
+        if (current_node->is_redirected)
+        {
+            bool matched = false;
+            if (current_node->forward_nodes.has_value())
+            {
+                for (auto redirect_node : current_node->forward_nodes.value())
+                {
+                    if (redirect_node->child_nodes.size() > 0)
+                    {
+                        std::vector<std::pair<std::string, double>> node_similarity;
+                        for (auto child_node_of_redirected : redirect_node->child_nodes)
+                        {
+                            if (child_node_of_redirected->auto_completable)
+                            {
+                                node_similarity.push_back({child_node_of_redirected->node_name, child_node_of_redirected->token_similarity(*tok_it)});
+                            }
+                        }
+                        std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+                        return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+                    }
+                }
+            }
+            if (not matched)
+            {
+                return {};
+            }
+        }
+        else
+        {
+            bool matched = false;
+            if (current_node->child_nodes.size() > 0)
+            {
+                for (auto child_node : current_node->child_nodes)
+                {
+                    std::vector<std::pair<std::string, double>> node_similarity;
+                    if (child_node->auto_completable)
+                    {
+                        node_similarity.push_back({child_node->node_name, child_node->token_similarity(*tok_it)});
+                    }
+                    std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+                    return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+                }
+            }
+            if (current_node->forward_nodes.has_value() and not matched)
+            {
+                for (auto forward_node : current_node->forward_nodes.value())
+                {
+                    if (forward_node->child_nodes.size() > 0)
+                    {
+                        for (auto child_node_of_forked : forward_node->child_nodes)
+                        {
+                            std::vector<std::pair<std::string, double>> node_similarity;
+                            if (child_node_of_forked->auto_completable)
+                            {
+                                node_similarity.push_back({child_node_of_forked->node_name, child_node_of_forked->token_similarity(*tok_it)});
+                            }
+                            std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+                            return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+                        }
+                    }
+                }
+            }
+            if (not matched)
+            {
+                return {};
+            }
+        }
+        return {};
     }
 };
 } // namespace helium::commands

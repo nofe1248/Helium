@@ -5,15 +5,9 @@
 
 module;
 
-#include <functional>
-#include <limits>
 #include <memory>
-#include <optional>
 #include <string>
-
-#include <proxy/proxy.h>
-
-#define FWD(x) ::std::forward<decltype(x)>(x)
+#include <utility>
 
 export module Helium.Commands.CommandArgument.CommandArgumentFloatingPoint;
 
@@ -32,19 +26,29 @@ public:
     using CommandArgumentBase::CommandArgumentBase;
 
     using FloatingPointType = FPType_;
+    using RawTokenStringConversionTarget = FloatingPointType;
 
-    auto tryAcceptToken(Token const &tok) const noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {
         if (tok.token_type == TokenCategory::TOKEN_FLOATING_POINT)
         {
-            this->node_descriptor_->recent_accepted_token = tok;
+            node_descriptor->recent_accepted_token = tok;
             return true;
         }
-            return false;
+        return false;
     }
-    auto tokenSimilarity(Token const &tok) const noexcept -> std::size_t
+    static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> FloatingPointType
     {
-        return 0;
+        if (tok.token_type == TokenCategory::TOKEN_FLOATING_POINT)
+        {
+            FloatingPointType result;
+            auto [ptr, ec] = std::from_chars(tok.token_string.data(), tok.token_string.data() + tok.token_string.size(), result);
+            if(ec == std::errc())
+            {
+                return result;
+            }
+        }
+        std::unreachable();
     }
 };
 } // namespace helium::commands
