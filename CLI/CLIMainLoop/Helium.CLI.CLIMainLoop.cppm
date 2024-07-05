@@ -412,7 +412,7 @@ auto mainCLILoop()
     logger->info("REPL initialized");
 
     char const *c_input = nullptr;
-    std::string prompt = "Helium$";
+    std::string prompt = "Helium$ ";
     while (cli_loop_continue)
     {
         do

@@ -7,18 +7,20 @@ module;
 
 #include <format>
 #include <string>
-#include <type_traits>
+#include <utility>
 
 #include <nameof.hpp>
+
+#define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Base.HeliumObject;
 
 export namespace helium::base {
     class HeliumObject {
     public:
-        auto toString(this auto const& self) -> std::string {
+        auto toString(this auto &&self) -> std::string {
             return std::format(
-                "<Object {}(size: {}, align: {}) at 0x{:X}>",
+                "{}(size: {}, align: {}) at 0x{:X}",
                 nameof::nameof_type<decltype(self)>(),
                 sizeof(decltype(self)),
                 alignof(decltype(self)),

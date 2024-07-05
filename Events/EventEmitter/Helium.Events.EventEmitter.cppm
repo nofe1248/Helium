@@ -5,10 +5,7 @@
 
 module;
 
-#include <algorithm>
-#include <compare>
-#include <concepts>
-#include <string>
+#include <memory>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
 #define BOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT
@@ -20,39 +17,30 @@ module;
 export module Helium.Events.EventEmitter;
 
 import Helium.Base.HeliumObject;
+import Helium.Events.EventBus;
 
 import Helium.Events.Concepts;
-import Helium.Events.Policy;
 
-export namespace helium::events::details {
-    template<concepts::IsEventEmitterPolicy Policy_, typename MixinRoot_>
-    class EventEmitterBase {
-    protected:
-        using ThisType = EventEmitterBase<Policy_, MixinRoot_>;
+namespace uuids = boost::uuids;
 
-        using MixinRoot = std::conditional_t<std::same_as<MixinRoot_, void>, ThisType, MixinRoot_>;
+export namespace helium::events
+{
+using EventEmitterIDType = uuids::uuid;
+class EventEmitter final : public base::HeliumObject
+{
+private:
+    EventEmitterIDType id_ = uuids::random_generator()();
+    std::shared_ptr<EventBus> event_bus_ = nullptr;
 
-        using Policy = Policy_;
+public:
+    explicit EventEmitter() = default;
+    explicit EventEmitter(std::shared_ptr<EventBus> event_bus) : event_bus_(event_bus)
+    {
+    }
 
-        using Mixins = typename SelectMixins<Policy, details::hasTypeMixins<Policy>>::Type;
-
-    public:
-        EventEmitterBase() = default;
-        EventEmitterBase(EventEmitterBase const &that) = default;
-        EventEmitterBase(EventEmitterBase &&that) noexcept = default;
-        auto operator=(EventEmitterBase const &that) -> EventEmitterBase & = default;
-        auto operator=(EventEmitterBase &&that) noexcept -> EventEmitterBase & = default;
-    };
-} // namespace helium::events::details
-
-export namespace helium::events {
-    template<concepts::IsEventEmitterPolicy Policy_>
-    class EventEmitter : public BaseHelper<details::EventEmitterBase<Policy_, void>, Policy_>,
-                         public base::HeliumObject {
-    private:
-        using super = BaseHelper<details::EventEmitterBase<Policy_, void>, Policy_>;
-
-    public:
-        using super::super;
-    };
+    EventEmitter(EventEmitter const &) = default;
+    EventEmitter &operator=(EventEmitter const &) = default;
+    EventEmitter(EventEmitter &&) noexcept = default;
+    EventEmitter &operator=(EventEmitter &&) noexcept = default;
+};
 } // namespace helium::events

@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 1)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-add_compile_definitions(BOOST_UT_DISABLE_MODULE)
-
 add_executable(Helium)
 
 target_sources(
@@ -45,13 +43,9 @@ target_sources(
         Events/EventBus/Helium.Events.EventBus.cppm
         Events/EventEmitter/Helium.Events.EventEmitter.cppm
         Events/EventListener/Helium.Events.EventListener.cppm
-        Events/EventManager/Helium.Events.EventManager.cppm
+        Events/EventStream/Helium.Events.EventStream.cppm
         Events/Helium/Helium.Events.Helium.cppm
         Events/ListenerStream/Helium.Events.ListenerStream.cppm
-        Events/Policy/Helium.Events.Policy.cppm
-        Events/Policy/Helium.Events.Policy.EventEmitterPolicy.cppm
-        Events/Policy/Helium.Events.Policy.EventListenerPolicy.cppm
-        Events/Policy/Helium.Events.Policy.PolicyHelper.cppm
         Events/Test/Helium.Events.Test.cppm
         Events/Helium.Events.cppm
         Exceptions/TerminateHandler/Helium.Exceptions.TerminateHandler.cppm
@@ -81,6 +75,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cpptrace)
 target_link_libraries(Helium PRIVATE cpptrace::cpptrace)
+
+find_package(tomlplusplus CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE tomlplusplus::tomlplusplus)
+
+find_package(reflectcpp CONFIG REQUIRED)
+set(REFLECTCPP_TOML ON)
+target_link_libraries(Helium PRIVATE reflectcpp::reflectcpp)
 
 find_path(BEXT_SML2_INCLUDE_DIRS "boost/sml2")
 target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})

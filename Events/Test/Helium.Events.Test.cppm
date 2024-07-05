@@ -12,7 +12,6 @@ module;
 export module Helium.Events.Test;
 
 import Helium.Events.EventEmitter;
-import Helium.Events.Policy;
 
 export namespace helium::events::test {
     /*using namespace boost::ut;

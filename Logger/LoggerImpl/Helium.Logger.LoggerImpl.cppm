@@ -48,7 +48,6 @@ private:
         auto vec = std::vector<spdlog::sink_ptr>{stdout_sink, file_sink};
         auto logger_ptr = std::make_shared<spdlog::logger>(name, begin(vec), end(vec));
         logger_ptr->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] %v");
-        logger_ptr->set_level(spdlog::level::trace);
 
         spdlog::register_logger(logger_ptr);
         return logger_ptr;
@@ -102,39 +101,13 @@ public:
         this->log(LogLevel::critical, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    template <typename... Args> auto logw(LogLevel log_level, std::wstring_view fmt_str, Args &&...fmt_args) const -> void
+    auto enableDebugLog(this auto&& self) noexcept -> void
     {
-        this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level), std::vformat(fmt_str, std::make_wformat_args(std::forward<Args>(fmt_args)...)));
+        std::forward<decltype(self)>(self).logger_ptr_->set_level(spdlog::level::trace);
     }
-
-    template <typename... Args> auto tracew(std::wstring_view fmt_str, Args &&...fmt_args) const -> void
+    auto disableDebugLog(this auto&& self) noexcept -> void
     {
-        this->logw(LogLevel::trace, fmt_str, std::forward<Args>(fmt_args)...);
-    }
-
-    template <typename... Args> auto debugw(std::wstring_view fmt_str, Args &&...fmt_args) const -> void
-    {
-        this->logw(LogLevel::debug, fmt_str, std::forward<Args>(fmt_args)...);
-    }
-
-    template <typename... Args> auto infow(std::wstring_view fmt_str, Args &&...fmt_args) const -> void
-    {
-        this->logw(LogLevel::info, fmt_str, std::forward<Args>(fmt_args)...);
-    }
-
-    template <typename... Args> auto warnw(std::wstring_view fmt_str, Args &&...fmt_args) const -> void
-    {
-        this->logw(LogLevel::warn, fmt_str, std::forward<Args>(fmt_args)...);
-    }
-
-    template <typename... Args> auto errorw(std::wstring_view fmt_str, Args &&...fmt_args) const -> void
-    {
-        this->logw(LogLevel::error, fmt_str, std::forward<Args>(fmt_args)...);
-    }
-
-    template <typename... Args> auto criticalw(std::wstring_view fmt_str, Args &&...fmt_args) const -> void
-    {
-        this->logw(LogLevel::critical, fmt_str, std::forward<Args>(fmt_args)...);
+        std::forward<decltype(self)>(self).logger_ptr_->set_level(spdlog::level::info);
     }
 };
 } // namespace helium::logger

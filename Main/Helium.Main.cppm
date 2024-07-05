@@ -29,8 +29,6 @@ module;
 
 #include <cxxopts.hpp>
 
-#include <cpptrace/cpptrace.hpp>
-
 export module Helium.Main;
 
 export import Helium.Base;
@@ -54,8 +52,17 @@ export namespace helium::main
 {
 auto heliumMain(int argc, const char *argv[]) -> int
 {
-    logger->info("Helium version {}", base::helium_version.to_string());
+    logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
+
+    bool b = config::readConfig();
+
+    if(config::config.debug.debug_mode)
+    {
+        logger->enableDebugLog();
+        logger->debug("Entered debug mode.");
+    }
+
     options.add_options()("runTest", "Execute tests", cxxopts::value<bool>()->default_value("false"));
     options.allow_unrecognised_options();
 
@@ -74,6 +81,8 @@ auto heliumMain(int argc, const char *argv[]) -> int
     }
 
     cli::mainCLILoop();
+
+    config::saveConfig();
 
     return 0;
 }
