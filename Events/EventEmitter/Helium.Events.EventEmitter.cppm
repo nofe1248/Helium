@@ -6,6 +6,7 @@
 module;
 
 #include <memory>
+#include <utility>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
 #define BOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT
@@ -13,6 +14,8 @@ module;
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+
+#define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Events.EventEmitter;
 
@@ -42,5 +45,21 @@ public:
     EventEmitter &operator=(EventEmitter const &) = default;
     EventEmitter(EventEmitter &&) noexcept = default;
     EventEmitter &operator=(EventEmitter &&) noexcept = default;
+
+    template <concepts::IsEvent EventT>
+    auto postponeEvent(this auto &&self, EventT event) -> void
+    {
+        FWD(self).event_bus_->postponeEvent(event);
+    }
+
+    constexpr auto getID(this auto &&self) -> EventEmitterIDType
+    {
+        return FWD(self).id_;
+    }
+
+    constexpr auto getEventBus(this auto &&self) -> std::shared_ptr<EventBus>
+    {
+        return FWD(self).event_bus_;
+    }
 };
 } // namespace helium::events

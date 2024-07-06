@@ -132,3 +132,6 @@ target_link_libraries(Helium PRIVATE rapidfuzz::rapidfuzz)
 #list(APPEND CMAKE_MODULE_PATH "C:\\Program Files (x86)\\replxx\\share\\cmake\\replxx")
 find_package(replxx CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE replxx::replxx)
+
+find_package(proxy CONFIG REQUIRED)
+target_link_libraries(Helium PRIVATE msft_proxy)

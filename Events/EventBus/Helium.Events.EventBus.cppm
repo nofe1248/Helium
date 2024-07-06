@@ -8,7 +8,10 @@ module;
 #include <any>
 #include <functional>
 #include <memory>
+#include <ranges>
+#include <shared_mutex>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 
@@ -20,6 +23,8 @@ module;
 #include <boost/uuid/uuid.hpp>
 
 #include <nameof.hpp>
+
+#include <proxy/proxy.h>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -42,36 +47,117 @@ using EventListenerIDType = uuids::uuid;
 
 namespace helium::events::internal
 {
-template <typename Event>
-auto getEventID() noexcept -> EventIDType
+struct Hash
 {
-    static constexpr auto event_id = std::hash<std::string_view>{}(nameof::nameof_full_type<Event>());
+    long long p = 31, m = 1e9 + 7;
+    long long hash_value;
+    constexpr Hash(std::string_view const &s)
+    {
+        long long hash_so_far = 0;
+        long long p_pow = 1;
+        long long const n = s.length();
+        for (long long i = 0; i < n; ++i)
+        {
+            hash_so_far = (hash_so_far + (s[i] - 'a' + 1) * p_pow) % m;
+            p_pow = (p_pow * p) % m;
+        }
+        hash_value = hash_so_far;
+    }
+    constexpr auto operator==(Hash const &other) const noexcept -> bool
+    {
+        return hash_value == other.hash_value;
+    }
+};
+template <concepts::IsEvent Event>
+constexpr auto getEventID() noexcept -> EventIDType
+{
+    static constexpr auto event_id = Hash(nameof::nameof_full_type<Event>()).hash_value;
     return event_id;
 }
 } // namespace helium::events::internal
 
 export namespace helium::events
 {
-class EventBus final : public base::HeliumObject
+class EventBus final : public base::HeliumObject, public std::enable_shared_from_this<EventBus>
 {
 private:
-    class EventStreamHelper
-    {
-        std::any event_stream;
+    std::unordered_map<EventIDType, EventStreamProxy> event_streams_map;
 
-    public:
-        template <concepts::IsEvent EventT>
-        constexpr auto getStream(this auto &&self) -> EventStream<EventT> &
+    mutable std::shared_mutex mutex_streams_;
+    mutable std::shared_mutex mutex_process_;
+
+    template <concepts::IsEvent EventT>
+    constexpr auto getEventStream(this auto &&self) -> EventStreamProxy
+    {
+        std::lock_guard guard(self.mutex_streams_);
+        static constexpr auto event_id = internal::getEventID<EventT>();
+        if (not FWD(self).event_streams_map.contains(event_id))
         {
-            return std::any_cast<EventStream<EventT> &>(self.event_stream);
+            FWD(self).event_streams_map.at(event_id) = pro::make_proxy<proxy::EventStreamFacade>(EventStream<EventT>{});
         }
-    };
-    std::unordered_map<EventIDType, EventStreamHelper> event_streams_map;
+        return FWD(self).event_streams_map.at(event_id);
+    }
 
 public:
-    template <concepts::IsEvent EventT>
-    auto listenToEvent(this auto &&self, EventListenerIDType listener_id, std::function<void(EventT const &)> &&callback) -> void
+    auto processEvents(this auto &&self) -> void
     {
+        std::lock_guard _(FWD(self).mutex_process_);
+        std::unordered_map<EventIDType, EventStreamProxy> streams;
+        {
+            std::lock_guard write_guard(FWD(self).mutex_streams_);
+            std::swap(streams, FWD(self).event_streams_map);
+        }
+
+        for (EventStreamProxy &event_stream : FWD(self).event_streams_map | std::views::values)
+        {
+            event_stream->processEvents();
+        }
+
+        {
+            std::lock_guard write_guard(FWD(self).mutex_streams_);
+            if (not FWD(self).event_streams_map.empty())
+            {
+                std::move(FWD(self).event_streams_map.begin(), FWD(self).event_streams_map.end(), std::back_inserter(streams));
+            }
+            std::swap(streams, FWD(self).event_streams_map);
+        }
+    }
+
+    template <concepts::IsEvent EventT>
+    auto postponeEvent(this auto &&self, EventT event) -> void
+    {
+        FWD(self).template getEventStream<EventT>()->postponeEvent(event);
+    }
+
+    template <concepts::IsEvent EventT>
+    auto listenToEvent(this auto &&self, EventListenerIDType const &listener_id, std::function<void(EventT const &)> &&callback) -> void
+    {
+        FWD(self).template getEventStream<EventT>()->addListener(listener_id, callback);
+    }
+
+    template <concepts::IsEvent EventT>
+    [[nodiscard]] auto unlistenToEvent(this auto &&self, EventListenerIDType const &listener_id) -> bool
+    {
+        return FWD(self).template getEventStream<EventT>()->removeListener(listener_id);
+    }
+
+    auto unlistenAll(this auto &&self, EventListenerIDType const &listener_id) -> void
+    {
+        for (EventStreamProxy &stream : FWD(self).event_streams_map | std::views::values)
+        {
+            stream->removeListener(listener_id);
+        }
+    }
+
+    template <concepts::IsEvent EventT>
+    [[nodiscard]] auto isListeningToEvent(this auto &&self, EventListenerIDType const &listener_id) -> bool
+    {
+        return FWD(self).template getEventStream<EventT>()->hasListener(listener_id);
+    }
+
+    [[nodiscard]] auto getEventBus(this auto &&self) -> std::shared_ptr<EventBus>
+    {
+        return FWD(self).shared_from_this();
     }
 };
 } // namespace helium::events
