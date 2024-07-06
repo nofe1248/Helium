@@ -5,6 +5,7 @@
 
 export module Helium.Plugins;
 
+export import Helium.Plugins.Bindings;
 export import Helium.Plugins.PluginMetadata;
 export import Helium.Plugins.PluginInstance;
 export import Helium.Plugins.PluginManager;

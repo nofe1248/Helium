@@ -8,11 +8,15 @@ module;
 #include <memory>
 #include <unordered_map>
 
+#include <pybind11/embed.h>
+
 export module Helium.Plugins.PluginManager;
 
 import Helium.Base;
 import Helium.Plugins.PluginMetadata;
 import Helium.Plugins.PluginInstance;
+
+namespace py = pybind11;
 
 export namespace helium::plugins {
     class PluginManager : public base::HeliumObject {
@@ -24,5 +28,17 @@ export namespace helium::plugins {
             static PluginManager instance;
             return instance;
         }
+
+        PluginManager()
+        {
+            py::initialize_interpreter();
+        }
+
+        ~PluginManager()
+        {
+            py::finalize_interpreter();
+        }
     };
+
+    PluginManager plugin_manager = PluginManager::getInstance();
 } // namespace helium::modules

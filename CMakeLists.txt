@@ -56,8 +56,10 @@ target_sources(
         Logger/Helium.Logger.cppm
         Main/Helium.Main.cppm
         Parser/Helium.Parser.cppm
+        Plugins/Bindings/Helium.Plugins.Bindings.cppm
+        Plugins/Bindings/Helium.Plugins.Bindings.Python.cppm
         Plugins/Helium.Plugins.cppm
-        Plugins/Plugin/Helium.Plugins.PluginInstance.cppm
+        Plugins/PluginInstance/Helium.Plugins.PluginInstance.cppm
         Plugins/PluginManager/Helium.Plugins.PluginManager.cppm
         Plugins/PluginMetadata/Helium.Plugins.PluginMetadata.cppm
         Plugins/Test/Helium.Plugins.Test.cppm

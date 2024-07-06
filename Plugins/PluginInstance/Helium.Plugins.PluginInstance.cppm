@@ -7,14 +7,13 @@ module;
 
 #include <memory>
 
-#include <boost/dll.hpp>
-#include <boost/dll/import_class.hpp>
-#include <boost/dll/import_mangled.hpp>
-#include <boost/dll/smart_library.hpp>
+#include <pybind11/embed.h>
 
 export module Helium.Plugins.PluginInstance;
 
 import Helium.Base;
+
+namespace py = pybind11;
 
 export namespace helium::plugins
 {
