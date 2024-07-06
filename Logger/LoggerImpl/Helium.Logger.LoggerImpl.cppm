@@ -11,6 +11,7 @@ module;
 #include <string>
 #include <vector>
 
+#include <spdlog/async.h>
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
@@ -45,8 +46,14 @@ private:
         stdout_sink->set_level(spdlog::level::trace);
         file_sink->set_level(spdlog::level::info);
 
-        auto vec = std::vector<spdlog::sink_ptr>{stdout_sink, file_sink};
-        auto logger_ptr = std::make_shared<spdlog::logger>(name, begin(vec), end(vec));
+        auto vec = spdlog::sinks_init_list{stdout_sink, file_sink};
+
+        if (not spdlog::thread_pool())
+        {
+            spdlog::init_thread_pool(2048, 4);
+        }
+
+        auto logger_ptr = std::make_shared<spdlog::async_logger>(name, vec, spdlog::thread_pool());
         logger_ptr->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] %v");
 
         spdlog::register_logger(logger_ptr);
@@ -54,7 +61,8 @@ private:
     }
 
 public:
-    explicit LoggerImpl(std::string_view const name, std::string_view const thread) : name_(name), thread_(thread), logger_ptr_(LoggerImpl::initLogger(this->name_))
+    explicit LoggerImpl(std::string_view const name, std::string_view const thread)
+        : name_(name), thread_(thread), logger_ptr_(LoggerImpl::initLogger(std::format("{}/{}", this->name_, this->thread_)))
     {
     }
 
@@ -64,50 +72,71 @@ public:
         return logger_ptr;
     }
 
-    template <typename... Args> auto log(LogLevel log_level, std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto log(LogLevel log_level, std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         auto str = std::format("[{}/{}] {}", this->name_, this->thread_, std::vformat(fmt_str, std::make_format_args(fmt_args...)));
-        this->logger_ptr_->log(spdlog::source_loc{std::source_location::current().file_name(), std::source_location::current().line(), std::source_location::current().function_name()},
+        this->logger_ptr_->log(spdlog::source_loc{std::source_location::current().file_name(), std::source_location::current().line(),
+                                                  std::source_location::current().function_name()},
                                static_cast<spdlog::level::level_enum>(log_level), str);
     }
 
-    template <typename... Args> auto trace(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto trace(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         this->log(LogLevel::trace, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    template <typename... Args> auto debug(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto debug(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         this->log(LogLevel::debug, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    template <typename... Args> auto info(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto info(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         this->log(LogLevel::info, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    template <typename... Args> auto warn(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto warn(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         this->log(LogLevel::warn, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    template <typename... Args> auto error(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto error(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         this->log(LogLevel::error, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    template <typename... Args> auto critical(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    template <typename... Args>
+    auto critical(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
         this->log(LogLevel::critical, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
-    auto enableDebugLog(this auto&& self) noexcept -> void
+    auto flush(this auto &&self) noexcept -> void
+    {
+        std::forward<decltype(self)>(self).logger_ptr_->flush();
+    }
+
+    auto enableDebugLog(this auto &&self) noexcept -> void
     {
         std::forward<decltype(self)>(self).logger_ptr_->set_level(spdlog::level::trace);
     }
-    auto disableDebugLog(this auto&& self) noexcept -> void
+    auto disableDebugLog(this auto &&self) noexcept -> void
     {
         std::forward<decltype(self)>(self).logger_ptr_->set_level(spdlog::level::info);
+    }
+    static auto enableAllDebugLog() noexcept -> void
+    {
+        spdlog::set_level(spdlog::level::trace);
+    }
+    static auto disableAllDebugLog() noexcept -> void
+    {
+        spdlog::set_level(spdlog::level::info);
     }
 };
 } // namespace helium::logger

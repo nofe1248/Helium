@@ -78,7 +78,7 @@ constexpr auto getEventID() noexcept -> EventIDType
 
 export namespace helium::events
 {
-class EventBus final : public base::HeliumObject, public std::enable_shared_from_this<EventBus>
+class EventBus final : public base::HeliumObject
 {
 private:
     std::unordered_map<EventIDType, EventStreamProxy> event_streams_map;
@@ -90,10 +90,11 @@ private:
     constexpr auto getEventStream(this auto &&self) -> EventStreamProxy
     {
         std::lock_guard guard(self.mutex_streams_);
-        static constexpr auto event_id = internal::getEventID<EventT>();
+        static auto event_id = internal::getEventID<EventT>();
         if (not FWD(self).event_streams_map.contains(event_id))
         {
-            FWD(self).event_streams_map.at(event_id) = pro::make_proxy<proxy::EventStreamFacade>(EventStream<EventT>{});
+            static EventStream<EventT> event_stream;
+            FWD(self).event_streams_map.emplace(std::make_pair<EventIDType, EventStreamProxy>(internal::getEventID<EventT>(), &event_stream));
         }
         return FWD(self).event_streams_map.at(event_id);
     }
@@ -108,17 +109,13 @@ public:
             std::swap(streams, FWD(self).event_streams_map);
         }
 
-        for (EventStreamProxy &event_stream : FWD(self).event_streams_map | std::views::values)
+        for (EventStreamProxy &event_stream : streams | std::views::values)
         {
             event_stream->processEvents();
         }
 
         {
             std::lock_guard write_guard(FWD(self).mutex_streams_);
-            if (not FWD(self).event_streams_map.empty())
-            {
-                std::move(FWD(self).event_streams_map.begin(), FWD(self).event_streams_map.end(), std::back_inserter(streams));
-            }
             std::swap(streams, FWD(self).event_streams_map);
         }
     }
@@ -132,7 +129,7 @@ public:
     template <concepts::IsEvent EventT>
     auto listenToEvent(this auto &&self, EventListenerIDType const &listener_id, std::function<void(EventT const &)> &&callback) -> void
     {
-        FWD(self).template getEventStream<EventT>()->addListener(listener_id, callback);
+        FWD(self).template getEventStream<EventT>()->addListener(listener_id, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>
@@ -153,11 +150,6 @@ public:
     [[nodiscard]] auto isListeningToEvent(this auto &&self, EventListenerIDType const &listener_id) -> bool
     {
         return FWD(self).template getEventStream<EventT>()->hasListener(listener_id);
-    }
-
-    [[nodiscard]] auto getEventBus(this auto &&self) -> std::shared_ptr<EventBus>
-    {
-        return FWD(self).shared_from_this();
     }
 };
 } // namespace helium::events

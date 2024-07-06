@@ -410,6 +410,7 @@ auto mainCLILoop()
     rx.bind_key(repl::Replxx::KEY::meta('\r'), [&rx]<typename T0>(T0 &&PH1) { return message(rx, "<M-Enter>", std::forward<T0>(PH1)); });
 
     logger->info("REPL initialized");
+    logger->flush();
 
     char const *c_input = nullptr;
     std::string prompt = "Helium$ ";

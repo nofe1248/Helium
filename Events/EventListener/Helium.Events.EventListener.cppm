@@ -47,7 +47,7 @@ public:
     EventListener(EventListener &&that) noexcept
     {
         assert(this != &that);
-        if(this->event_bus_ != nullptr)
+        if (this->event_bus_ != nullptr)
         {
             this->unlistenAll();
         }
@@ -57,7 +57,7 @@ public:
     EventListener &operator=(EventListener &&that) noexcept
     {
         assert(this != &that);
-        if(this->event_bus_ != nullptr)
+        if (this->event_bus_ != nullptr)
         {
             this->unlistenAll();
         }
@@ -78,7 +78,7 @@ public:
     constexpr auto listenToEvent(this auto &&self, std::function<void(EventT const &)> &&callback) -> void
     {
         assert(FWD(self).event_bus_ != nullptr);
-        FWD(self).event_bus_->listenToEvent(FWD(self).id_, callback);
+        FWD(self).event_bus_->listenToEvent(FWD(self).id_, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>

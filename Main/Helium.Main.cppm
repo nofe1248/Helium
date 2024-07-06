@@ -57,12 +57,6 @@ export namespace helium::main
 {
 auto heliumMain(int argc, const char *argv[]) -> int
 {
-    events::EventBus bus;
-    events::EventEmitter emitter_1{bus.getEventBus()};
-    events::EventListener listener_1{bus.getEventBus()};
-    listener_1.listenToEvent<TestEvent>([](TestEvent const &event) { logger->info("Test event: {}", event.test); });
-    TestEvent event_1{"Test event"};
-    emitter_1.postponeEvent(event_1);
     logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
 
@@ -70,7 +64,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     if (config::config.debug.debug_mode)
     {
-        logger->enableDebugLog();
+        logger::LoggerImpl::enableAllDebugLog();
         logger->debug("Entered debug mode.");
     }
 

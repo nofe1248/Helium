@@ -55,8 +55,8 @@ private:
 public:
     EventStream(){};
 
-    EventStream(EventStream const &) = default;
-    EventStream &operator=(EventStream const &) = default;
+    EventStream(EventStream const &) noexcept = default;
+    EventStream &operator=(EventStream const &) noexcept = default;
     EventStream(EventStream &&) noexcept = default;
     EventStream &operator=(EventStream &&) noexcept = default;
 
@@ -84,7 +84,7 @@ public:
         FWD(self).event_queue_.clear();
     }
 
-    [[nodiscard]] auto addListener(this auto &&self, EventListenerIDType const &listenerID, std::any callback) -> bool
+    [[nodiscard]] auto addListener(this auto &&self, EventListenerIDType const &listenerID, std::any &&callback) -> bool
     {
         std::lock_guard write_guard(FWD(self).mutex_callbacks_);
         if (FWD(self).is_processing_)
@@ -133,7 +133,7 @@ private:
         {
             if (pair.second)
             {
-                (void)FWD(self).internalAddListener(pair.first, pair.second);
+                (void)FWD(self).internalAddListener(pair.first, std::move(pair.second));
             }
             else
             {
@@ -142,13 +142,13 @@ private:
         }
         FWD(self).waiting_callbacks_.clear();
     }
-    [[nodiscard]] auto internalAddListener(this auto &&self, EventListenerIDType const &listenerID, CallbackType callback) -> bool
+    [[nodiscard]] auto internalAddListener(this auto &&self, EventListenerIDType const &listenerID, CallbackType &&callback) -> bool
     {
         if (FWD(self).callbacks_.contains(listenerID))
         {
             return false;
         }
-        FWD(self).callbacks_[listenerID] = callback;
+        FWD(self).callbacks_[listenerID] = std::move(callback);
         return true;
     }
     [[nodiscard]] auto internalRemoveListener(this auto &&self, EventListenerIDType const &listenerID) -> bool
