@@ -85,6 +85,8 @@ auto heliumMain(int argc, const char *argv[]) -> int
         utils::test::testModule();*/
     }
 
+    plugins::PluginManager plugin_manager;
+
     cli::mainCLILoop();
 
     config::saveConfig();

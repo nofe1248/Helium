@@ -44,10 +44,15 @@ struct DebugConfig
 {
     bool debug_mode = false;
 };
+struct PythonPluginConfig
+{
+    std::string path = "./plugins/python";
+};
 struct HeliumConfig
 {
-    DebugConfig debug;
+    PythonPluginConfig python_plugin;
     ServerConfig server;
+    DebugConfig debug;
 };
 HeliumConfig config{};
 

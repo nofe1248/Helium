@@ -64,10 +64,13 @@ target_sources(
         Plugins/PluginMetadata/Helium.Plugins.PluginMetadata.cppm
         Plugins/Test/Helium.Plugins.Test.cppm
         Server/Helium.Server.cppm
+        Server/ServerInstance/Helium.Server.ServerInstance.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
         Utils/Test/Helium.Utils.Test.cppm
         Utils/Helium.Utils.cppm
 )
+
+target_link_libraries(Helium PRIVATE ws2_32 wsock32 bcrypt)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -91,8 +94,9 @@ target_include_directories(Helium PRIVATE ${BEXT_SML2_INCLUDE_DIRS})
 find_package(Catch2 3 REQUIRED)
 target_link_libraries(Helium PRIVATE Catch2::Catch2)
 
-find_package(Boost REQUIRED context filesystem program_options regex system thread chrono atomic)
-target_link_libraries(Helium PRIVATE Boost::boost Boost::context Boost::filesystem Boost::program_options Boost::regex Boost::system Boost::thread Boost::chrono Boost::atomic)
+find_package(Boost 1.85.0 REQUIRED COMPONENTS filesystem)
+target_include_directories(Helium PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(Helium PRIVATE Boost::filesystem)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE fmt::fmt)
@@ -100,26 +104,17 @@ target_link_libraries(Helium PRIVATE fmt::fmt)
 find_package(mpark_patterns CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE mpark_patterns)
 
-find_package(Microsoft.GSL CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE Microsoft.GSL::GSL)
-
 find_package(nameof CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE nameof::nameof)
 
 find_path(semver "neargye/semver.hpp")
 target_include_directories(Helium PRIVATE semver)
 
-find_package(nlohmann_json CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE nlohmann_json::nlohmann_json)
-
 find_path(PLF_HIVE_INCLUDE_DIRS "plf_hive.h")
 target_include_directories(Helium PRIVATE ${PLF_HIVE_INCLUDE_DIRS})
 
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE spdlog::spdlog)
-
-find_package(stdexec CONFIG REQUIRED)
-target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
 
 find_package(cxxopts CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE cxxopts::cxxopts)

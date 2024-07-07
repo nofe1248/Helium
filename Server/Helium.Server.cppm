@@ -6,3 +6,5 @@
 module;
 
 export module Helium.Server;
+
+export import Helium.Server.ServerInstance;

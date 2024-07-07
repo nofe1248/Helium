@@ -13,5 +13,4 @@ namespace py = pybind11;
 
 PYBIND11_EMBEDDED_MODULE(helium, m)
 {
-
 }

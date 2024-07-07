@@ -15,30 +15,33 @@ export module Helium.Plugins.PluginManager;
 import Helium.Base;
 import Helium.Plugins.PluginMetadata;
 import Helium.Plugins.PluginInstance;
+import Helium.Logger;
 
 namespace py = pybind11;
 
-export namespace helium::plugins {
-    class PluginManager : public base::HeliumObject {
-    private:
-        std::unordered_map<PluginMetadata, std::shared_ptr<PluginInstance>, PluginMetadata> module_map;
+namespace helium::plugins
+{
+auto manager_logger = logger::SharedLogger::getSharedLogger("Plugins", "PluginManager");
+}
 
-    public:
-        [[nodiscard]] static auto getInstance() -> PluginManager & {
-            static PluginManager instance;
-            return instance;
-        }
+export namespace helium::plugins
+{
+class PluginManager : public base::HeliumObject
+{
+private:
+    std::unordered_map<PluginMetadata, std::shared_ptr<PluginInstance>, PluginMetadata> module_map;
 
-        PluginManager()
-        {
-            py::initialize_interpreter();
-        }
+public:
+    PluginManager()
+    {
+        py::initialize_interpreter();
+        manager_logger->info("Python {} interpreter initialized.", PY_VERSION);
+    }
 
-        ~PluginManager()
-        {
-            py::finalize_interpreter();
-        }
-    };
-
-    PluginManager plugin_manager = PluginManager::getInstance();
-} // namespace helium::modules
+    ~PluginManager()
+    {
+        py::finalize_interpreter();
+        manager_logger->info("Python {} interpreter finalized.", PY_VERSION);
+    }
+};
+} // namespace helium::plugins

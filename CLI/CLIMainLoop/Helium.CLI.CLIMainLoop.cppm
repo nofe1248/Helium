@@ -20,6 +20,7 @@ export module Helium.CLI.CLIMainLoop;
 
 import Helium.Commands;
 import Helium.Logger;
+import Helium.Config;
 
 namespace repl = replxx;
 
@@ -63,11 +64,15 @@ auto utf8stringCodepointLength(char const *s, std::size_t utf8len) -> int
 
 auto completionHook(std::string const &context, int &context_len) -> repl::Replxx::completions_t
 {
-    auto suggestions = dispatcher.getSuggestions(context, 50.0f);
+    std::vector<std::string> suggestions{};
     repl::Replxx::completions_t completions;
     if (context_len <= 1)
     {
-        return completions;
+        suggestions = dispatcher.getSuggestions(context, 0.0f, true);
+    }
+    else
+    {
+        suggestions = dispatcher.getSuggestions(context, 50.0f);
     }
     completions = suggestions | std::views::transform([](auto const &suggestion) {
                       return repl::Replxx::Completion{suggestion, repl::Replxx::Color::CYAN};
@@ -80,9 +85,12 @@ auto hintHook(std::string const &context, int &context_len, repl::Replxx::Color 
     repl::Replxx::hints_t hints;
     if (context_len <= 1)
     {
-        return hints;
+        hints = dispatcher.getSuggestions(context, 0.0f, true);
     }
-    hints = dispatcher.getSuggestions(context, 60.0f);
+    else
+    {
+        hints = dispatcher.getSuggestions(context, 60.0f);
+    }
     if (hints.size() == 1)
     {
         color = repl::Replxx::Color::GREEN;
@@ -221,10 +229,31 @@ auto mainCLILoop()
                 cli_loop_continue = false;
             }),
             CommandStringLiteral("help"),
+            CommandStringLiteral("status"),
             CommandStringLiteral("server")
             .then(
                 CommandStringLiteral("start"),
-                CommandStringLiteral("stop")
+                CommandStringLiteral("stop"),
+                CommandStringLiteral("pause"),
+                CommandStringLiteral("resume"),
+                CommandStringLiteral("terminate"),
+                CommandStringLiteral("status")
+            ),
+            CommandStringLiteral("plugin")
+            .then(
+                CommandStringLiteral("list"),
+                CommandStringLiteral("load")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("unload")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("status")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                )
             ),
             CommandStringLiteral("show")
             .then(
@@ -250,6 +279,11 @@ auto mainCLILoop()
                         logger->debug("Debug mode disabled.");
                     }
                 })
+            ),
+            CommandStringLiteral("config")
+            .then(
+                CommandStringLiteral("load"),
+                CommandStringLiteral("save")
             )
         )
     );

@@ -144,7 +144,7 @@ public:
         return false;
     }
 
-    auto getSuggestions(std::string const &command, double similarity_cutoff) -> std::vector<std::string>
+    auto getSuggestions(std::string const &command, double similarity_cutoff, bool show_all_result = false) -> std::vector<std::string>
     {
         if (auto opt = this->lexer_.processCommand(command, false))
         {
@@ -153,6 +153,11 @@ public:
         else
         {
             return {};
+        }
+
+        if (show_all_result)
+        {
+            this->tokens_cache_.insert(Token{TokenCategory::TOKEN_PLAIN_STRING, ""});
         }
 
         auto current_node = this->command_root_.getNodeDescriptor().lock();
@@ -174,9 +179,10 @@ public:
                             {
                                 if (child_node_of_redirected->auto_completable)
                                 {
-                                    if(double similarity = child_node_of_redirected->token_similarity(*tok_it); similarity >= similarity_cutoff)
+                                    if (double similarity = child_node_of_redirected->token_similarity(*tok_it);
+                                        similarity >= similarity_cutoff or show_all_result)
                                     {
-                                        if(similarity == 100.0f)
+                                        if (similarity == 100.0f)
                                         {
                                             has_full_match = true;
                                         }
@@ -196,9 +202,9 @@ public:
                     {
                         if (child_node->auto_completable)
                         {
-                            if(double similarity = child_node->token_similarity(*tok_it); similarity >= similarity_cutoff)
+                            if (double similarity = child_node->token_similarity(*tok_it); similarity >= similarity_cutoff or show_all_result)
                             {
-                                if(similarity == 100.0f)
+                                if (similarity == 100.0f)
                                 {
                                     has_full_match = true;
                                 }
@@ -217,9 +223,10 @@ public:
                             {
                                 if (child_node_of_forked->auto_completable)
                                 {
-                                    if(double similarity = child_node_of_forked->token_similarity(*tok_it); similarity >= similarity_cutoff)
+                                    if (double similarity = child_node_of_forked->token_similarity(*tok_it);
+                                        similarity >= similarity_cutoff or show_all_result)
                                     {
-                                        if(similarity == 100.0f)
+                                        if (similarity == 100.0f)
                                         {
                                             has_full_match = true;
                                         }
@@ -314,9 +321,10 @@ public:
                         {
                             if (child_node_of_redirected->auto_completable)
                             {
-                                if(double similarity = child_node_of_redirected->token_similarity(*tok_it); similarity >= similarity_cutoff)
+                                if (double similarity = child_node_of_redirected->token_similarity(*tok_it);
+                                    similarity >= similarity_cutoff or show_all_result)
                                 {
-                                    if(similarity == 100.0f)
+                                    if (similarity == 100.0f)
                                     {
                                         has_full_match = true;
                                     }
@@ -325,7 +333,6 @@ public:
                             }
                         }
                     }
-
                 }
             }
         }
@@ -337,9 +344,9 @@ public:
                 {
                     if (child_node->auto_completable)
                     {
-                        if(double similarity = child_node->token_similarity(*tok_it); similarity >= similarity_cutoff)
+                        if (double similarity = child_node->token_similarity(*tok_it); similarity >= similarity_cutoff or show_all_result)
                         {
-                            if(similarity == 100.0f)
+                            if (similarity == 100.0f)
                             {
                                 has_full_match = true;
                             }
@@ -358,9 +365,10 @@ public:
                         {
                             if (child_node_of_forked->auto_completable)
                             {
-                                if(double similarity = child_node_of_forked->token_similarity(*tok_it); similarity >= similarity_cutoff)
+                                if (double similarity = child_node_of_forked->token_similarity(*tok_it);
+                                    similarity >= similarity_cutoff or show_all_result)
                                 {
-                                    if(similarity == 100.0f)
+                                    if (similarity == 100.0f)
                                     {
                                         has_full_match = true;
                                     }
@@ -373,9 +381,10 @@ public:
             }
         }
         std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
-        if(has_full_match)
+        if (has_full_match and not show_all_result)
         {
-            return node_similarity | std::views::filter([](auto p) { return p.second == 100.0f; }) | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
+            return node_similarity | std::views::filter([](auto p) { return p.second == 100.0f; }) |
+                   std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
         }
         return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
     }

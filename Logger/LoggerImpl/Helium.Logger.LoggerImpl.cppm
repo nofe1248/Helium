@@ -66,6 +66,11 @@ public:
     {
     }
 
+    ~LoggerImpl()
+    {
+        this->logger_ptr_->flush();
+    }
+
     [[nodiscard]] static auto getLogger(std::string_view const name, std::string_view const thread) -> std::shared_ptr<LoggerImpl>
     {
         auto logger_ptr = std::make_shared<LoggerImpl>(name, thread);
