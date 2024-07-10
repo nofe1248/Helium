@@ -19,6 +19,7 @@ target_sources(
         Base/Helium.Base.cppm
         CLI/Helium.CLI.cppm
         CLI/CLIMainLoop/Helium.CLI.CLIMainLoop.cppm
+        Commands/BindingHelper/Helium.Commands.BindingHelper.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentFloatingPoint.cppm

@@ -26,7 +26,7 @@ auto printTerminateTrace() -> void
 auto terminateHandler() -> void
 {
     std::cerr << "\n";
-    std::cerr << "Helium crashed due to unexpected signal\n";
+    std::cerr << "Helium crashed due to unexpected signal, please send the crash stacktrace and log to the Helium DevTeam.\n";
     try
     {
         auto ptr = std::current_exception();

@@ -5,48 +5,47 @@
 
 module;
 
-#include <string>
 #include <optional>
+#include <string>
 #include <vector>
-
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || defined(_WIN64)
-	#define BOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT
-#endif
-
-#include <boost/container_hash/hash.hpp>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
+#include <filesystem>
 
 #include <semver.hpp>
 
 export module Helium.Plugins.PluginMetadata;
 
-export namespace helium::plugins {
-	struct PluginMetadata {
-		PluginMetadata() {
-			this->uuid = boost::uuids::random_generator()();
-		}
+export namespace helium::plugins
+{
+struct PluginMetadata
+{
+    struct PluginDependency
+    {
+        std::string id;
+        semver::range::detail::range version_range;
+    };
+    std::filesystem::path plugin_path;
+    std::string id;
+    std::string name;
+    semver::version version;
+    std::optional<std::string> website = std::nullopt;
+    std::optional<std::string> description = std::nullopt;
+    std::optional<std::string> author = std::nullopt;
+    std::optional<std::vector<PluginDependency>> dependencies = std::nullopt;
+    std::optional<std::vector<PluginDependency>> optional_dependencies = std::nullopt;
+    std::optional<std::vector<PluginDependency>> conflicts = std::nullopt;
+    std::optional<std::vector<PluginDependency>> load_before = std::nullopt;
 
-		struct ModuleDependency {
-			std::string									name;
-			semver::version								version;
-		};
-		std::string										entry;
-		std::string										name;
-		semver::version									version;
-		boost::uuids::uuid								uuid;
-		std::optional<std::string>						description;
-		std::optional<std::string>						author;
-		std::optional<std::vector<ModuleDependency>>	dependencies;
-		std::optional<std::vector<ModuleDependency>>	optional_dependencies;
-		std::optional<std::vector<ModuleDependency>>	conflicts;
-		std::optional<std::vector<ModuleDependency>>	load_before;
-	};
+    auto operator==(PluginMetadata const &that) const noexcept -> bool
+    {
+        return this->id == that.id;
+    }
+};
 
-	struct PluginMetadataHash {
-		auto operator()(helium::plugins::PluginMetadata const& metadata) const noexcept -> std::size_t {
-			return boost::hash<boost::uuids::uuid>()(metadata.uuid);
-		}
-	};
-}
+struct PluginMetadataHash
+{
+    auto operator()(helium::plugins::PluginMetadata const &metadata) const noexcept -> std::size_t
+    {
+        return std::hash<std::string>()(metadata.id);
+    }
+};
+} // namespace helium::plugins

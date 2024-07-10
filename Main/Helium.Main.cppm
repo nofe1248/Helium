@@ -86,6 +86,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     }
 
     plugins::PluginManager plugin_manager;
+    plugin_manager.SearchAndLoadAllPlugins();
 
     cli::mainCLILoop();
 

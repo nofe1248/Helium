@@ -54,7 +54,7 @@ private:
         }
 
         auto logger_ptr = std::make_shared<spdlog::async_logger>(name, vec, spdlog::thread_pool());
-        logger_ptr->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] %v");
+        logger_ptr->set_pattern("[%Y-%m-%d %T.%f] [%^%=8l%$] %v");
 
         spdlog::register_logger(logger_ptr);
         return logger_ptr;
@@ -117,23 +117,53 @@ public:
     }
 
     template <typename... Args>
-    auto critical(std::string_view fmt_str, Args &&...fmt_args) const -> void
+    auto critical(std::string_view str, Args &&...fmt_args) const -> void
     {
-        this->log(LogLevel::critical, fmt_str, std::forward<Args>(fmt_args)...);
+        this->log(LogLevel::critical, "{}", std::forward<Args>(fmt_args)...);
     }
 
-    auto flush(this auto &&self) noexcept -> void
+    auto trace_string(std::string_view str) const -> void
     {
-        std::forward<decltype(self)>(self).logger_ptr_->flush();
+        this->log(LogLevel::trace, "{}", str);
     }
 
-    auto enableDebugLog(this auto &&self) noexcept -> void
+    auto debug_string(std::string_view str) const -> void
     {
-        std::forward<decltype(self)>(self).logger_ptr_->set_level(spdlog::level::trace);
+        this->log(LogLevel::debug, "{}", str);
     }
-    auto disableDebugLog(this auto &&self) noexcept -> void
+
+    auto info_string(std::string_view str) const -> void
     {
-        std::forward<decltype(self)>(self).logger_ptr_->set_level(spdlog::level::info);
+        this->log(LogLevel::info, "{}", str);
+    }
+
+    auto warn_string(std::string_view str) const -> void
+    {
+        this->log(LogLevel::warn, "{}", str);
+    }
+
+    auto error_string(std::string_view str) const -> void
+    {
+        this->log(LogLevel::error, "{}", str);
+    }
+
+    auto critical_string(std::string_view str) const -> void
+    {
+        this->log(LogLevel::critical, "{}", str);
+    }
+
+    auto flush() noexcept -> void
+    {
+        this->logger_ptr_->flush();
+    }
+
+    auto enableDebugLog() noexcept -> void
+    {
+        this->logger_ptr_->set_level(spdlog::level::trace);
+    }
+    auto disableDebugLog() noexcept -> void
+    {
+        this->logger_ptr_->set_level(spdlog::level::info);
     }
     static auto enableAllDebugLog() noexcept -> void
     {
