@@ -5,10 +5,10 @@
 
 module;
 
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 #include <semver.hpp>
 
@@ -21,7 +21,7 @@ struct PluginMetadata
     struct PluginDependency
     {
         std::string id;
-        semver::range::detail::range version_range;
+        std::string version_range;
     };
     std::filesystem::path plugin_path;
     std::string id;
@@ -33,7 +33,6 @@ struct PluginMetadata
     std::optional<std::vector<PluginDependency>> dependencies = std::nullopt;
     std::optional<std::vector<PluginDependency>> optional_dependencies = std::nullopt;
     std::optional<std::vector<PluginDependency>> conflicts = std::nullopt;
-    std::optional<std::vector<PluginDependency>> load_before = std::nullopt;
 
     auto operator==(PluginMetadata const &that) const noexcept -> bool
     {

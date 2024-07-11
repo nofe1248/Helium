@@ -40,9 +40,8 @@ private:
 public:
     explicit PluginInstance(fs::path plugin_path) : plugin_path_(std::move(plugin_path))
     {
-        instance_logger->info("Loading plugin {}", plugin_path_.string());
+        instance_logger->info("Initializing plugin {}", plugin_path_.string());
         std::string module_name = this->plugin_path_.filename().replace_extension("").string();
-        instance_logger->trace("{}", module_name);
         this->plugin_module_ = py::module_::import(module_name.c_str());
         if (not hasattr(this->plugin_module_, "plugin_metadata"))
         {
@@ -83,8 +82,9 @@ public:
             this->metadata_.dependencies = std::vector<PluginMetadata::PluginDependency>{};
             for (auto const &dependency : dependencies)
             {
-                this->metadata_.dependencies.value().push_back(PluginMetadata::PluginDependency{
-                    .id = dependency["id"].cast<std::string>(), .version_range = semver::range::detail::range{dependency["version"].cast<std::string>()}});
+                this->metadata_.dependencies.value().push_back(
+                    PluginMetadata::PluginDependency{.id = dependency["id"].cast<std::string>(),
+                                                     .version_range = dependency["version"].cast<std::string>()});
             }
         }
         if (metadata.contains("optional_dependencies"))
@@ -93,8 +93,9 @@ public:
             this->metadata_.optional_dependencies = std::vector<PluginMetadata::PluginDependency>{};
             for (auto const &dependency : optional_dependencies)
             {
-                this->metadata_.optional_dependencies.value().push_back(PluginMetadata::PluginDependency{
-                    .id = dependency["id"].cast<std::string>(), .version_range = semver::range::detail::range{dependency["version"].cast<std::string>()}});
+                this->metadata_.optional_dependencies.value().push_back(
+                    PluginMetadata::PluginDependency{.id = dependency["id"].cast<std::string>(),
+                                                     .version_range = dependency["version"].cast<std::string>()});
             }
         }
         if (metadata.contains("conflicts"))
@@ -103,24 +104,17 @@ public:
             this->metadata_.conflicts = std::vector<PluginMetadata::PluginDependency>{};
             for (auto const &dependency : conflicts)
             {
-                this->metadata_.conflicts.value().push_back(PluginMetadata::PluginDependency{
-                    .id = dependency["id"].cast<std::string>(), .version_range = semver::range::detail::range{dependency["version"].cast<std::string>()}});
-            }
-        }
-        if (metadata.contains("load_before"))
-        {
-            auto load_before = metadata["load_before"].cast<py::list>();
-            this->metadata_.load_before = std::vector<PluginMetadata::PluginDependency>{};
-            for (auto const &dependency : load_before)
-            {
-                this->metadata_.load_before.value().push_back(PluginMetadata::PluginDependency{
-                    .id = dependency["id"].cast<std::string>(), .version_range = semver::range::detail::range{dependency["version"].cast<std::string>()}});
+                this->metadata_.conflicts.value().push_back(
+                    PluginMetadata::PluginDependency{.id = dependency["id"].cast<std::string>(),
+                                                     .version_range = dependency["version"].cast<std::string>()});
             }
         }
     }
 
     auto load() -> void
     {
+        instance_logger->info("Loading plugin {}", this->metadata_.id);
+        instance_logger->flush();
         if (hasattr(this->plugin_module_, "on_load"))
         {
             (void)this->plugin_module_.attr("on_load")();
@@ -129,6 +123,7 @@ public:
 
     auto unload() -> void
     {
+        instance_logger->info("Unloading plugin {}", this->metadata_.id);
         if (hasattr(this->plugin_module_, "on_unload"))
         {
             (void)this->plugin_module_.attr("on_unload")();
@@ -137,6 +132,7 @@ public:
 
     auto reload() -> void
     {
+        instance_logger->info("Reloading plugin {}", this->metadata_.id);
         if (hasattr(this->plugin_module_, "on_reload"))
         {
             (void)this->plugin_module_.attr("on_reload")();
@@ -146,10 +142,14 @@ public:
     ~PluginInstance()
     {
         this->unload();
-        instance_logger->info("Unloading plugin {}", this->plugin_path_.string());
     }
 
     auto getMetadata() -> PluginMetadata
+    {
+        return this->metadata_;
+    }
+
+    auto getMetadataReference() -> PluginMetadata &
     {
         return this->metadata_;
     }

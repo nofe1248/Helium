@@ -82,6 +82,18 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(cpptrace)
 target_link_libraries(Helium PRIVATE cpptrace::cpptrace)
 
+include(FetchContent)
+FetchContent_Declare(
+        graaflib
+        GIT_REPOSITORY https://github.com/bobluppes/graaf.git
+        GIT_TAG main
+)
+set(SKIP_TESTS ON)
+set(SKIP_BENCHMARKS ON)
+set(SKIP_EXAMPLES ON)
+FetchContent_MakeAvailable(graaflib)
+target_link_libraries(Helium PRIVATE Graaf::Graaf)
+
 find_package(tomlplusplus CONFIG REQUIRED)
 target_link_libraries(Helium PRIVATE tomlplusplus::tomlplusplus)
 

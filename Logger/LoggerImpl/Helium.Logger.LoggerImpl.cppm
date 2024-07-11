@@ -5,6 +5,7 @@
 
 module;
 
+#include <chrono>
 #include <format>
 #include <memory>
 #include <source_location>
@@ -51,6 +52,7 @@ private:
         if (not spdlog::thread_pool())
         {
             spdlog::init_thread_pool(2048, 4);
+            spdlog::flush_every(std::chrono::seconds(1));
         }
 
         auto logger_ptr = std::make_shared<spdlog::async_logger>(name, vec, spdlog::thread_pool());
@@ -80,10 +82,15 @@ public:
     template <typename... Args>
     auto log(LogLevel log_level, std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
-        auto str = std::format("[{}/{}] {}", this->name_, this->thread_, std::vformat(fmt_str, std::make_format_args(fmt_args...)));
-        this->logger_ptr_->log(spdlog::source_loc{std::source_location::current().file_name(), std::source_location::current().line(),
-                                                  std::source_location::current().function_name()},
-                               static_cast<spdlog::level::level_enum>(log_level), str);
+        if constexpr (sizeof...(fmt_args) >= 1)
+        {
+            this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level),
+                                   std::format("[{}/{}] {}", this->name_, this->thread_, std::vformat(fmt_str, std::make_format_args(fmt_args...))));
+        }
+        else
+        {
+            this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level), std::format("[{}/{}] {}", this->name_, this->thread_, fmt_str));
+        }
     }
 
     template <typename... Args>
@@ -117,9 +124,9 @@ public:
     }
 
     template <typename... Args>
-    auto critical(std::string_view str, Args &&...fmt_args) const -> void
+    auto critical(std::string_view fmt_str, Args &&...fmt_args) const -> void
     {
-        this->log(LogLevel::critical, "{}", std::forward<Args>(fmt_args)...);
+        this->log(LogLevel::critical, fmt_str, std::forward<Args>(fmt_args)...);
     }
 
     auto trace_string(std::string_view str) const -> void

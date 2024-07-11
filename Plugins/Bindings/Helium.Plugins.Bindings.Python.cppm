@@ -37,6 +37,5 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("enable_debug_log", &logger::LoggerImpl::enableDebugLog)
         .def("disable_debug_log", &logger::LoggerImpl::disableDebugLog);
 
-
     // clang-format on
 }

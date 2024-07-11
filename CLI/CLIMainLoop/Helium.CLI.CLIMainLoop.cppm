@@ -15,6 +15,7 @@ module;
 #include <vector>
 
 #include <replxx.hxx>
+#include <thread>
 
 export module Helium.CLI.CLIMainLoop;
 
@@ -459,7 +460,6 @@ auto mainCLILoop()
 
         if (not input_command.empty())
         {
-            rx.print("%s\n", input_command.c_str());
             bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command);
             rx.history_add(input_command);
         }
