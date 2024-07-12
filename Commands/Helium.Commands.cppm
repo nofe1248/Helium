@@ -5,6 +5,7 @@
 
 export module Helium.Commands;
 
+export import Helium.Commands.BindingHelper;
 export import Helium.Commands.CommandArgument;
 export import Helium.Commands.CommandBase;
 export import Helium.Commands.CommandContext;

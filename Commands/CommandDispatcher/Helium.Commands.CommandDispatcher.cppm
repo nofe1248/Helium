@@ -50,6 +50,11 @@ public:
         this->command_root_.then(FWD(command));
     }
 
+    constexpr auto registerRawCommandNodeDescriptor(std::shared_ptr<CommandNodeDescriptor> descriptor) -> void
+    {
+        this->command_root_.addChildNode(descriptor);
+    }
+
     auto tryExecuteCommand(CommandSource const &source, std::string const &command) -> bool
     {
         if (auto opt = this->lexer_.processCommand(command))

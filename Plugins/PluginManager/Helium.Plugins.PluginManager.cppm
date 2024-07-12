@@ -234,7 +234,7 @@ public:
         {
             for (auto const &vertex_id : topological_sort_result_opt.value())
             {
-                if(can_load)
+                if (can_load)
                 {
                     vertex_id_to_plugin_instance_map.at(vertex_id)->load();
                 }

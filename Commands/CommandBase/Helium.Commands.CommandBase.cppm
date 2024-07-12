@@ -36,7 +36,7 @@ public:
     std::optional<plf::hive<std::shared_ptr<CommandNodeDescriptor>>> forward_nodes;
 
     std::string node_name = "default_node_name";
-    std::string node_description = "default_node_description";
+    std::optional<std::string> node_description = std::nullopt;
     std::optional<std::string> node_abbreviated_name = std::nullopt;
 
     Token recent_accepted_token = {TokenCategory::TOKEN_PLAIN_STRING, ""};
@@ -50,7 +50,7 @@ public:
     std::function<double(Token const &)> token_similarity;
     std::function<std::string(Token const &)> get_suggestion;
 
-    CommandNodeDescriptor(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
+    CommandNodeDescriptor(std::string command_name, std::optional<std::string> command_description = std::nullopt, std::optional<std::string> command_abbreviated_name = std::nullopt)
         : node_name(std::move(command_name)), node_description(std::move(command_description)), node_abbreviated_name(std::move(command_abbreviated_name))
     {
     }
@@ -66,7 +66,7 @@ public:
 
     auto toString(this auto &&self) noexcept -> std::string
     {
-        return std::format("CommandNodeDescriptor[.node_name = {}, .node_description = {}, .is_redirected = {}]", self.node_name, self.node_description, self.is_redirected);
+        return std::format("CommandNodeDescriptor[.node_name = {}, .is_redirected = {}]", self.node_name, self.is_redirected);
     }
 
     auto tryAcceptToken(this auto &&self, Token const &tok) noexcept -> bool
@@ -181,7 +181,7 @@ protected:
     }
 
 public:
-    constexpr CommandNodeBase(std::string command_name, std::string command_description = "default_node_description", std::optional<std::string> command_abbreviated_name = std::nullopt)
+    constexpr CommandNodeBase(std::string command_name, std::optional<std::string> command_description = std::nullopt, std::optional<std::string> command_abbreviated_name = std::nullopt)
         : node_descriptor_(std::make_shared<CommandNodeDescriptor>(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name)))
     {
     }

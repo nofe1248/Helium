@@ -34,11 +34,19 @@ enum class ServerType
     WATERFALL,
     VELOCITY
 };
+struct ServerRCONConfig
+{
+    bool enable = false;
+    std::string address;
+    int port;
+    std::string password;
+};
 struct ServerConfig
 {
     std::string path = "./server";
     ServerType type = ServerType::VANILLA;
     std::string startup_command = "java -jar server.jar";
+    ServerRCONConfig rcon;
 };
 struct DebugConfig
 {

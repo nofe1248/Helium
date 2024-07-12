@@ -20,10 +20,7 @@ private:
     CommandSource source_;
 
 public:
-    constexpr CommandContext(CommandSource &&source) : source_(source)
-    {
-    }
-    constexpr CommandContext(CommandSource const &source) : source_(source)
+    constexpr CommandContext(CommandSource source) : source_(std::move(source))
     {
     }
 

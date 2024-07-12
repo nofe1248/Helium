@@ -82,9 +82,8 @@ public:
             this->metadata_.dependencies = std::vector<PluginMetadata::PluginDependency>{};
             for (auto const &dependency : dependencies)
             {
-                this->metadata_.dependencies.value().push_back(
-                    PluginMetadata::PluginDependency{.id = dependency["id"].cast<std::string>(),
-                                                     .version_range = dependency["version"].cast<std::string>()});
+                this->metadata_.dependencies.value().push_back(PluginMetadata::PluginDependency{
+                    .id = dependency["id"].cast<std::string>(), .version_range = dependency["version"].cast<std::string>()});
             }
         }
         if (metadata.contains("optional_dependencies"))
@@ -93,9 +92,8 @@ public:
             this->metadata_.optional_dependencies = std::vector<PluginMetadata::PluginDependency>{};
             for (auto const &dependency : optional_dependencies)
             {
-                this->metadata_.optional_dependencies.value().push_back(
-                    PluginMetadata::PluginDependency{.id = dependency["id"].cast<std::string>(),
-                                                     .version_range = dependency["version"].cast<std::string>()});
+                this->metadata_.optional_dependencies.value().push_back(PluginMetadata::PluginDependency{
+                    .id = dependency["id"].cast<std::string>(), .version_range = dependency["version"].cast<std::string>()});
             }
         }
         if (metadata.contains("conflicts"))
@@ -104,9 +102,8 @@ public:
             this->metadata_.conflicts = std::vector<PluginMetadata::PluginDependency>{};
             for (auto const &dependency : conflicts)
             {
-                this->metadata_.conflicts.value().push_back(
-                    PluginMetadata::PluginDependency{.id = dependency["id"].cast<std::string>(),
-                                                     .version_range = dependency["version"].cast<std::string>()});
+                this->metadata_.conflicts.value().push_back(PluginMetadata::PluginDependency{
+                    .id = dependency["id"].cast<std::string>(), .version_range = dependency["version"].cast<std::string>()});
             }
         }
     }
@@ -117,7 +114,22 @@ public:
         instance_logger->flush();
         if (hasattr(this->plugin_module_, "on_load"))
         {
-            (void)this->plugin_module_.attr("on_load")();
+            try
+            {
+                (void)this->plugin_module_.attr("on_load")();
+            }
+            catch (py::error_already_set const &py_error)
+            {
+                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), py_error.what());
+            }
+            catch (std::exception const &exception)
+            {
+                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), exception.what());
+            }
+            catch (...)
+            {
+                instance_logger->error("Plugin {} failed to register due to unknown exception", this->plugin_path_.string());
+            }
         }
     }
 
@@ -126,7 +138,22 @@ public:
         instance_logger->info("Unloading plugin {}", this->metadata_.id);
         if (hasattr(this->plugin_module_, "on_unload"))
         {
-            (void)this->plugin_module_.attr("on_unload")();
+            try
+            {
+                (void)this->plugin_module_.attr("on_unload")();
+            }
+            catch (py::error_already_set const &py_error)
+            {
+                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), py_error.what());
+            }
+            catch (std::exception const &exception)
+            {
+                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), exception.what());
+            }
+            catch (...)
+            {
+                instance_logger->error("Plugin {} failed to register due to unknown exception", this->plugin_path_.string());
+            }
         }
     }
 
@@ -135,7 +162,22 @@ public:
         instance_logger->info("Reloading plugin {}", this->metadata_.id);
         if (hasattr(this->plugin_module_, "on_reload"))
         {
-            (void)this->plugin_module_.attr("on_reload")();
+            try
+            {
+                (void)this->plugin_module_.attr("on_reload")();
+            }
+            catch (py::error_already_set const &py_error)
+            {
+                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), py_error.what());
+            }
+            catch (std::exception const &exception)
+            {
+                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), exception.what());
+            }
+            catch (...)
+            {
+                instance_logger->error("Plugin {} failed to register due to unknown exception", this->plugin_path_.string());
+            }
         }
     }
 
