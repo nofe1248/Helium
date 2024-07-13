@@ -92,7 +92,7 @@ public:
                 }
                 if (not matched)
                 {
-                    return false;
+                    break;
                 }
                 if (not current_node->executeCallbacks(context, *tok_it))
                 {
@@ -134,12 +134,13 @@ public:
                 }
                 if (not matched)
                 {
-                    return false;
+                    break;
                 }
                 if (not current_node->executeCallbacks(context, *tok_it))
                 {
                     return false;
                 }
+                dispatcher_logger->flush();
             }
         }
         if (current_node->child_nodes.size() == 0)

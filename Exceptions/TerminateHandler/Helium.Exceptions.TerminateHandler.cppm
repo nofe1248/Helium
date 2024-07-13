@@ -11,6 +11,8 @@ module;
 
 #include <cpptrace/cpptrace.hpp>
 
+#include <spdlog/spdlog.h>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -25,6 +27,7 @@ auto printTerminateTrace() -> void
 }
 auto terminateHandler() -> void
 {
+    spdlog::shutdown();
     std::cerr << "\n";
     std::cerr << "Helium crashed due to unexpected signal, please send the crash stacktrace and log to the Helium DevTeam.\n";
     try

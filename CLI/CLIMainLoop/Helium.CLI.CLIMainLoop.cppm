@@ -13,9 +13,11 @@ module;
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <thread>
 
 #include <replxx.hxx>
-#include <thread>
+
+#include <pybind11/pybind11.h>
 
 export module Helium.CLI.CLIMainLoop;
 
@@ -448,7 +450,7 @@ auto mainCLILoop()
     logger->flush();
 
     char const *c_input = nullptr;
-    std::string prompt = "Helium$ ";
+    std::string prompt = "";
     while (cli_loop_continue)
     {
         do
@@ -460,7 +462,26 @@ auto mainCLILoop()
 
         if (not input_command.empty())
         {
-            bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command);
+            namespace py = pybind11;
+            try
+            {
+                if(bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command);not execution_result)
+                {
+                    logger->error("Command failed to execute");
+                }
+            }
+            catch (py::error_already_set const &py_error)
+            {
+                logger->error("Command {} failed to execute due to exception : {}", input_command, py_error.what());
+            }
+            catch (std::exception const &exception)
+            {
+                logger->error("Command {} failed to execute due to exception : {}", input_command, exception.what());
+            }
+            catch (...)
+            {
+                logger->error("Command {} failed to execute due to unknown exception", input_command);
+            }
             rx.history_add(input_command);
         }
     }

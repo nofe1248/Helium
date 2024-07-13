@@ -86,6 +86,9 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         config::saveConfig();
         return config::config;
     });
+    config_module.def("get_config", []() -> config::HeliumConfig & {
+        return config::config;
+    });
 
     auto command_module = m.def_submodule("command");
     py::class_<commands::CommandSource>(command_module, "CommandSource")
@@ -94,6 +97,9 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<>());
 
     py::class_<commands::CommandContext>(command_module, "CommandContext").def(py::init<commands::CommandSource>());
+
+    py::class_<commands::CommandNodeDescriptor, std::shared_ptr<commands::CommandNodeDescriptor>>(command_module, "CommandNodeDescriptor")
+        .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{}, py::arg("abbreviated_name") = py::none{});
 
     py::class_<commands::bindings::AbstractCommandNodeBinding>(command_module, "AbstractCommandNode")
         .def("then", &commands::bindings::AbstractCommandNodeBinding::then)

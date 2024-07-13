@@ -32,15 +32,16 @@ export namespace helium::commands::bindings
 class AbstractCommandNodeBinding
 {
 public:
-    AbstractCommandNodeBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    AbstractCommandNodeBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                               std::optional<std::string> abbreviated_name = std::nullopt)
     {
     }
     virtual ~AbstractCommandNodeBinding() = default;
 
     virtual auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor> = 0;
     virtual auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & = 0;
-    virtual auto execute(std::function<void(CommandContext const &, py::object)>) -> AbstractCommandNodeBinding & = 0;
-    virtual auto require(std::function<bool(CommandContext const &, py::object)>) -> AbstractCommandNodeBinding & = 0;
+    virtual auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & = 0;
+    virtual auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & = 0;
     virtual auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & = 0;
     virtual auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & = 0;
 };
@@ -56,7 +57,8 @@ private:
     CommandStringLiteral real_node_;
 
 public:
-    CommandLiteralStringBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    CommandLiteralStringBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                                std::optional<std::string> abbreviated_name = std::nullopt)
         : CommandLiteralBaseBinding(name, description, abbreviated_name),
           real_node_(std::move(name), std::move(description), std::move(abbreviated_name))
     {
@@ -71,18 +73,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback = std::move(callback)](CommandContext const &context) -> void {
-            callback(context, py::none{});
-        });
+        (void)this->real_node_.execute([callback](CommandContext const &context) -> void { callback(context, py::none{}); });
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback = std::move(callback)](CommandContext const &context) -> bool {
-            return callback(context, py::none{});
-        });
+        (void)this->real_node_.require([callback](CommandContext const &context) -> bool { return callback(context, py::none{}); });
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -109,7 +107,8 @@ private:
     CommandArgumentBoolean real_node_;
 
 public:
-    CommandArgumentBooleanBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    CommandArgumentBooleanBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                                  std::optional<std::string> abbreviated_name = std::nullopt)
         : CommandArgumentBaseBinding(name, description, abbreviated_name),
           real_node_(std::move(name), std::move(description), std::move(abbreviated_name))
     {
@@ -124,18 +123,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback = std::move(callback)](CommandContext const &context, bool param) -> bool {
-            callback(context, py::bool_{param});
-        });
+        (void)this->real_node_.execute([callback](CommandContext const &context, bool param) -> void { callback(context, py::bool_{param}); });
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback = std::move(callback)](CommandContext const &context, bool param) -> bool {
-            return callback(context, py::bool_{param});
-        });
+        (void)this->real_node_.require([callback](CommandContext const &context, bool param) -> bool { return callback(context, py::bool_{param}); });
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -157,7 +152,8 @@ private:
     CommandArgumentInteger<int_least64_t> real_node_;
 
 public:
-    CommandArgumentIntegerBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    CommandArgumentIntegerBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                                  std::optional<std::string> abbreviated_name = std::nullopt)
         : CommandArgumentBaseBinding(name, description, abbreviated_name),
           real_node_(std::move(name), std::move(description), std::move(abbreviated_name))
     {
@@ -172,18 +168,16 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback = std::move(callback)](CommandContext const &context, int_least64_t param) -> bool {
-            callback(context, py::int_{param});
-        });
+        (void)this->real_node_.execute(
+            [callback](CommandContext const &context, int_least64_t param) -> void { callback(context, py::int_{param}); });
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback = std::move(callback)](CommandContext const &context, int_least64_t param) -> bool {
-            return callback(context, py::int_{param});
-        });
+        (void)this->real_node_.require(
+            [callback](CommandContext const &context, int_least64_t param) -> bool { return callback(context, py::int_{param}); });
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -205,7 +199,8 @@ private:
     CommandArgumentFloatingPoint<double> real_node_;
 
 public:
-    CommandArgumentFloatingPointBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    CommandArgumentFloatingPointBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                                        std::optional<std::string> abbreviated_name = std::nullopt)
         : CommandArgumentBaseBinding(name, description, abbreviated_name),
           real_node_(std::move(name), std::move(description), std::move(abbreviated_name))
     {
@@ -220,18 +215,15 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback = std::move(callback)](CommandContext const &context, double param) -> bool {
-            callback(context, py::float_{param});
-        });
+        (void)this->real_node_.execute([callback](CommandContext const &context, double param) -> void { callback(context, py::float_{param}); });
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback = std::move(callback)](CommandContext const &context, double param) -> bool {
-            return callback(context, py::float_{param});
-        });
+        (void)this->real_node_.require(
+            [callback](CommandContext const &context, double param) -> bool { return callback(context, py::float_{param}); });
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -253,7 +245,8 @@ private:
     CommandArgumentString real_node_;
 
 public:
-    CommandArgumentStringBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    CommandArgumentStringBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                                 std::optional<std::string> abbreviated_name = std::nullopt)
         : CommandArgumentBaseBinding(name, description, abbreviated_name),
           real_node_(std::move(name), std::move(description), std::move(abbreviated_name))
     {
@@ -268,18 +261,15 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback = std::move(callback)](CommandContext const &context, std::string param) -> bool {
-            callback(context, py::str{param});
-        });
+        (void)this->real_node_.execute([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); });
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback = std::move(callback)](CommandContext const &context, std::string param) -> bool {
-            return callback(context, py::str{param});
-        });
+        (void)this->real_node_.require(
+            [callback](CommandContext const &context, std::string param) -> bool { return callback(context, py::str{param}); });
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -301,7 +291,8 @@ private:
     CommandArgumentQuotedString real_node_;
 
 public:
-    CommandArgumentQuotedStringBinding(std::string name, std::optional<std::string> description = std::nullopt, std::optional<std::string> abbreviated_name = std::nullopt)
+    CommandArgumentQuotedStringBinding(std::string name, std::optional<std::string> description = std::nullopt,
+                                       std::optional<std::string> abbreviated_name = std::nullopt)
         : CommandArgumentBaseBinding(name, description, abbreviated_name),
           real_node_(std::move(name), std::move(description), std::move(abbreviated_name))
     {
@@ -316,18 +307,15 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback = std::move(callback)](CommandContext const &context, std::string param) -> bool {
-            callback(context, py::str{param});
-        });
+        (void)this->real_node_.execute([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); });
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> callback) -> AbstractCommandNodeBinding & override
+    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback = std::move(callback)](CommandContext const &context, std::string param) -> bool {
-            return callback(context, py::str{param});
-        });
+        (void)this->real_node_.require(
+            [callback](CommandContext const &context, std::string const &param) -> bool { return callback(context, py::str{param}); });
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -356,7 +344,7 @@ public:
     CommandDispatcherBinding &operator=(CommandDispatcherBinding const &) = default;
     CommandDispatcherBinding &operator=(CommandDispatcherBinding &&) noexcept = default;
 
-    auto registerCommand(AbstractCommandNodeBinding & node) -> void
+    auto registerCommand(AbstractCommandNodeBinding &node) -> void
     {
         this->dispatcher_.registerRawCommandNodeDescriptor(node.getNodeDescriptor());
     }

@@ -24,9 +24,11 @@ import Helium.Base;
 import Helium.Commands.CommandContext;
 import Helium.Commands.Concepts;
 import Helium.Commands.Lexer;
+import Helium.Logger;
 
 export namespace helium::commands
 {
+auto base_logger = logger::SharedLogger::getSharedLogger("CommandNodeBase", "Descriptor");
 class CommandNodeDescriptor final
 {
 public:
@@ -100,6 +102,7 @@ public:
                 callback(context, tok);
             }
         }
+        base_logger->flush();
         return true;
     }
 };
