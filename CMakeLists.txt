@@ -40,6 +40,7 @@ target_sources(
         Commands/Test/Helium.Commands.Test.cppm
         Commands/Helium.Commands.cppm
         Config/Helium.Config.cppm
+        Events/BindingHelper/Helium.Events.BindingHelper.cppm
         Events/Concepts/Helium.Events.Concepts.cppm
         Events/EventBus/Helium.Events.EventBus.cppm
         Events/EventEmitter/Helium.Events.EventEmitter.cppm

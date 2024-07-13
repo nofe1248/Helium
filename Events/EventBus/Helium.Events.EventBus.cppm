@@ -100,6 +100,12 @@ private:
     }
 
 public:
+    static auto getHeliumEventBus() -> std::shared_ptr<EventBus>
+    {
+        static std::shared_ptr<EventBus> helium_event_bus = std::make_shared<EventBus>();
+        return helium_event_bus;
+    }
+
     auto processEvents(this auto &&self) -> void
     {
         std::lock_guard _(FWD(self).mutex_process_);

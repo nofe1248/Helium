@@ -52,8 +52,10 @@ public:
     std::function<double(Token const &)> token_similarity;
     std::function<std::string(Token const &)> get_suggestion;
 
-    CommandNodeDescriptor(std::string command_name, std::optional<std::string> command_description = std::nullopt, std::optional<std::string> command_abbreviated_name = std::nullopt)
-        : node_name(std::move(command_name)), node_description(std::move(command_description)), node_abbreviated_name(std::move(command_abbreviated_name))
+    CommandNodeDescriptor(std::string command_name, std::optional<std::string> command_description = std::nullopt,
+                          std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : node_name(std::move(command_name)), node_description(std::move(command_description)),
+          node_abbreviated_name(std::move(command_abbreviated_name))
     {
     }
 
@@ -113,8 +115,8 @@ class CommandNodeBase;
 export namespace helium::commands::concepts
 {
 template <typename Command_>
-concept IsCommandNode = std::derived_from<std::decay_t<Command_>, commands::CommandNodeBase> and std::copyable<std::decay_t<Command_>> and std::movable<std::decay_t<Command_>> and
-                        requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
+concept IsCommandNode = std::derived_from<std::decay_t<Command_>, commands::CommandNodeBase> and std::copyable<std::decay_t<Command_>> and
+                        std::movable<std::decay_t<Command_>> and requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
                             {
                                 std::decay_t<Command_>::tryAcceptToken(descriptor, tok)
                             } -> std::same_as<bool>;
@@ -146,7 +148,8 @@ protected:
     bool descriptor_initialized_ = false;
     std::shared_ptr<CommandNodeDescriptor> node_descriptor_ = std::make_shared<CommandNodeDescriptor>();
 
-    template <typename Pred_> constexpr auto addPredicate(this auto &&self, Pred_ &&pred) -> void
+    template <typename Pred_>
+    constexpr auto addPredicate(this auto &&self, Pred_ &&pred) -> void
     {
         if (not FWD(self).node_descriptor_->node_predicate.has_value())
         {
@@ -155,7 +158,8 @@ protected:
         FWD(self).node_descriptor_->node_predicate.value().push_back(FWD(pred));
     }
 
-    template <typename Callback_> constexpr auto addCallback(this auto &&self, Callback_ &&callback) -> void
+    template <typename Callback_>
+    constexpr auto addCallback(this auto &&self, Callback_ &&callback) -> void
     {
         if (not FWD(self).node_descriptor_->node_callback.has_value())
         {
@@ -170,22 +174,29 @@ protected:
         if (not self.descriptor_initialized_)
         {
             self.node_descriptor_->try_accept_token = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tryAcceptToken(
-                                                          std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> bool { return SelfT::tryAcceptToken(descriptor, tok); };
+                                                          std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> bool {
+                return SelfT::tryAcceptToken(descriptor, tok);
+            };
             if constexpr (concepts::IsCommandNodeAutocompletable<SelfT>)
             {
                 self.node_descriptor_->auto_completable = true;
-                self.node_descriptor_->token_similarity = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tokenSimilarity(
-                                                              std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> double { return SelfT::tokenSimilarity(descriptor, tok); };
+                self.node_descriptor_->token_similarity =
+                    [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tokenSimilarity(
+                        std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> double { return SelfT::tokenSimilarity(descriptor, tok); };
                 self.node_descriptor_->get_suggestion = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::getSuggestion(
-                                                              std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> std::string { return SelfT::getSuggestion(descriptor, tok); };
+                                                            std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> std::string {
+                    return SelfT::getSuggestion(descriptor, tok);
+                };
             }
             self.descriptor_initialized_ = true;
         }
     }
 
 public:
-    constexpr CommandNodeBase(std::string command_name, std::optional<std::string> command_description = std::nullopt, std::optional<std::string> command_abbreviated_name = std::nullopt)
-        : node_descriptor_(std::make_shared<CommandNodeDescriptor>(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name)))
+    constexpr CommandNodeBase(std::string command_name, std::optional<std::string> command_description = std::nullopt,
+                              std::optional<std::string> command_abbreviated_name = std::nullopt)
+        : node_descriptor_(
+              std::make_shared<CommandNodeDescriptor>(std::move(command_name), std::move(command_description), std::move(command_abbreviated_name)))
     {
     }
     constexpr CommandNodeBase(CommandNodeDescriptor info)
@@ -262,7 +273,12 @@ public:
 
     template <typename... Pred_>
     [[nodiscard]] constexpr decltype(auto) require(this auto &&self, Pred_ &&...pred)
-        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>> and
+                 ((std::same_as<decltype(pred(std::declval<CommandContext const &>(),
+                                              std::declval<typename std::decay_t<decltype(self)>::RawTokenStringConversionTarget>())),
+                                bool> and
+                   ...) or
+                  (std::same_as<decltype(pred(std::declval<CommandContext const &>())), bool> and ...))
     {
         auto descriptor = FWD(self).getNodeDescriptor().lock();
         FWD(self).addPredicate([descriptor, pred...](CommandContext const &context, Token const &tok) -> bool {

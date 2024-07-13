@@ -5,6 +5,7 @@
 
 export module Helium.Events;
 
+export import Helium.Events.BindingHelper;
 export import Helium.Events.Concepts;
 export import Helium.Events.EventBus;
 export import Helium.Events.EventEmitter;
