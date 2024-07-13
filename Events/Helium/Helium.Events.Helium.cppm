@@ -3,7 +3,15 @@
  * Please refer to Helium.Main.cppm for full license info.
  */
 
+module;
+
+#include <string>
+
+#include <pybind11/embed.h>
+
 export module Helium.Events.Helium;
+
+namespace py = pybind11;
 
 export namespace helium::events
 {
@@ -45,17 +53,25 @@ struct ServerResumed
 };
 struct ConsoleInput
 {
+    std::string input;
+};
+struct ServerOutputRaw
+{
+    std::string output;
+};
+struct PlayerInputRaw
+{
+    std::string input;
 };
 struct ServerOutput
 {
 };
-struct ServerInput
-{
-};
-struct GeneralInput
+struct PlayerInput
 {
 };
 struct PythonEvent
 {
+    std::string event_id;
+    py::object event_arg;
 };
 } // namespace helium::events

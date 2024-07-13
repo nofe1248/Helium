@@ -58,6 +58,9 @@ export namespace helium::main
 {
 auto heliumMain(int argc, const char *argv[]) -> int
 {
+    logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
+    cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
+
     events::EventEmitter event_emitter{events::EventBus::getHeliumEventBus()};
     std::jthread event_thread{[main_bus = events::EventBus::getHeliumEventBus()](std::stop_token st) {
         logger->info("Helium main event thread started");
@@ -68,12 +71,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
         logger->info("Helium main event thread stopping");
     }};
     events::EventListener event_listener{events::EventBus::getHeliumEventBus()};
-    event_listener.listenToEvent<events::HeliumStarted>([](events::HeliumStarted const &event) {
-        logger->info("Helium started");
-    });
-
-    logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
-    cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 

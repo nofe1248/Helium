@@ -274,6 +274,53 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
 
     auto events_module = m.def_submodule("events");
 
+    py::class_<events::HeliumStarting>(events_module, "HeliumStarting");
+    py::class_<events::HeliumStarted>(events_module, "HeliumStarted");
+    py::class_<events::HeliumStopping>(events_module, "HeliumStopping");
+    py::class_<events::PluginLoaded>(events_module, "PluginLoaded");
+    py::class_<events::PluginUnloaded>(events_module, "PluginUnloaded");
+    py::class_<events::PluginReloaded>(events_module, "PluginReloaded");
+    py::class_<events::ServerStarting>(events_module, "ServerStarting");
+    py::class_<events::ServerStarted>(events_module, "ServerStarted");
+    py::class_<events::ServerStopping>(events_module, "ServerStopping");
+    py::class_<events::ServerStopped>(events_module, "ServerStopped");
+    py::class_<events::ServerPaused>(events_module, "ServerPaused");
+    py::class_<events::ServerResumed>(events_module, "ServerResumed");
+    py::class_<events::ConsoleInput>(events_module, "ConsoleInput")
+        .def_readwrite("input", &events::ConsoleInput::input);
+    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRaw")
+        .def_readwrite("output", &events::ServerOutputRaw::output);
+    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRaw")
+        .def_readwrite("input", &events::PlayerInputRaw::input);
+    py::class_<events::PythonEvent>(events_module, "PythonEvent")
+        .def_readwrite("event_arg", &events::PythonEvent::event_arg);
+
+    py::enum_<events::binding::HeliumDefaultEventsBindingEnum>(events_module, "DefaultEvents")
+        .value("HeliumStarting", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
+        .value("HeliumStarted", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
+        .value("HeliumStopping", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
+        .value("PluginLoaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
+        .value("PluginUnloaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
+        .value("PluginReloaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
+        .value("ServerStarting", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTING)
+        .value("ServerStarted", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTED)
+        .value("ServerStopping", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
+        .value("ServerStopped", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
+        .value("ServerPaused", events::binding::HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
+        .value("ServerResumed", events::binding::HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
+        .value("ConsoleInput", events::binding::HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
+        .value("ServerOutputRaw", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
+        .value("PlayerInputRaw", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
+        .value("ServerOutput", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
+        .value("PlayerInput", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        .export_values();
+
+    py::class_<events::binding::EventBusBinding>(events_module, "EventBus");
+    py::class_<events::binding::EventEmitterBinding>(events_module, "EventEmitter");
+    py::class_<events::binding::EventListenerBinding>(events_module, "EventListener");
+
+    events_module.def("get_helium_event_bus", &events::EventBus::getHeliumEventBus);
+
     auto plugins_module = m.def_submodule("plugins");
 
     auto servers_module = m.def_submodule("servers");
