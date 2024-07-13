@@ -4,3 +4,58 @@
  */
 
 export module Helium.Events.Helium;
+
+export namespace helium::events
+{
+struct HeliumStarting
+{
+};
+struct HeliumStarted
+{
+};
+struct HeliumStopping
+{
+};
+struct PluginLoaded
+{
+};
+struct PluginUnloaded
+{
+};
+struct PluginReloaded
+{
+};
+struct ServerStarting
+{
+};
+struct ServerStarted
+{
+};
+struct ServerStopping
+{
+};
+struct ServerStopped
+{
+};
+struct ServerPaused
+{
+};
+struct ServerResumed
+{
+};
+struct ConsoleInput
+{
+};
+struct ServerOutput
+{
+};
+struct ServerInput
+{
+};
+struct GeneralInput
+{
+};
+struct PythonEvent
+{
+};
+} // namespace helium::events

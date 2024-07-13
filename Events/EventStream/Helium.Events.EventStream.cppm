@@ -15,6 +15,7 @@ module;
 #include <vector>
 
 #include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_hash.hpp>
 
 #include <proxy/proxy.h>
 
@@ -43,8 +44,8 @@ public:
 
 private:
     std::vector<EventType> event_queue_ = {};
-    std::unordered_map<EventListenerIDType, CallbackType> callbacks_;
-    std::unordered_map<EventListenerIDType, CallbackType> waiting_callbacks_;
+    std::unordered_map<EventListenerIDType, CallbackType, boost::hash<uuids::uuid>> callbacks_ = {};
+    std::unordered_map<EventListenerIDType, CallbackType, boost::hash<uuids::uuid>> waiting_callbacks_ = {};
 
     std::atomic_bool is_processing_ = false;
 
@@ -52,7 +53,7 @@ private:
     mutable std::shared_mutex mutex_callbacks_;
 
 public:
-    EventStream(){};
+    EventStream() = default;
 
     EventStream(EventStream const &) noexcept = default;
     EventStream &operator=(EventStream const &) noexcept = default;

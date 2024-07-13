@@ -26,6 +26,7 @@ module;
 
 #include <ranges>
 #include <string>
+#include <thread>
 
 #include <cxxopts.hpp>
 
@@ -57,8 +58,24 @@ export namespace helium::main
 {
 auto heliumMain(int argc, const char *argv[]) -> int
 {
+    events::EventEmitter event_emitter{events::EventBus::getHeliumEventBus()};
+    std::jthread event_thread{[main_bus = events::EventBus::getHeliumEventBus()](std::stop_token st) {
+        logger->info("Helium main event thread started");
+        while (not st.stop_requested())
+        {
+            main_bus->processEvents();
+        }
+        logger->info("Helium main event thread stopping");
+    }};
+    events::EventListener event_listener{events::EventBus::getHeliumEventBus()};
+    event_listener.listenToEvent<events::HeliumStarted>([](events::HeliumStarted const &event) {
+        logger->info("Helium started");
+    });
+
     logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
+
+    event_emitter.postponeEvent(events::HeliumStarting{});
 
     bool b = config::readConfig();
 
@@ -88,9 +105,16 @@ auto heliumMain(int argc, const char *argv[]) -> int
     plugins::PluginManager plugin_manager;
     plugin_manager.SearchAndLoadAllPlugins();
 
+    event_emitter.postponeEvent(events::HeliumStarted{});
+
     cli::mainCLILoop();
 
     config::saveConfig();
+
+    event_emitter.postponeEvent(events::HeliumStopping{});
+
+    event_thread.request_stop();
+    event_thread.join();
 
     return 0;
 }

@@ -38,12 +38,42 @@ public:
     }
     virtual ~AbstractCommandNodeBinding() = default;
 
-    virtual auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor> = 0;
-    virtual auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & = 0;
-    virtual auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & = 0;
-    virtual auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & = 0;
-    virtual auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & = 0;
-    virtual auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & = 0;
+    virtual auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor>
+    {
+        return nullptr;
+    }
+    virtual auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
+    virtual auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding &
+    {
+        return *this;
+    }
 };
 
 class CommandLiteralBaseBinding : public AbstractCommandNodeBinding
@@ -73,6 +103,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
+    auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : next_node)
+        {
+            this->real_node_.addChildNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.execute([callback](CommandContext const &context) -> void { callback(context, py::none{}); });
@@ -88,10 +126,27 @@ public:
         this->real_node_.addForwardNode(fork_node.getNodeDescriptor());
         return *this;
     }
+    auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : fork_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
         this->real_node_.addForwardNode(redirect_node.getNodeDescriptor());
+        return *this;
+    }
+    auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
+        for (auto &node : redirect_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
         return *this;
     }
 };
@@ -123,6 +178,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
+    auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : next_node)
+        {
+            this->real_node_.addChildNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.execute([callback](CommandContext const &context, bool param) -> void { callback(context, py::bool_{param}); });
@@ -138,10 +201,27 @@ public:
         this->real_node_.addForwardNode(fork_node.getNodeDescriptor());
         return *this;
     }
+    auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : fork_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
         this->real_node_.addForwardNode(redirect_node.getNodeDescriptor());
+        return *this;
+    }
+    auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
+        for (auto &node : redirect_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
         return *this;
     }
 };
@@ -168,6 +248,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
+    auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : next_node)
+        {
+            this->real_node_.addChildNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.execute(
@@ -185,10 +273,27 @@ public:
         this->real_node_.addForwardNode(fork_node.getNodeDescriptor());
         return *this;
     }
+    auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : fork_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
         this->real_node_.addForwardNode(redirect_node.getNodeDescriptor());
+        return *this;
+    }
+    auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
+        for (auto &node : redirect_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
         return *this;
     }
 };
@@ -215,6 +320,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
+    auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : next_node)
+        {
+            this->real_node_.addChildNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.execute([callback](CommandContext const &context, double param) -> void { callback(context, py::float_{param}); });
@@ -231,10 +344,27 @@ public:
         this->real_node_.addForwardNode(fork_node.getNodeDescriptor());
         return *this;
     }
+    auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : fork_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
         this->real_node_.addForwardNode(redirect_node.getNodeDescriptor());
+        return *this;
+    }
+    auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
+        for (auto &node : redirect_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
         return *this;
     }
 };
@@ -261,6 +391,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
+    auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : next_node)
+        {
+            this->real_node_.addChildNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.execute([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); });
@@ -277,10 +415,27 @@ public:
         this->real_node_.addForwardNode(fork_node.getNodeDescriptor());
         return *this;
     }
+    auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : fork_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
         this->real_node_.addForwardNode(redirect_node.getNodeDescriptor());
+        return *this;
+    }
+    auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
+        for (auto &node : redirect_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
         return *this;
     }
 };
@@ -307,6 +462,14 @@ public:
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
         return *this;
     }
+    auto then(std::vector<AbstractCommandNodeBinding> &next_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : next_node)
+        {
+            this->real_node_.addChildNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.execute([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); });
@@ -323,10 +486,27 @@ public:
         this->real_node_.addForwardNode(fork_node.getNodeDescriptor());
         return *this;
     }
+    auto fork(std::vector<AbstractCommandNodeBinding> &fork_node) -> AbstractCommandNodeBinding & override
+    {
+        for (auto &node : fork_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
+        return *this;
+    }
     auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
         this->real_node_.addForwardNode(redirect_node.getNodeDescriptor());
+        return *this;
+    }
+    auto redirect(std::vector<AbstractCommandNodeBinding> &redirect_node) -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.getNodeDescriptor().lock()->is_redirected = true;
+        for (auto &node : redirect_node)
+        {
+            this->real_node_.addForwardNode(node.getNodeDescriptor());
+        }
         return *this;
     }
 };

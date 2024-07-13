@@ -20,6 +20,7 @@ export module Helium.Plugins.Bindings.Python;
 import Helium.CLI;
 import Helium.Commands;
 import Helium.Config;
+import Helium.Events;
 import Helium.Logger;
 
 namespace py = pybind11;
@@ -101,84 +102,157 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::arg("abbreviated_name") = py::none{});
 
     py::class_<commands::bindings::AbstractCommandNodeBinding>(command_module, "AbstractCommandNode")
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
+        .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
+             py::arg("abbreviated_name") = py::none{})
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::then))
+        .def("then",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::AbstractCommandNodeBinding::then))
         .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
         .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::fork))
+        .def("fork",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::AbstractCommandNodeBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::AbstractCommandNodeBinding::redirect));
 
     py::class_<commands::bindings::CommandLiteralBaseBinding, commands::bindings::AbstractCommandNodeBinding>(command_module, "CommandLiteralBase")
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
+             py::arg("abbreviated_name") = py::none{})
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::then))
+        .def("then",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::CommandLiteralBaseBinding::then))
+        .def("execute", &commands::bindings::CommandLiteralBaseBinding::execute)
+        .def("require", &commands::bindings::CommandLiteralBaseBinding::require)
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::fork))
+        .def("fork",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::CommandLiteralBaseBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandLiteralBaseBinding::redirect));
 
     py::class_<commands::bindings::CommandLiteralStringBinding, commands::bindings::CommandLiteralBaseBinding>(command_module, "CommandLiteralString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::then))
+        .def("then",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::CommandLiteralStringBinding::then))
+        .def("execute", &commands::bindings::CommandLiteralStringBinding::execute)
+        .def("require", &commands::bindings::CommandLiteralStringBinding::require)
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::fork))
+        .def("fork",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::CommandLiteralStringBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandLiteralStringBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentBaseBinding, commands::bindings::AbstractCommandNodeBinding>(command_module, "CommandArgumentBase")
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
+             py::arg("abbreviated_name") = py::none{})
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::then))
+        .def("then",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::CommandArgumentBaseBinding::then))
+        .def("execute", &commands::bindings::CommandArgumentBaseBinding::execute)
+        .def("require", &commands::bindings::CommandArgumentBaseBinding::require)
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::fork))
+        .def("fork",
+             py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(&commands::bindings::CommandArgumentBaseBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandArgumentBaseBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentBooleanBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                   "CommandArgumentBoolean")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::then))
+        .def("then", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentBooleanBinding::then))
+        .def("execute", &commands::bindings::CommandArgumentBooleanBinding::execute)
+        .def("require", &commands::bindings::CommandArgumentBooleanBinding::require)
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::fork))
+        .def("fork", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentBooleanBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandArgumentBooleanBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentIntegerBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                   "CommandArgumentInteger")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::then))
+        .def("then", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentIntegerBinding::then))
+        .def("execute", &commands::bindings::CommandArgumentIntegerBinding::execute)
+        .def("require", &commands::bindings::CommandArgumentIntegerBinding::require)
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::fork))
+        .def("fork", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentIntegerBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandArgumentIntegerBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentFloatingPointBinding, commands::bindings::CommandArgumentBaseBinding>(
         command_module, "CommandArgumentFloatingPoint")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("then",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::then))
+        .def("then", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentFloatingPointBinding::then))
+        .def("execute", &commands::bindings::CommandArgumentFloatingPointBinding::execute)
+        .def("require", &commands::bindings::CommandArgumentFloatingPointBinding::require)
+        .def("fork",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::fork))
+        .def("fork", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentFloatingPointBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandArgumentFloatingPointBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                  "CommandArgumentString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::then))
+        .def("then", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentStringBinding::then))
+        .def("execute", &commands::bindings::CommandArgumentStringBinding::execute)
+        .def("require", &commands::bindings::CommandArgumentStringBinding::require)
+        .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::fork))
+        .def("fork", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentStringBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandArgumentStringBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentQuotedStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                        "CommandArgumentQuotedString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
-        .def("then", &commands::bindings::AbstractCommandNodeBinding::then)
-        .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
-        .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
-        .def("fork", &commands::bindings::AbstractCommandNodeBinding::fork)
-        .def("redirect", &commands::bindings::AbstractCommandNodeBinding::redirect);
+        .def("then",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::then))
+        .def("then", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentQuotedStringBinding::then))
+        .def("execute", &commands::bindings::CommandArgumentQuotedStringBinding::execute)
+        .def("require", &commands::bindings::CommandArgumentQuotedStringBinding::require)
+        .def("fork",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::fork))
+        .def("fork", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                         &commands::bindings::CommandArgumentQuotedStringBinding::fork))
+        .def("redirect",
+             py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::redirect))
+        .def("redirect", py::overload_cast<std::vector<commands::bindings::AbstractCommandNodeBinding> &>(
+                             &commands::bindings::CommandArgumentQuotedStringBinding::redirect));
 
     py::class_<commands::bindings::CommandDispatcherBinding>(command_module, "CommandDispatcher")
         .def(py::init<>())
@@ -197,4 +271,10 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                        [](std::string const &command, double similarity_cutoff, bool show_all_result = false) -> std::vector<std::string> {
                            return cli::dispatcher.getSuggestions(command, similarity_cutoff, show_all_result);
                        });
+
+    auto events_module = m.def_submodule("events");
+
+    auto plugins_module = m.def_submodule("plugins");
+
+    auto servers_module = m.def_submodule("servers");
 }
