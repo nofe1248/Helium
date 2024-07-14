@@ -286,14 +286,10 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<events::ServerStopped>(events_module, "ServerStopped");
     py::class_<events::ServerPaused>(events_module, "ServerPaused");
     py::class_<events::ServerResumed>(events_module, "ServerResumed");
-    py::class_<events::ConsoleInput>(events_module, "ConsoleInput")
-        .def_readwrite("input", &events::ConsoleInput::input);
-    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRaw")
-        .def_readwrite("output", &events::ServerOutputRaw::output);
-    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRaw")
-        .def_readwrite("input", &events::PlayerInputRaw::input);
-    py::class_<events::PythonEvent>(events_module, "PythonEvent")
-        .def_readwrite("event_arg", &events::PythonEvent::event_arg);
+    py::class_<events::ConsoleInput>(events_module, "ConsoleInput").def_readwrite("input", &events::ConsoleInput::input);
+    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRaw").def_readwrite("output", &events::ServerOutputRaw::output);
+    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRaw").def_readwrite("input", &events::PlayerInputRaw::input);
+    py::class_<events::PythonEvent>(events_module, "PythonEvent").def_readwrite("event_arg", &events::PythonEvent::event_arg);
 
     py::enum_<events::binding::HeliumDefaultEventsBindingEnum>(events_module, "DefaultEvents")
         .value("HeliumStarting", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
@@ -315,11 +311,25 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .value("PlayerInput", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
         .export_values();
 
-    py::class_<events::binding::EventBusBinding>(events_module, "EventBus");
-    py::class_<events::binding::EventEmitterBinding>(events_module, "EventEmitter");
-    py::class_<events::binding::EventListenerBinding>(events_module, "EventListener");
-
-    events_module.def("get_helium_event_bus", &events::EventBus::getHeliumEventBus);
+    py::class_<events::binding::EventBusBinding>(events_module, "EventBus")
+        .def(py::init<>())
+        .def("unlisten_all", &events::binding::EventBusBinding::unlistenAll)
+        .def("process_events", &events::binding::EventBusBinding::processEvents);
+    py::class_<events::binding::EventEmitterBinding>(events_module, "EventEmitter")
+        .def(py::init<events::binding::EventBusBinding const &>())
+        .def(py::init<>())
+        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent)
+        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent);
+    py::class_<events::binding::EventListenerBinding>(events_module, "EventListener")
+        .def(py::init<events::binding::EventBusBinding const &>())
+        .def(py::init<>())
+        .def("listen_to_default_event", &events::binding::EventListenerBinding::listenToDefaultEvent)
+        .def("listen_to_custom_event", &events::binding::EventListenerBinding::listenToCustomEvent)
+        .def("unlisten_to_default_event", &events::binding::EventListenerBinding::unlistenToDefaultEvent)
+        .def("unlisten_to_custom_event", &events::binding::EventListenerBinding::unlistenToCustomEvent)
+        .def("is_listening_to_default_event", &events::binding::EventListenerBinding::isListeningToDefaultEvent)
+        .def("is_listening_to_custom_event", &events::binding::EventListenerBinding::isListeningToCustomEvent)
+        .def("unlisten_all", &events::binding::EventListenerBinding::unlistenAll);
 
     auto plugins_module = m.def_submodule("plugins");
 

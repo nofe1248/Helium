@@ -49,7 +49,13 @@ public:
     template <concepts::IsEvent EventT>
     auto postponeEvent(this auto &&self, EventT event) -> void
     {
-        FWD(self).event_bus_->postponeEvent(event);
+        FWD(self).event_bus_->template postponeEvent<EventT>(event);
+    }
+
+    template <concepts::IsDynamicIDEvent EventT>
+    auto postponeDynamicIDEvent(this auto &&self, EventT event) -> void
+    {
+        FWD(self).event_bus_->template postponeDynamicIDEvent<EventT>(event);
     }
 
     constexpr auto getID(this auto &&self) -> EventEmitterIDType

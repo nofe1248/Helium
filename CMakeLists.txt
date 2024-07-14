@@ -47,7 +47,6 @@ target_sources(
         Events/EventListener/Helium.Events.EventListener.cppm
         Events/EventStream/Helium.Events.EventStream.cppm
         Events/Helium/Helium.Events.Helium.cppm
-        Events/ListenerStream/Helium.Events.ListenerStream.cppm
         Events/Test/Helium.Events.Test.cppm
         Events/Helium.Events.cppm
         Exceptions/TerminateHandler/Helium.Exceptions.TerminateHandler.cppm

@@ -5,6 +5,7 @@
 
 module;
 
+#include <concepts>
 #include <exception>
 #include <functional>
 #include <memory>
@@ -78,14 +79,28 @@ public:
     constexpr auto listenToEvent(this auto &&self, std::function<void(EventT const &)> &&callback) -> void
     {
         assert(FWD(self).event_bus_ != nullptr);
-        FWD(self).event_bus_->listenToEvent(FWD(self).id_, std::move(callback));
+        FWD(self).event_bus_->template listenToEvent<EventT>(FWD(self).id_, std::move(callback));
+    }
+
+    template <concepts::IsDynamicIDEvent EventT>
+    constexpr auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, std::function<void(EventT const &)> &&callback) -> void
+    {
+        assert(FWD(self).event_bus_ != nullptr);
+        FWD(self).event_bus_->template listenToDynamicIDEvent<EventT>(event_id, FWD(self).id_, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>
     constexpr auto unlistenToEvent(this auto &&self) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        return FWD(self).event_bus_->unlistenToEvent(FWD(self).id_);
+        return FWD(self).event_bus_->template unlistenToEvent<EventT>(FWD(self).id_);
+    }
+
+    template <concepts::IsDynamicIDEvent EventT>
+    constexpr auto unlistenToDynamicIDEvent(this auto &&self, std::string const &event_id) -> bool
+    {
+        assert(FWD(self).event_bus_ != nullptr);
+        return FWD(self).event_bus_->template unlistenToDynamicIDEvent<EventT>(event_id, FWD(self).id_);
     }
 
     constexpr auto unlistenAll(this auto &&self) -> void
@@ -98,7 +113,14 @@ public:
     constexpr auto isListeningToEvent(this auto &&self) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        return FWD(self).event_bus_->isListeningToEvent(FWD(self).id_);
+        return FWD(self).event_bus_->template isListeningToEvent<EventT>(FWD(self).id_);
+    }
+
+    template <concepts::IsDynamicIDEvent EventT>
+    constexpr auto isListeningToDynamicIDEvent(this auto &&self, std::string const &event_id) -> bool
+    {
+        assert(FWD(self).event_bus_ != nullptr);
+        return FWD(self).event_bus_->template isListeningToDynamicIDEvent<EventT>(event_id, FWD(self).id_);
     }
 
     constexpr auto getID(this auto &&self) -> EventListenerIDType

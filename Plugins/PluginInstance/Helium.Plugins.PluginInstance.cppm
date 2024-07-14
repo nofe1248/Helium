@@ -120,15 +120,15 @@ public:
             }
             catch (py::error_already_set const &py_error)
             {
-                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), py_error.what());
+                instance_logger->error("Plugin {} failed to load due to exception : {}", this->plugin_path_.string(), py_error.what());
             }
             catch (std::exception const &exception)
             {
-                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), exception.what());
+                instance_logger->error("Plugin {} failed to load due to exception : {}", this->plugin_path_.string(), exception.what());
             }
             catch (...)
             {
-                instance_logger->error("Plugin {} failed to register due to unknown exception", this->plugin_path_.string());
+                instance_logger->error("Plugin {} failed to load due to unknown exception", this->plugin_path_.string());
             }
         }
     }
@@ -144,15 +144,15 @@ public:
             }
             catch (py::error_already_set const &py_error)
             {
-                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), py_error.what());
+                instance_logger->error("Plugin {} failed to unload due to exception : {}", this->plugin_path_.string(), py_error.what());
             }
             catch (std::exception const &exception)
             {
-                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), exception.what());
+                instance_logger->error("Plugin {} failed to unload due to exception : {}", this->plugin_path_.string(), exception.what());
             }
             catch (...)
             {
-                instance_logger->error("Plugin {} failed to register due to unknown exception", this->plugin_path_.string());
+                instance_logger->error("Plugin {} failed to unload due to unknown exception", this->plugin_path_.string());
             }
         }
     }
@@ -168,15 +168,15 @@ public:
             }
             catch (py::error_already_set const &py_error)
             {
-                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), py_error.what());
+                instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), py_error.what());
             }
             catch (std::exception const &exception)
             {
-                instance_logger->error("Plugin {} failed to register due to exception : {}", this->plugin_path_.string(), exception.what());
+                instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
             }
             catch (...)
             {
-                instance_logger->error("Plugin {} failed to register due to unknown exception", this->plugin_path_.string());
+                instance_logger->error("Plugin {} failed to reload due to unknown exception", this->plugin_path_.string());
             }
         }
     }
