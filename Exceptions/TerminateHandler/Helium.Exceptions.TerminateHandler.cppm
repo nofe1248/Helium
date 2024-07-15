@@ -28,8 +28,7 @@ auto printTerminateTrace() -> void
 auto terminateHandler() -> void
 {
     spdlog::shutdown();
-    std::cerr << "\n";
-    std::cerr << "Helium crashed due to unexpected signal, please send the crash stacktrace and log to the Helium DevTeam.\n";
+    std::cerr << "Helium crashed, please send the crash stacktrace and log to the Helium DevTeam.\n";
     try
     {
         auto ptr = std::current_exception();
@@ -64,6 +63,10 @@ auto terminateHandler() -> void
 #ifdef _WIN32
 auto WINAPI topLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo) -> LONG
 {
+
+    std::cerr << "\n";
+    std::cerr << pExceptionInfo->ExceptionRecord->ExceptionCode << "(" << pExceptionInfo->ExceptionRecord->ExceptionInformation << ")"
+              << " at " << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;
     terminateHandler();
 }
 #endif

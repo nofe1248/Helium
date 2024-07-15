@@ -157,28 +157,28 @@ public:
     }
 
     template <concepts::IsEvent EventT>
-    auto postponeEvent(this auto &&self, EventT event) -> void
+    auto postponeEvent(this auto &&self, EventT &&event) -> void
     {
-        FWD(self).template getEventStream<EventT>()->postponeEvent(event);
+        FWD(self).template getEventStream<EventT>()->postponeEvent(std::move(event));
     }
 
     template <concepts::IsDynamicIDEvent EventT>
-    auto postponeDynamicIDEvent(this auto &&self, EventT event) -> void
+    auto postponeDynamicIDEvent(this auto &&self, EventT &&event) -> bool
     {
-        FWD(self).template getDynamicIDEventStream<EventT>(event.event_id)->postponeEvent(event);
+        FWD(self).template getDynamicIDEventStream<EventT>(event.event_id)->postponeEvent(std::move(event));
     }
 
     template <concepts::IsEvent EventT>
-    auto listenToEvent(this auto &&self, EventListenerIDType const &listener_id, std::function<void(EventT const &)> &&callback) -> void
+    auto listenToEvent(this auto &&self, EventListenerIDType const &listener_id, std::function<void(EventT const &)> &&callback) -> bool
     {
-        FWD(self).template getEventStream<EventT>()->addListener(listener_id, std::move(callback));
+        return FWD(self).template getEventStream<EventT>()->addListener(listener_id, std::move(callback));
     }
 
     template <concepts::IsDynamicIDEvent EventT>
     auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, EventListenerIDType const &listener_id,
-                                std::function<void(EventT const &)> &&callback) -> void
+                                std::function<void(EventT const &)> &&callback) -> bool
     {
-        FWD(self).template getDynamicIDEventStream<EventT>(event_id)->addListener(listener_id, std::move(callback));
+        return FWD(self).template getDynamicIDEventStream<EventT>(event_id)->addListener(listener_id, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>

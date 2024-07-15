@@ -51,6 +51,7 @@ private:
 
     mutable std::shared_mutex mutex_event_;
     mutable std::shared_mutex mutex_callbacks_;
+    mutable std::shared_mutex mutex_callbacks_python_;
 
 public:
     EventStream() = default;
@@ -60,10 +61,10 @@ public:
     EventStream(EventStream &&) noexcept = default;
     EventStream &operator=(EventStream &&) noexcept = default;
 
-    auto postponeEvent(this auto &&self, std::any event) -> void
+    auto postponeEvent(this auto &&self, std::any &&event) -> void
     {
         std::lock_guard write_guard(FWD(self).mutex_event_);
-        FWD(self).event_queue_.push_back(std::move(std::any_cast<EventType>(event)));
+        FWD(self).event_queue_.push_back(std::move(std::any_cast<EventType>(std::move(event))));
     }
 
     auto processEvents(this auto &&self) -> void
@@ -89,7 +90,7 @@ public:
         std::lock_guard write_guard(FWD(self).mutex_callbacks_);
         if (FWD(self).is_processing_)
         {
-            FWD(self).waiting_callbacks_.emplace(std::make_pair(listenerID, std::move(std::any_cast<CallbackType>(callback))));
+            FWD(self).waiting_callbacks_.emplace(std::make_pair(listenerID, std::move(std::any_cast<CallbackType>(std::move(callback)))));
             return true;
         }
         return FWD(self).internalAddListener(listenerID, std::move(std::any_cast<CallbackType>(callback)));
@@ -158,6 +159,15 @@ private:
             return false;
         }
         FWD(self).callbacks_.erase(listenerID);
+        return true;
+    }
+    [[nodiscard]] auto internalRemoveListenerPython(this auto &&self, EventListenerIDType const &listenerID) -> bool
+    {
+        if (not FWD(self).callbacks_python_.contains(listenerID))
+        {
+            return false;
+        }
+        FWD(self).callbacks_python_.erase(listenerID);
         return true;
     }
 };

@@ -7,7 +7,12 @@ module;
 
 #include <memory>
 
+#include <cpptrace/cpptrace.hpp>
+
+#include <pybind11/chrono.h>
 #include <pybind11/embed.h>
+#include <pybind11/functional.h>
+#include <pybind11/stl.h>
 
 export module Helium.Events.BindingHelper;
 
@@ -15,8 +20,14 @@ import Helium.Events.EventBus;
 import Helium.Events.EventListener;
 import Helium.Events.EventEmitter;
 import Helium.Events.Helium;
+import Helium.Logger;
 
 namespace py = pybind11;
+
+namespace helium::events::binding
+{
+auto binding_logger = logger::SharedLogger::getSharedLogger("Events", "PythonBinding");
+}
 
 export namespace helium::events::binding
 {
@@ -158,7 +169,10 @@ public:
         {
             this->event_emitter_.postponeEvent(PlayerInput{});
         }
-        throw std::runtime_error("Unknown default event type");
+        else
+        {
+            throw cpptrace::runtime_error("Unknown default event type");
+        }
     }
     auto postponeCustomEvent(std::string const &event_id, py::object const &event_arg) -> void
     {
@@ -183,82 +197,96 @@ public:
     auto operator=(EventListenerBinding const &) -> EventListenerBinding & = delete;
     auto operator=(EventListenerBinding &&) noexcept -> EventListenerBinding & = default;
 
-    auto listenToDefaultEvent(HeliumDefaultEventsBindingEnum event_type, std::function<void(py::object const &)> &&callback) -> void
+    auto listenToDefaultEvent(HeliumDefaultEventsBindingEnum event_type, std::function<void(py::object)> const &callback) -> bool
     {
+        binding_logger->debug("Listening to default event");
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
         {
-            this->event_listener_.listenToEvent<HeliumStarting>(std::move([&callback](HeliumStarting const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<HeliumStarting>(
+                std::move([callback](HeliumStarting const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
+        if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
         {
-            this->event_listener_.listenToEvent<HeliumStarted>(std::move([&callback](HeliumStarted const &event) { callback(py::cast(event)); }));
+            binding_logger->debug("Registering");
+            return this->event_listener_.listenToEvent<HeliumStarted>([callback](HeliumStarted const &event) { callback(py::cast(event)); });
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
+        if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
         {
-            this->event_listener_.listenToEvent<HeliumStopping>(std::move([&callback](HeliumStopping const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<HeliumStopping>(
+                std::move([callback](HeliumStopping const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
         {
-            this->event_listener_.listenToEvent<PluginLoaded>(std::move([&callback](PluginLoaded const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<PluginLoaded>(std::move([callback](PluginLoaded const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
         {
-            this->event_listener_.listenToEvent<PluginUnloaded>(std::move([&callback](PluginUnloaded const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<PluginUnloaded>(
+                std::move([callback](PluginUnloaded const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
         {
-            this->event_listener_.listenToEvent<PluginReloaded>(std::move([&callback](PluginReloaded const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<PluginReloaded>(
+                std::move([callback](PluginReloaded const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTING)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTING)
         {
-            this->event_listener_.listenToEvent<ServerStarting>(std::move([&callback](ServerStarting const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerStarting>(
+                std::move([callback](ServerStarting const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTED)
         {
-            this->event_listener_.listenToEvent<ServerStarted>(std::move([&callback](ServerStarted const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerStarted>(
+                std::move([callback](ServerStarted const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
         {
-            this->event_listener_.listenToEvent<ServerStopping>(std::move([&callback](ServerStopping const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerStopping>(
+                std::move([callback](ServerStopping const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
         {
-            this->event_listener_.listenToEvent<ServerStopped>(std::move([&callback](ServerStopped const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerStopped>(
+                std::move([callback](ServerStopped const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
         {
-            this->event_listener_.listenToEvent<ServerPaused>(std::move([&callback](ServerPaused const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerPaused>(std::move([callback](ServerPaused const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
         {
-            this->event_listener_.listenToEvent<ServerResumed>(std::move([&callback](ServerResumed const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerResumed>(
+                std::move([callback](ServerResumed const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
-            this->event_listener_.listenToEvent<ConsoleInput>(std::move([&callback](ConsoleInput const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ConsoleInput>(std::move([callback](ConsoleInput const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
         {
-            this->event_listener_.listenToEvent<ServerOutputRaw>(std::move([&callback](ServerOutputRaw const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerOutputRaw>(
+                std::move([callback](ServerOutputRaw const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
         {
-            this->event_listener_.listenToEvent<PlayerInputRaw>(std::move([&callback](PlayerInputRaw const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<PlayerInputRaw>(
+                std::move([callback](PlayerInputRaw const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
-            this->event_listener_.listenToEvent<ServerOutput>(std::move([&callback](ServerOutput const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<ServerOutput>(std::move([callback](ServerOutput const &event) { callback(py::cast(event)); }));
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
         {
-            this->event_listener_.listenToEvent<PlayerInput>(std::move([&callback](PlayerInput const &event) { callback(py::cast(event)); }));
+            return this->event_listener_.listenToEvent<PlayerInput>(std::move([callback](PlayerInput const &event) { callback(py::cast(event)); }));
         }
-        throw std::runtime_error{"Unknown default event type"};
+        throw cpptrace::runtime_error{"Unknown default event type"};
     }
 
-    auto listenToCustomEvent(std::string const &event_id, std::function<void(PythonEvent const &)> &&callback) -> void
+    auto listenToCustomEvent(std::string const &event_id, std::function<void(PythonEvent const &)> const &callback) -> bool
     {
-        return this->event_listener_.listenToDynamicIDEvent<PythonEvent>(event_id, std::move([&callback](PythonEvent const &event) { callback(event); }));
+        return this->event_listener_.listenToDynamicIDEvent<PythonEvent>(event_id,
+                                                                         std::move([callback](PythonEvent const &event) { callback(event); }));
     }
 
     auto unlistenToDefaultEvent(HeliumDefaultEventsBindingEnum event_type) -> void
@@ -331,7 +359,10 @@ public:
         {
             this->event_listener_.unlistenToEvent<PlayerInput>();
         }
-        throw std::runtime_error{"Unknown default event type"};
+        else
+        {
+            throw cpptrace::runtime_error{"Unknown default event type"};
+        }
     }
 
     auto unlistenToCustomEvent(std::string const &event_id) -> void
@@ -345,71 +376,71 @@ public:
         {
             return this->event_listener_.isListeningToEvent<HeliumStarting>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
+        if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
         {
             return this->event_listener_.isListeningToEvent<HeliumStarted>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
+        if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
         {
             return this->event_listener_.isListeningToEvent<HeliumStopping>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
         {
             return this->event_listener_.isListeningToEvent<PluginLoaded>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
         {
             return this->event_listener_.isListeningToEvent<PluginUnloaded>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
         {
             return this->event_listener_.isListeningToEvent<PluginReloaded>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTING)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTING)
         {
             return this->event_listener_.isListeningToEvent<ServerStarting>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTED)
         {
             return this->event_listener_.isListeningToEvent<ServerStarted>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
         {
             return this->event_listener_.isListeningToEvent<ServerStopping>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
         {
             return this->event_listener_.isListeningToEvent<ServerStopped>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
         {
             return this->event_listener_.isListeningToEvent<ServerPaused>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
         {
             return this->event_listener_.isListeningToEvent<ServerResumed>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
             return this->event_listener_.isListeningToEvent<ConsoleInput>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
         {
             return this->event_listener_.isListeningToEvent<ServerOutputRaw>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
         {
             return this->event_listener_.isListeningToEvent<PlayerInputRaw>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
             return this->event_listener_.isListeningToEvent<ServerOutput>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
         {
             return this->event_listener_.isListeningToEvent<PlayerInput>();
         }
-        throw std::runtime_error{"Unknown default event type"};
+        throw cpptrace::runtime_error{"Unknown default event type"};
     }
 
     auto isListeningToCustomEvent(std::string const &event_id) -> bool

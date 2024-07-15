@@ -71,6 +71,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
         logger->info("Helium main event thread stopping");
     }};
     events::EventListener event_listener{events::EventBus::getHeliumEventBus()};
+    event_listener.listenToEvent<events::PluginLoaded>([](events::PluginLoaded const &) { logger->debug("Event emitter test"); });
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 

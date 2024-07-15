@@ -20,6 +20,7 @@ struct HeliumStarting
 };
 struct HeliumStarted
 {
+    HeliumStarted() {}
 };
 struct HeliumStopping
 {

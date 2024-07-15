@@ -5,10 +5,13 @@
 
 module;
 
+#include <iostream>
 #include <filesystem>
 #include <format>
 #include <memory>
 #include <string>
+
+#include <cpptrace/cpptrace.hpp>
 
 #include <pybind11/embed.h>
 
@@ -122,6 +125,12 @@ public:
             {
                 instance_logger->error("Plugin {} failed to load due to exception : {}", this->plugin_path_.string(), py_error.what());
             }
+            catch (cpptrace::exception const &exception)
+            {
+                instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
+                instance_logger->error("Exception stacktrace :");
+                exception.trace().print_with_snippets(std::cerr, true);
+            }
             catch (std::exception const &exception)
             {
                 instance_logger->error("Plugin {} failed to load due to exception : {}", this->plugin_path_.string(), exception.what());
@@ -146,6 +155,12 @@ public:
             {
                 instance_logger->error("Plugin {} failed to unload due to exception : {}", this->plugin_path_.string(), py_error.what());
             }
+            catch (cpptrace::exception const &exception)
+            {
+                instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
+                instance_logger->error("Exception stacktrace :");
+                exception.trace().print_with_snippets(std::cerr, true);
+            }
             catch (std::exception const &exception)
             {
                 instance_logger->error("Plugin {} failed to unload due to exception : {}", this->plugin_path_.string(), exception.what());
@@ -169,6 +184,12 @@ public:
             catch (py::error_already_set const &py_error)
             {
                 instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), py_error.what());
+            }
+            catch (cpptrace::exception const &exception)
+            {
+                instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
+                instance_logger->error("Exception stacktrace :");
+                exception.trace().print_with_snippets(std::cerr, true);
             }
             catch (std::exception const &exception)
             {

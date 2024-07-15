@@ -274,22 +274,31 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
 
     auto events_module = m.def_submodule("events");
 
-    py::class_<events::HeliumStarting>(events_module, "HeliumStarting");
-    py::class_<events::HeliumStarted>(events_module, "HeliumStarted");
-    py::class_<events::HeliumStopping>(events_module, "HeliumStopping");
-    py::class_<events::PluginLoaded>(events_module, "PluginLoaded");
-    py::class_<events::PluginUnloaded>(events_module, "PluginUnloaded");
-    py::class_<events::PluginReloaded>(events_module, "PluginReloaded");
-    py::class_<events::ServerStarting>(events_module, "ServerStarting");
-    py::class_<events::ServerStarted>(events_module, "ServerStarted");
-    py::class_<events::ServerStopping>(events_module, "ServerStopping");
-    py::class_<events::ServerStopped>(events_module, "ServerStopped");
-    py::class_<events::ServerPaused>(events_module, "ServerPaused");
-    py::class_<events::ServerResumed>(events_module, "ServerResumed");
-    py::class_<events::ConsoleInput>(events_module, "ConsoleInput").def_readwrite("input", &events::ConsoleInput::input);
-    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRaw").def_readwrite("output", &events::ServerOutputRaw::output);
-    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRaw").def_readwrite("input", &events::PlayerInputRaw::input);
-    py::class_<events::PythonEvent>(events_module, "PythonEvent").def_readwrite("event_arg", &events::PythonEvent::event_arg);
+    py::class_<events::HeliumStarting>(events_module, "HeliumStarting").def(py::init<>());
+    py::class_<events::HeliumStarted>(events_module, "HeliumStarted").def(py::init<>());
+    py::class_<events::HeliumStopping>(events_module, "HeliumStopping").def(py::init<>());
+    py::class_<events::PluginLoaded>(events_module, "PluginLoaded").def(py::init<>());
+    py::class_<events::PluginUnloaded>(events_module, "PluginUnloaded").def(py::init<>());
+    py::class_<events::PluginReloaded>(events_module, "PluginReloaded").def(py::init<>());
+    py::class_<events::ServerStarting>(events_module, "ServerStarting").def(py::init<>());
+    py::class_<events::ServerStarted>(events_module, "ServerStarted").def(py::init<>());
+    py::class_<events::ServerStopping>(events_module, "ServerStopping").def(py::init<>());
+    py::class_<events::ServerStopped>(events_module, "ServerStopped").def(py::init<>());
+    py::class_<events::ServerPaused>(events_module, "ServerPaused").def(py::init<>());
+    py::class_<events::ServerResumed>(events_module, "ServerResumed").def(py::init<>());
+    py::class_<events::ConsoleInput>(events_module, "ConsoleInput").def(py::init<std::string>()).def_readwrite("input", &events::ConsoleInput::input);
+    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRaw")
+        .def(py::init<std::string>())
+        .def_readwrite("output", &events::ServerOutputRaw::output);
+    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRaw")
+        .def(py::init<std::string>())
+        .def_readwrite("input", &events::PlayerInputRaw::input);
+    py::class_<events::ServerOutput>(events_module, "ServerOutput").def(py::init<>());
+    py::class_<events::PlayerInput>(events_module, "PlayerInput").def(py::init<>());
+    py::class_<events::PythonEvent>(events_module, "PythonEvent")
+        .def(py::init<std::string, py::object>())
+        .def_readwrite("event_id", &events::PythonEvent::event_id)
+        .def_readwrite("event_arg", &events::PythonEvent::event_arg);
 
     py::enum_<events::binding::HeliumDefaultEventsBindingEnum>(events_module, "DefaultEvents")
         .value("HeliumStarting", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
@@ -318,8 +327,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<events::binding::EventEmitterBinding>(events_module, "EventEmitter")
         .def(py::init<events::binding::EventBusBinding const &>())
         .def(py::init<>())
-        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent)
-        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent);
+        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent, py::arg("event_type"), py::arg("event_arg") = py::none{})
+        .def("postpone_custom_event", &events::binding::EventEmitterBinding::postponeCustomEvent);
     py::class_<events::binding::EventListenerBinding>(events_module, "EventListener")
         .def(py::init<events::binding::EventBusBinding const &>())
         .def(py::init<>())

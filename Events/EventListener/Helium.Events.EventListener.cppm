@@ -76,17 +76,17 @@ public:
     }
 
     template <concepts::IsEvent EventT>
-    constexpr auto listenToEvent(this auto &&self, std::function<void(EventT const &)> &&callback) -> void
+    constexpr auto listenToEvent(this auto &&self, std::function<void(EventT const &)> &&callback) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        FWD(self).event_bus_->template listenToEvent<EventT>(FWD(self).id_, std::move(callback));
+        return FWD(self).event_bus_->template listenToEvent<EventT>(FWD(self).id_, std::move(callback));
     }
 
     template <concepts::IsDynamicIDEvent EventT>
-    constexpr auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, std::function<void(EventT const &)> &&callback) -> void
+    constexpr auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, std::function<void(EventT const &)> &&callback) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        FWD(self).event_bus_->template listenToDynamicIDEvent<EventT>(event_id, FWD(self).id_, std::move(callback));
+        return FWD(self).event_bus_->template listenToDynamicIDEvent<EventT>(event_id, FWD(self).id_, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>

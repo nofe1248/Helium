@@ -6,6 +6,7 @@
 module;
 
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -17,6 +18,8 @@ module;
 #include <pybind11/embed.h>
 
 #include <semver.hpp>
+
+#include <cpptrace/cpptrace.hpp>
 
 export module Helium.Plugins.PluginManager;
 
@@ -104,6 +107,12 @@ public:
         {
             manager_logger->error("Plugin {} failed to register due to exception : {}", plugin_path.string(), py_error.what());
             return false;
+        }
+        catch (cpptrace::exception const &exception)
+        {
+            manager_logger->error("Plugin {} failed to register due to exception : {}", plugin_path.string(), exception.what());
+            manager_logger->error("Exception stacktrace :");
+            exception.trace().print_with_snippets(std::cerr, true);
         }
         catch (std::exception const &exception)
         {

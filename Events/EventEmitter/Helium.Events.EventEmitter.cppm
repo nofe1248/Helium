@@ -47,15 +47,15 @@ public:
     EventEmitter &operator=(EventEmitter &&) noexcept = default;
 
     template <concepts::IsEvent EventT>
-    auto postponeEvent(this auto &&self, EventT event) -> void
+    auto postponeEvent(this auto &&self, EventT &&event) -> void
     {
-        FWD(self).event_bus_->template postponeEvent<EventT>(event);
+        FWD(self).event_bus_->template postponeEvent<EventT>(std::move(event));
     }
 
     template <concepts::IsDynamicIDEvent EventT>
-    auto postponeDynamicIDEvent(this auto &&self, EventT event) -> void
+    auto postponeDynamicIDEvent(this auto &&self, EventT &&event) -> void
     {
-        FWD(self).event_bus_->template postponeDynamicIDEvent<EventT>(event);
+        FWD(self).event_bus_->template postponeDynamicIDEvent<EventT>(std::move(event));
     }
 
     constexpr auto getID(this auto &&self) -> EventEmitterIDType
