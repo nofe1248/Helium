@@ -59,24 +59,6 @@ private:
     };
 
 public:
-    auto getServerState() const noexcept -> auto &
-    {
-        static sml::sm server_state_ = []() {
-            using namespace sml::dsl;
-            // clang-format off
-            return transition_table{
-                *"Starting"_s + event<ServerStarted> = "Running"_s,
-                "Running"_s + event<ServerFinalize> = "Stopping"_s,
-                "Stopping"_s + event<ServerStopped> = "Stopped"_s,
-                "Running"_s + event<ServerPause> = "Paused"_s,
-                "Paused"_s + event<ServerResume> = "Running"_s,
-                "Paused"_s + event<ServerFinalize> = "Stopping"_s
-            };
-            // clang-format on
-        };
-        return server_state_;
-    }
-
     explicit ServerInstance()
         : io_context_(), server_process_(this->io_context_.get_executor()), server_path_(config::config.server.path),
           server_type_(config::config.server.type), server_startup_command_(config::config.server.startup_command),

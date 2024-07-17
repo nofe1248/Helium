@@ -16,6 +16,7 @@ module;
 
 export module Helium.Events.BindingHelper;
 
+import Helium.Commands;
 import Helium.Events.EventBus;
 import Helium.Events.EventListener;
 import Helium.Events.EventEmitter;
@@ -207,7 +208,6 @@ public:
         }
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
         {
-            binding_logger->debug("Registering");
             return this->event_listener_.listenToEvent<HeliumStarted>([callback](HeliumStarted const &event) { callback(py::cast(event)); });
         }
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
@@ -285,7 +285,7 @@ public:
 
     auto listenToCustomEvent(std::string const &event_id, std::function<void(PythonEvent const &)> const &callback) -> bool
     {
-        return this->event_listener_.listenToDynamicIDEvent<PythonEvent>(event_id,
+        return this->event_listener_.listenToDynamicIDEvent(event_id,
                                                                          std::move([callback](PythonEvent const &event) { callback(event); }));
     }
 
@@ -367,7 +367,7 @@ public:
 
     auto unlistenToCustomEvent(std::string const &event_id) -> void
     {
-        this->event_listener_.unlistenToDynamicIDEvent<PythonEvent>(event_id);
+        this->event_listener_.unlistenToDynamicIDEvent(event_id);
     }
 
     auto isListeningToDefaultEvent(HeliumDefaultEventsBindingEnum event_type) -> bool
@@ -445,7 +445,7 @@ public:
 
     auto isListeningToCustomEvent(std::string const &event_id) -> bool
     {
-        return this->event_listener_.isListeningToDynamicIDEvent<PythonEvent>(event_id);
+        return this->event_listener_.isListeningToDynamicIDEvent(event_id);
     }
 
     auto unlistenAll() -> void

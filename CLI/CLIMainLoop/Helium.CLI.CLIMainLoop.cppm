@@ -22,6 +22,7 @@ module;
 export module Helium.CLI.CLIMainLoop;
 
 import Helium.Commands;
+import Helium.Events;
 import Helium.Logger;
 import Helium.Config;
 
@@ -230,6 +231,9 @@ auto mainCLILoop()
             CommandStringLiteral("exit")
             .execute([&cli_loop_continue](CommandContext const &ctx) -> void {
                 cli_loop_continue = false;
+
+                auto event_emitter = events::EventEmitter{events::EventBus::getHeliumEventBus()};
+                event_emitter.postponeEvent(events::HeliumStopping{});
             }),
             CommandStringLiteral("help"),
             CommandStringLiteral("status"),
@@ -451,6 +455,7 @@ auto mainCLILoop()
 
     char const *c_input = nullptr;
     std::string prompt = "";
+
     while (cli_loop_continue)
     {
         do

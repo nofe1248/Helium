@@ -8,6 +8,7 @@ module;
 #include <any>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <ranges>
 #include <shared_mutex>
 #include <string>
@@ -33,6 +34,8 @@ export module Helium.Events.EventBus;
 import Helium.Base.HeliumObject;
 import Helium.Events.Concepts;
 import Helium.Events.EventStream;
+import Helium.Events.Helium;
+import Helium.Logger;
 
 namespace uuids = boost::uuids;
 
@@ -43,7 +46,8 @@ using EventIDType = std::size_t;
 namespace helium::events
 {
 using EventListenerIDType = uuids::uuid;
-}
+auto bus_logger = logger::SharedLogger::getSharedLogger("Events", "EventBus");
+} // namespace helium::events
 
 namespace helium::events::internal
 {
@@ -82,10 +86,9 @@ class EventBus final : public base::HeliumObject
 {
 private:
     std::unordered_map<EventIDType, EventStreamProxy> event_streams_map;
-    std::unordered_map<std::string, EventStreamProxy> dynamic_id_event_streams_map;
+    std::unordered_map<EventIDType, DynamicIDEventStreamProxy> dynamic_id_event_streams_map;
 
     mutable std::shared_mutex mutex_streams_;
-    mutable std::shared_mutex mutex_dynamic_id_streams_;
     mutable std::shared_mutex mutex_process_;
 
     template <concepts::IsEvent EventT>
@@ -101,14 +104,15 @@ private:
         return FWD(self).event_streams_map.at(event_id);
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
-    constexpr auto getDynamicIDEventStream(this auto &&self, std::string const &event_id) -> EventStreamProxy
+    constexpr auto getDynamicIDEventStream(this auto &&self) -> DynamicIDEventStreamProxy
     {
-        std::lock_guard guard(self.mutex_dynamic_id_streams_);
+        std::lock_guard guard(self.mutex_streams_);
+        static auto event_id = internal::getEventID<PythonEvent>();
         if (not FWD(self).dynamic_id_event_streams_map.contains(event_id))
         {
-            auto stream_ptr = std::make_shared<EventStream<EventT>>();
-            FWD(self).dynamic_id_event_streams_map.emplace(std::make_pair<std::string, EventStreamProxy>(std::string{event_id}, stream_ptr.get()));
+            static DynamicIDEventStream event_stream;
+            FWD(self).dynamic_id_event_streams_map.emplace(
+                std::make_pair<EventIDType, DynamicIDEventStreamProxy>(internal::getEventID<PythonEvent>(), &event_stream));
         }
         return FWD(self).dynamic_id_event_streams_map.at(event_id);
     }
@@ -139,15 +143,15 @@ public:
             std::swap(streams, FWD(self).event_streams_map);
         }
 
-        std::unordered_map<std::string, EventStreamProxy> dynamic_id_streams;
+        std::unordered_map<EventIDType, DynamicIDEventStreamProxy> dynamic_id_streams;
         {
             std::lock_guard write_guard(FWD(self).mutex_streams_);
             std::swap(dynamic_id_streams, FWD(self).dynamic_id_event_streams_map);
         }
 
-        for (EventStreamProxy &event_stream : dynamic_id_streams | std::views::values)
+        for (DynamicIDEventStreamProxy &dynamic_id_event_stream : dynamic_id_streams | std::views::values)
         {
-            event_stream->processEvents();
+            dynamic_id_event_stream->processEvents();
         }
 
         {
@@ -162,10 +166,9 @@ public:
         FWD(self).template getEventStream<EventT>()->postponeEvent(std::move(event));
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
-    auto postponeDynamicIDEvent(this auto &&self, EventT &&event) -> bool
+    auto postponeDynamicIDEvent(this auto &&self, PythonEvent &&event) -> void
     {
-        FWD(self).template getDynamicIDEventStream<EventT>(event.event_id)->postponeEvent(std::move(event));
+        FWD(self).getDynamicIDEventStream()->postponeEvent(std::move(event));
     }
 
     template <concepts::IsEvent EventT>
@@ -174,11 +177,10 @@ public:
         return FWD(self).template getEventStream<EventT>()->addListener(listener_id, std::move(callback));
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
     auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, EventListenerIDType const &listener_id,
-                                std::function<void(EventT const &)> &&callback) -> bool
+                                std::function<void(PythonEvent const &)> &&callback) -> bool
     {
-        return FWD(self).template getDynamicIDEventStream<EventT>(event_id)->addListener(listener_id, std::move(callback));
+        return FWD(self).getDynamicIDEventStream()->addListener(listener_id, event_id, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>
@@ -187,10 +189,9 @@ public:
         return FWD(self).template getEventStream<EventT>()->removeListener(listener_id);
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
     [[nodiscard]] auto unlistenToDynamicIDEvent(this auto &&self, std::string const &event_id, EventListenerIDType const &listener_id) -> bool
     {
-        return FWD(self).template getDynamicIDEventStream<EventT>(event_id)->removeListener(listener_id);
+        return FWD(self).getDynamicIDEventStream()->removeListener(listener_id, event_id);
     }
 
     auto unlistenAll(this auto &&self, EventListenerIDType const &listener_id) -> void
@@ -200,7 +201,7 @@ public:
             stream->removeListener(listener_id);
         }
 
-        for (EventStreamProxy &stream : FWD(self).dynamic_id_event_streams_map | std::views::values)
+        for (DynamicIDEventStreamProxy &stream : FWD(self).dynamic_id_event_streams_map | std::views::values)
         {
             stream->removeListener(listener_id);
         }
@@ -212,10 +213,9 @@ public:
         return FWD(self).template getEventStream<EventT>()->hasListener(listener_id);
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
     [[nodiscard]] auto isListeningToDynamicIDEvent(this auto &&self, std::string const &event_id, EventListenerIDType const &listener_id) -> bool
     {
-        return FWD(self).template getDynamicIDEventStream<EventT>(event_id)->hasListener(listener_id);
+        return FWD(self).getDynamicIDEventStream()->hasListener(listener_id, event_id);
     }
 };
 } // namespace helium::events

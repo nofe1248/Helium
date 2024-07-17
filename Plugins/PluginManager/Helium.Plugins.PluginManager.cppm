@@ -48,7 +48,6 @@ private:
 public:
     PluginManager()
     {
-        py::initialize_interpreter();
         this->plugin_path_ = fs::absolute(fs::path{config::config.python_plugin.path});
         if (not fs::exists(this->plugin_path_))
         {
@@ -65,7 +64,6 @@ public:
         {
             plugin_ptr.reset();
         }
-        py::finalize_interpreter();
         manager_logger->info("Python {} interpreter finalized.", PY_VERSION);
     }
 

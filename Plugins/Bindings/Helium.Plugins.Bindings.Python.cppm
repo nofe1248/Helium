@@ -327,7 +327,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<events::binding::EventEmitterBinding>(events_module, "EventEmitter")
         .def(py::init<events::binding::EventBusBinding const &>())
         .def(py::init<>())
-        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent, py::arg("event_type"), py::arg("event_arg") = py::none{})
+        .def("postpone_default_event", &events::binding::EventEmitterBinding::postponeDefaultEvent, py::arg("event_type"),
+             py::arg("event_arg") = py::none{})
         .def("postpone_custom_event", &events::binding::EventEmitterBinding::postponeCustomEvent);
     py::class_<events::binding::EventListenerBinding>(events_module, "EventListener")
         .def(py::init<events::binding::EventBusBinding const &>())

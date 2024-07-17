@@ -12,4 +12,5 @@ export import Helium.Events.EventEmitter;
 export import Helium.Events.EventListener;
 export import Helium.Events.EventStream;
 export import Helium.Events.Helium;
+export import Helium.Events.MainEventLoop;
 export import Helium.Events.Test;

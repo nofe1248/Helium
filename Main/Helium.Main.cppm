@@ -28,7 +28,12 @@ module;
 #include <string>
 #include <thread>
 
+#include <stdexec/execution.hpp>
+#include <exec/static_thread_pool.hpp>
+
 #include <cxxopts.hpp>
+
+#include <pybind11/embed.h>
 
 export module Helium.Main;
 
@@ -43,6 +48,8 @@ export import Helium.Parser;
 export import Helium.Plugins;
 export import Helium.Server;
 export import Helium.Utils;
+
+namespace py = pybind11;
 
 namespace helium::main
 {
@@ -62,14 +69,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
 
     events::EventEmitter event_emitter{events::EventBus::getHeliumEventBus()};
-    std::jthread event_thread{[main_bus = events::EventBus::getHeliumEventBus()](std::stop_token st) {
-        logger->info("Helium main event thread started");
-        while (not st.stop_requested())
-        {
-            main_bus->processEvents();
-        }
-        logger->info("Helium main event thread stopping");
-    }};
+    std::jthread event_thread{events::mainEventLoop};
     events::EventListener event_listener{events::EventBus::getHeliumEventBus()};
     event_listener.listenToEvent<events::PluginLoaded>([](events::PluginLoaded const &) { logger->debug("Event emitter test"); });
 
@@ -120,5 +120,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
 export auto main(int argc, const char *argv[]) -> int
 {
+    py::scoped_interpreter _{};
     return helium::main::heliumMain(argc, argv);
 }

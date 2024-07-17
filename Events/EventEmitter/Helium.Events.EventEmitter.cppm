@@ -21,7 +21,7 @@ export module Helium.Events.EventEmitter;
 
 import Helium.Base.HeliumObject;
 import Helium.Events.EventBus;
-
+import Helium.Events.Helium;
 import Helium.Events.Concepts;
 
 namespace uuids = boost::uuids;
@@ -52,10 +52,9 @@ public:
         FWD(self).event_bus_->template postponeEvent<EventT>(std::move(event));
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
-    auto postponeDynamicIDEvent(this auto &&self, EventT &&event) -> void
+    auto postponeDynamicIDEvent(this auto &&self, PythonEvent &&event) -> void
     {
-        FWD(self).event_bus_->template postponeDynamicIDEvent<EventT>(std::move(event));
+        FWD(self).event_bus_->postponeDynamicIDEvent(std::move(event));
     }
 
     constexpr auto getID(this auto &&self) -> EventEmitterIDType

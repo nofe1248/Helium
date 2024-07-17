@@ -25,6 +25,7 @@ export module Helium.Events.EventListener;
 import Helium.Base.HeliumObject;
 import Helium.Events.Concepts;
 import Helium.Events.EventBus;
+import Helium.Events.Helium;
 
 namespace uuids = boost::uuids;
 
@@ -82,11 +83,10 @@ public:
         return FWD(self).event_bus_->template listenToEvent<EventT>(FWD(self).id_, std::move(callback));
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
-    constexpr auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, std::function<void(EventT const &)> &&callback) -> bool
+    constexpr auto listenToDynamicIDEvent(this auto &&self, std::string const &event_id, std::function<void(PythonEvent const &)> &&callback) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        return FWD(self).event_bus_->template listenToDynamicIDEvent<EventT>(event_id, FWD(self).id_, std::move(callback));
+        return FWD(self).event_bus_->listenToDynamicIDEvent(event_id, FWD(self).id_, std::move(callback));
     }
 
     template <concepts::IsEvent EventT>
@@ -96,11 +96,10 @@ public:
         return FWD(self).event_bus_->template unlistenToEvent<EventT>(FWD(self).id_);
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
     constexpr auto unlistenToDynamicIDEvent(this auto &&self, std::string const &event_id) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        return FWD(self).event_bus_->template unlistenToDynamicIDEvent<EventT>(event_id, FWD(self).id_);
+        return FWD(self).event_bus_->unlistenToDynamicIDEvent(event_id, FWD(self).id_);
     }
 
     constexpr auto unlistenAll(this auto &&self) -> void
@@ -116,11 +115,10 @@ public:
         return FWD(self).event_bus_->template isListeningToEvent<EventT>(FWD(self).id_);
     }
 
-    template <concepts::IsDynamicIDEvent EventT>
     constexpr auto isListeningToDynamicIDEvent(this auto &&self, std::string const &event_id) -> bool
     {
         assert(FWD(self).event_bus_ != nullptr);
-        return FWD(self).event_bus_->template isListeningToDynamicIDEvent<EventT>(event_id, FWD(self).id_);
+        return FWD(self).event_bus_->isListeningToDynamicIDEvent(event_id, FWD(self).id_);
     }
 
     constexpr auto getID(this auto &&self) -> EventListenerIDType
