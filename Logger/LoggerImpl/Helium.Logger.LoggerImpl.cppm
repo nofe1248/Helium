@@ -84,8 +84,9 @@ public:
     {
         if constexpr (sizeof...(fmt_args) >= 1)
         {
-            this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level),
-                                   std::format("[{}/{}] {}", this->name_, this->thread_, std::vformat(fmt_str, std::make_format_args(fmt_args...))));
+            this->logger_ptr_->log(
+                static_cast<spdlog::level::level_enum>(log_level),
+                std::format("[{}/{}] {}", this->name_, this->thread_, std::format(std::runtime_format(fmt_str), std::forward<Args>(fmt_args)...)));
         }
         else
         {

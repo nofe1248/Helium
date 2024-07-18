@@ -20,13 +20,14 @@ auto event_loop_logger = logger::SharedLogger::getSharedLogger("Events", "MainEv
 
 export namespace helium::events
 {
-auto mainEventLoop(std::stop_token st) -> void {
+auto mainEventLoop(std::stop_token st) -> void
+{
     event_loop_logger->info("Helium main event thread started");
-    auto main_bus = EventBus::getHeliumEventBus();
+    auto main_bus = main_event_bus;
     while (not st.stop_requested())
     {
         main_bus->processEvents();
     }
     event_loop_logger->info("Helium main event thread stopping");
 }
-}
+} // namespace helium::events

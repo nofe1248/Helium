@@ -87,6 +87,7 @@ class EventBus final : public base::HeliumObject
 private:
     std::unordered_map<EventIDType, EventStreamProxy> event_streams_map;
     std::unordered_map<EventIDType, DynamicIDEventStreamProxy> dynamic_id_event_streams_map;
+    std::vector<std::function<void()>> stream_deleters_;
 
     mutable std::shared_mutex mutex_streams_;
     mutable std::shared_mutex mutex_process_;
@@ -98,8 +99,9 @@ private:
         static auto event_id = internal::getEventID<EventT>();
         if (not FWD(self).event_streams_map.contains(event_id))
         {
-            static EventStream<EventT> event_stream;
-            FWD(self).event_streams_map.emplace(std::make_pair<EventIDType, EventStreamProxy>(internal::getEventID<EventT>(), &event_stream));
+            auto *event_stream_ptr = new EventStream<EventT>{};
+            FWD(self).stream_deleters_.push_back([event_stream_ptr] { delete event_stream_ptr; });
+            FWD(self).event_streams_map.emplace(std::make_pair<EventIDType, EventStreamProxy>(internal::getEventID<EventT>(), event_stream_ptr));
         }
         return FWD(self).event_streams_map.at(event_id);
     }
@@ -110,18 +112,21 @@ private:
         static auto event_id = internal::getEventID<PythonEvent>();
         if (not FWD(self).dynamic_id_event_streams_map.contains(event_id))
         {
-            static DynamicIDEventStream event_stream;
+            auto *event_stream_ptr = new DynamicIDEventStream{};
+            FWD(self).stream_deleters_.push_back([event_stream_ptr] { delete event_stream_ptr; });
             FWD(self).dynamic_id_event_streams_map.emplace(
-                std::make_pair<EventIDType, DynamicIDEventStreamProxy>(internal::getEventID<PythonEvent>(), &event_stream));
+                std::make_pair<EventIDType, DynamicIDEventStreamProxy>(internal::getEventID<PythonEvent>(), event_stream_ptr));
         }
         return FWD(self).dynamic_id_event_streams_map.at(event_id);
     }
 
 public:
-    static auto getHeliumEventBus() -> std::shared_ptr<EventBus>
+    ~EventBus()
     {
-        static std::shared_ptr<EventBus> helium_event_bus = std::make_shared<EventBus>();
-        return helium_event_bus;
+        for (auto const &deleter : this->stream_deleters_)
+        {
+            deleter();
+        }
     }
 
     auto processEvents(this auto &&self) -> void
@@ -218,4 +223,5 @@ public:
         return FWD(self).getDynamicIDEventStream()->hasListener(listener_id, event_id);
     }
 };
+std::shared_ptr<EventBus> main_event_bus = nullptr;
 } // namespace helium::events

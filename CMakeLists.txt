@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.29 FATAL_ERROR)
 cmake_policy(VERSION 3.29)
 
+set(LD_LIBRARY_PATH "C:/msys64/ucrt64/bin/")
+
 project(Helium LANGUAGES CXX)
 
 include(FetchContent)
@@ -10,7 +12,6 @@ FetchContent_Declare(
         GIT_TAG v0.6.2 # <HASH or TAG>
 )
 FetchContent_MakeAvailable(cpptrace)
-include(FetchContent)
 FetchContent_Declare(
         graaflib
         GIT_REPOSITORY https://github.com/bobluppes/graaf.git
@@ -38,6 +39,7 @@ find_package(pybind11 CONFIG)
 find_package(rapidfuzz CONFIG REQUIRED)
 find_package(replxx CONFIG REQUIRED)
 find_package(proxy CONFIG REQUIRED)
+set(stdexec_DIR "C:/vcpkg/installed/x64-mingw-dynamic/share/stdexec")
 find_package(stdexec CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 26)
@@ -110,8 +112,8 @@ target_sources(
         Utils/Test/Helium.Utils.Test.cppm
         Utils/Helium.Utils.cppm
 )
-
-target_link_libraries(Helium PRIVATE ws2_32 wsock32 bcrypt)
+target_compile_options(Helium PRIVATE -femulated-tls)
+target_link_libraries(Helium PRIVATE ws2_32 wsock32 bcrypt pthread stdc++)
 
 target_include_directories(Helium PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(Helium PRIVATE Boost::filesystem)

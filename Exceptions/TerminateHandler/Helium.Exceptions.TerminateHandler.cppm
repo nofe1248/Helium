@@ -7,6 +7,7 @@ module;
 
 #include <exception>
 #include <format>
+#include <iomanip>
 #include <iostream>
 
 #include <cpptrace/cpptrace.hpp>
@@ -65,7 +66,7 @@ auto WINAPI topLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo) -> LONG
 {
 
     std::cerr << "\n";
-    std::cerr << pExceptionInfo->ExceptionRecord->ExceptionCode << "(" << pExceptionInfo->ExceptionRecord->ExceptionInformation << ")"
+    std::cerr << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << "(" << pExceptionInfo->ExceptionRecord->ExceptionInformation << ")"
               << " at " << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;
     terminateHandler();
 }

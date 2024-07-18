@@ -231,9 +231,6 @@ auto mainCLILoop()
             CommandStringLiteral("exit")
             .execute([&cli_loop_continue](CommandContext const &ctx) -> void {
                 cli_loop_continue = false;
-
-                auto event_emitter = events::EventEmitter{events::EventBus::getHeliumEventBus()};
-                event_emitter.postponeEvent(events::HeliumStopping{});
             }),
             CommandStringLiteral("help"),
             CommandStringLiteral("status"),
@@ -493,5 +490,8 @@ auto mainCLILoop()
 
     rx.history_sync(history_file_path);
     logger->info("Exiting Helium.");
+
+    auto event_emitter = events::EventEmitter{events::main_event_bus};
+    event_emitter.postponeEvent(events::HeliumStopping{});
 }
 } // namespace helium::cli

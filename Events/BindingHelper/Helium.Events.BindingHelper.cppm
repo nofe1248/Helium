@@ -88,7 +88,7 @@ private:
     EventEmitter event_emitter_;
 
 public:
-    EventEmitterBinding() : event_emitter_(EventBus::getHeliumEventBus())
+    EventEmitterBinding() : event_emitter_(main_event_bus)
     {
     }
     EventEmitterBinding(EventBusBinding const &event_bus) : event_emitter_(event_bus.getEventBus())
@@ -186,7 +186,7 @@ private:
     EventListener event_listener_;
 
 public:
-    EventListenerBinding() : event_listener_(EventBus::getHeliumEventBus())
+    EventListenerBinding() : event_listener_(main_event_bus)
     {
     }
     EventListenerBinding(EventBusBinding const &event_bus) : event_listener_(event_bus.getEventBus())
@@ -208,7 +208,11 @@ public:
         }
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
         {
-            return this->event_listener_.listenToEvent<HeliumStarted>([callback](HeliumStarted const &event) { callback(py::cast(event)); });
+            return this->event_listener_.listenToEvent<HeliumStarted>([callback](HeliumStarted const &event) {
+                binding_logger->debug("Calling callback");
+                callback(py::cast(event));
+                binding_logger->debug("Returning");
+            });
         }
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
         {
@@ -285,8 +289,7 @@ public:
 
     auto listenToCustomEvent(std::string const &event_id, std::function<void(PythonEvent const &)> const &callback) -> bool
     {
-        return this->event_listener_.listenToDynamicIDEvent(event_id,
-                                                                         std::move([callback](PythonEvent const &event) { callback(event); }));
+        return this->event_listener_.listenToDynamicIDEvent(event_id, std::move([callback](PythonEvent const &event) { callback(event); }));
     }
 
     auto unlistenToDefaultEvent(HeliumDefaultEventsBindingEnum event_type) -> void

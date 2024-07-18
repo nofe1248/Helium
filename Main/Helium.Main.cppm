@@ -28,9 +28,6 @@ module;
 #include <string>
 #include <thread>
 
-#include <stdexec/execution.hpp>
-#include <exec/static_thread_pool.hpp>
-
 #include <cxxopts.hpp>
 
 #include <pybind11/embed.h>
@@ -68,9 +65,10 @@ auto heliumMain(int argc, const char *argv[]) -> int
     logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
 
-    events::EventEmitter event_emitter{events::EventBus::getHeliumEventBus()};
+    events::main_event_bus = std::make_shared<events::EventBus>();
+    events::EventEmitter event_emitter{events::main_event_bus};
     std::jthread event_thread{events::mainEventLoop};
-    events::EventListener event_listener{events::EventBus::getHeliumEventBus()};
+    events::EventListener event_listener{events::main_event_bus};
     event_listener.listenToEvent<events::PluginLoaded>([](events::PluginLoaded const &) { logger->debug("Event emitter test"); });
 
     event_emitter.postponeEvent(events::HeliumStarting{});
@@ -113,6 +111,8 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     event_thread.request_stop();
     event_thread.join();
+
+    events::main_event_bus.reset();
 
     return 0;
 }
