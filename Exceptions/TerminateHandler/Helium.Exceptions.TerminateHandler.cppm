@@ -10,6 +10,8 @@ module;
 #include <iomanip>
 #include <iostream>
 
+#include <unistd.h>
+
 #include <cpptrace/cpptrace.hpp>
 
 #include <spdlog/spdlog.h>
@@ -64,7 +66,7 @@ auto terminateHandler() -> void
 #ifdef _WIN32
 auto WINAPI topLevelExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo) -> LONG
 {
-
+    sleep(10);
     std::cerr << "\n";
     std::cerr << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << "(" << pExceptionInfo->ExceptionRecord->ExceptionInformation << ")"
               << " at " << pExceptionInfo->ExceptionRecord->ExceptionAddress << std::endl;

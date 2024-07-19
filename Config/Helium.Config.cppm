@@ -97,6 +97,7 @@ auto saveConfig() -> bool
     {
         config_logger->error("Failed to save config file.");
     }
+    config_logger->info("Config saved");
     return true;
 }
 } // namespace helium::config

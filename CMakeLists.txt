@@ -113,6 +113,7 @@ target_sources(
         Utils/Helium.Utils.cppm
 )
 target_compile_options(Helium PRIVATE -femulated-tls)
+target_compile_definitions(Helium PRIVATE PYBIND11_ASSERT_GIL_HELD_INCREF_DECREF)
 target_link_libraries(Helium PRIVATE ws2_32 wsock32 bcrypt pthread stdc++)
 
 target_include_directories(Helium PRIVATE ${Boost_INCLUDE_DIRS})

@@ -11,9 +11,9 @@ module;
 #include <ranges>
 #include <regex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
-#include <thread>
 
 #include <replxx.hxx>
 
@@ -452,6 +452,7 @@ auto mainCLILoop()
 
     char const *c_input = nullptr;
     std::string prompt = "";
+    events::EventEmitter emitter{events::main_event_bus};
 
     while (cli_loop_continue)
     {
@@ -465,9 +466,10 @@ auto mainCLILoop()
         if (not input_command.empty())
         {
             namespace py = pybind11;
+            emitter.postponeEvent(events::ConsoleInput{input_command});
             try
             {
-                if(bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command);not execution_result)
+                if (bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command); not execution_result)
                 {
                     logger->error("Command failed to execute");
                 }

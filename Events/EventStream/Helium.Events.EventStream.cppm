@@ -83,9 +83,7 @@ public:
         std::lock_guard write_guard(FWD(self).mutex_event_);
         for (auto const &event : FWD(self).event_queue_)
         {
-            stream_logger->debug(nameof::nameof_type<std::decay_t<decltype(event)>>());
             FWD(self).is_processing_ = true;
-            stream_logger->debug("{}", FWD(self).callbacks_.size());
 
             for (auto const &callback : FWD(self).callbacks_ | std::views::values)
             {
@@ -179,7 +177,7 @@ private:
 class DynamicIDEventStream final : public base::HeliumObject
 {
 public:
-    using CallbackType = std::function<void(py::object)>;
+    using CallbackType = std::function<void(PythonEvent const &)>;
 
 private:
     std::vector<PythonEvent> event_queue_ = {};
@@ -216,7 +214,7 @@ public:
             {
                 if (callback_map.contains(event.event_id))
                 {
-                    callback_map.at(event.event_id)(py::cast(event));
+                    callback_map.at(event.event_id)(event);
                 }
             }
 
