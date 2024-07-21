@@ -50,7 +50,7 @@ public:
     {
         return *this;
     }
-    virtual auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding &
+    virtual auto execute(py::function callback) -> AbstractCommandNodeBinding &
     {
         return *this;
     }
@@ -111,20 +111,14 @@ public:
         }
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback](CommandContext const &context) -> void {
-            py::gil_scoped_acquire acquire;
-            callback(context, py::none{});
-        });
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context) -> void { callback(context, py::none{}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback](CommandContext const &context) -> bool {
-            py::gil_scoped_acquire acquire;
-            return callback(context, py::none{});
-        });
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context) -> bool { return callback(context, py::none{}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -192,20 +186,14 @@ public:
         }
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback](CommandContext const &context, bool param) -> void {
-            py::gil_scoped_acquire acquire;
-            callback(context, py::bool_{param});
-        });
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, bool param) -> void { callback(context, py::bool_{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback](CommandContext const &context, bool param) -> bool {
-            py::gil_scoped_acquire acquire;
-            return callback(context, py::bool_{param});
-        });
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context, bool param) -> bool { return callback(context, py::bool_{param}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -268,20 +256,16 @@ public:
         }
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback](CommandContext const &context, int_least64_t param) -> void {
-            py::gil_scoped_acquire acquire;
-            callback(context, py::int_{param});
-        });
+        (void)this->real_node_.execute(
+            std::move([callback](CommandContext const &context, int_least64_t param) -> void { callback(context, py::int_{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback](CommandContext const &context, int_least64_t param) -> bool {
-            py::gil_scoped_acquire acquire;
-            return callback(context, py::int_{param});
-        });
+        (void)this->real_node_.require(
+            std::move([callback](CommandContext const &context, int_least64_t param) -> bool { return callback(context, py::int_{param}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -344,20 +328,15 @@ public:
         }
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback](CommandContext const &context, double param) -> void {
-            py::gil_scoped_acquire acquire;
-            callback(context, py::float_{param});
-        });
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, double param) -> void { callback(context, py::float_{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback](CommandContext const &context, double param) -> bool {
-            py::gil_scoped_acquire acquire;
-            return callback(context, py::float_{param});
-        });
+        (void)this->real_node_.require(
+            std::move([callback](CommandContext const &context, double param) -> bool { return callback(context, py::float_{param}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -420,20 +399,15 @@ public:
         }
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback](CommandContext const &context, std::string param) -> void {
-            py::gil_scoped_acquire acquire;
-            callback(context, py::str{param});
-        });
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback](CommandContext const &context, std::string param) -> bool {
-            py::gil_scoped_acquire acquire;
-            return callback(context, py::str{param});
-        });
+        (void)this->real_node_.require(
+            std::move([callback](CommandContext const &context, std::string param) -> bool { return callback(context, py::str{param}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -496,20 +470,15 @@ public:
         }
         return *this;
     }
-    auto execute(std::function<void(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute([callback](CommandContext const &context, std::string param) -> void {
-            py::gil_scoped_acquire acquire;
-            callback(context, py::str{param});
-        });
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require([callback](CommandContext const &context, std::string const &param) -> bool {
-            py::gil_scoped_acquire acquire;
-            return callback(context, py::str{param});
-        });
+        (void)this->real_node_.require(
+            std::move([callback](CommandContext const &context, std::string const &param) -> bool { return callback(context, py::str{param}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override

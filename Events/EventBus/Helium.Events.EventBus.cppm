@@ -133,6 +133,7 @@ public:
     {
         std::lock_guard _(FWD(self).mutex_process_);
         std::unordered_map<EventIDType, EventStreamProxy> streams;
+        bool ret = true;
         {
             std::lock_guard write_guard(FWD(self).mutex_streams_);
             std::swap(streams, FWD(self).event_streams_map);

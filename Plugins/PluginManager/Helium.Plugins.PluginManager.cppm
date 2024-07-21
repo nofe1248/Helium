@@ -69,6 +69,7 @@ public:
 
     auto SearchPlugins() const -> std::vector<fs::path>
     {
+        py::gil_scoped_acquire acquire;
         std::vector<fs::path> plugin_paths;
         for (auto const &entry : fs::recursive_directory_iterator(this->plugin_path_))
         {
@@ -82,6 +83,7 @@ public:
 
     auto RegisterPlugin(fs::path const &plugin_path) -> bool
     {
+        py::gil_scoped_acquire acquire;
         if (not fs::exists(plugin_path))
         {
             manager_logger->error("Plugin {} not found.", plugin_path.string());
@@ -127,6 +129,7 @@ public:
 
     auto LoadAllPlugins() -> void
     {
+        py::gil_scoped_acquire acquire;
         manager_logger->info("Calculating plugin dependencies...");
         bool can_load = true;
         for (auto const &plugin : this->plugin_map_ | std::views::values)
@@ -256,6 +259,7 @@ public:
 
     auto SearchAndLoadAllPlugins() -> void
     {
+        py::gil_scoped_acquire acquire;
         for (auto const &plugin_path : this->SearchPlugins())
         {
             if (not this->RegisterPlugin(plugin_path))

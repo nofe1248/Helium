@@ -5,13 +5,18 @@
 
 module;
 
-#include <stop_token>
+#include <atomic>
+
+#include <pybind11/pybind11.h>
 
 export module Helium.Events.MainEventLoop;
 
 import Helium.Events.EventBus;
 import Helium.Events.EventListener;
+import Helium.Events.Helium;
 import Helium.Logger;
+
+namespace py = pybind11;
 
 namespace helium::events
 {
@@ -20,14 +25,22 @@ auto event_loop_logger = logger::SharedLogger::getSharedLogger("Events", "MainEv
 
 export namespace helium::events
 {
-auto mainEventLoop(std::stop_token st) -> void
+auto mainEventLoop() -> void
 {
     event_loop_logger->info("Helium main event thread started");
     auto main_bus = main_event_bus;
-    while (not st.stop_requested())
+    auto listener = EventListener{main_bus};
+    std::atomic_bool should_run = true;
+    listener.listenToEvent<HeliumStopping>([&should_run](HeliumStopping const &event) { should_run = false; });
+    while (should_run)
     {
+        auto gil_state = PyGILState_Ensure();
         main_bus->processEvents();
+        PyGILState_Release(gil_state);
     }
+    auto gil_state = PyGILState_Ensure();
+    main_bus->processEvents();
+    PyGILState_Release(gil_state);
     event_loop_logger->info("Helium main event thread stopping");
 }
 } // namespace helium::events

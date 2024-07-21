@@ -67,11 +67,10 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     events::main_event_bus = std::make_shared<events::EventBus>();
     events::EventEmitter event_emitter{events::main_event_bus};
-    std::jthread event_thread{};
-    {
-        py::gil_scoped_release release;
-        event_thread = std::move(std::jthread{events::mainEventLoop});
-    }
+    events::EventListener event_listener_1{events::main_event_bus};
+    event_listener_1.listenToEvent<events::HeliumStarted>([](events::HeliumStarted const &event) { logger->info("Event test 1"); });
+    std::thread event_thread{events::mainEventLoop};
+    event_thread.detach();
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 
@@ -103,10 +102,12 @@ auto heliumMain(int argc, const char *argv[]) -> int
     plugins::PluginManager plugin_manager;
     plugin_manager.SearchAndLoadAllPlugins();
 
-    {
-        py::gil_scoped_release release;
-        event_emitter.postponeEvent(events::HeliumStarted{});
-    }
+    events::EventListener event_listener_2{events::main_event_bus};
+    event_listener_2.listenToEvent<events::HeliumStarted>([](events::HeliumStarted const &event) { logger->info("Event test 2"); });
+
+    event_emitter.postponeEvent(events::HeliumStarted{});
+    event_emitter.postponeEvent(events::HeliumStarted{});
+    event_emitter.postponeEvent(events::HeliumStarted{});
 
     cli::mainCLILoop();
 
@@ -115,11 +116,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
     event_emitter.postponeEvent(events::HeliumStopping{});
 
     logger->info("Stopping main event thread");
-    {
-        py::gil_scoped_release release;
-        event_thread.request_stop();
-        event_thread.join();
-    }
 
     events::main_event_bus.reset();
 
@@ -131,6 +127,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
 export auto main(int argc, const char *argv[]) -> int
 {
-    py::scoped_interpreter _{};
+    py::scoped_interpreter interpreter_guard{};
     return helium::main::heliumMain(argc, argv);
 }

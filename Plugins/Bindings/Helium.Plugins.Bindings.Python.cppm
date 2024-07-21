@@ -31,6 +31,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
 
     m.doc() = "Python bindings for Helium plugins";
 
+    auto base_module = m.def_submodule("base");
+
     auto logger_module = m.def_submodule("logger");
     py::class_<logger::LoggerImpl, std::shared_ptr<logger::LoggerImpl>>(logger_module, "Logger")
         .def(py::init([](std::string const &name, std::string const &thread) { return std::make_shared<logger::LoggerImpl>(name, thread); }),

@@ -17,6 +17,7 @@ module;
 
 #include <replxx.hxx>
 
+#include <pybind11/eval.h>
 #include <pybind11/pybind11.h>
 
 export module Helium.CLI.CLIMainLoop;
@@ -27,6 +28,7 @@ import Helium.Logger;
 import Helium.Config;
 
 namespace repl = replxx;
+namespace py = pybind11;
 
 namespace helium::cli
 {
@@ -465,8 +467,8 @@ auto mainCLILoop()
 
         if (not input_command.empty())
         {
-            namespace py = pybind11;
             emitter.postponeEvent(events::ConsoleInput{input_command});
+
             try
             {
                 if (bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command); not execution_result)
@@ -486,6 +488,7 @@ auto mainCLILoop()
             {
                 logger->error("Command {} failed to execute due to unknown exception", input_command);
             }
+
             rx.history_add(input_command);
         }
     }
