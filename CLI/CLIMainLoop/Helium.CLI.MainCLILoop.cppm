@@ -220,7 +220,7 @@ auto message(repl::Replxx &replxx, std::string const &s, char32_t) -> repl::Repl
 
 auto mainCLILoop()
 {
-    logger->info("Entering main CLI loop.");
+    logger->info("Helium main CLI thread started");
 
     using namespace commands;
 
@@ -494,7 +494,7 @@ auto mainCLILoop()
     }
 
     rx.history_sync(history_file_path);
-    logger->info("Exiting Helium.");
+    logger->info("Helium main CLI thread Stopping");
 
     auto event_emitter = events::EventEmitter{events::main_event_bus};
     event_emitter.postponeEvent(events::HeliumStopping{});

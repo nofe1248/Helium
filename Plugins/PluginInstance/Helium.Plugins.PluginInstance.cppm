@@ -5,12 +5,12 @@
 
 module;
 
-#include <iostream>
 #include <filesystem>
 #include <format>
+#include <iostream>
 #include <memory>
-#include <string>
 #include <optional>
+#include <string>
 
 #include <cpptrace/cpptrace.hpp>
 

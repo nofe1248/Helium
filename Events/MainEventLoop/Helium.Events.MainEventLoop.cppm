@@ -34,13 +34,9 @@ auto mainEventLoop() -> void
     listener.listenToEvent<HeliumStopping>([&should_run](HeliumStopping const &event) { should_run = false; });
     while (should_run)
     {
-        auto gil_state = PyGILState_Ensure();
         main_bus->processEvents();
-        PyGILState_Release(gil_state);
     }
-    auto gil_state = PyGILState_Ensure();
     main_bus->processEvents();
-    PyGILState_Release(gil_state);
     event_loop_logger->info("Helium main event thread stopping");
 }
 } // namespace helium::events

@@ -68,9 +68,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     events::main_event_bus = std::make_shared<events::EventBus>();
     events::EventEmitter event_emitter{events::main_event_bus};
     events::EventListener event_listener_1{events::main_event_bus};
-    event_listener_1.listenToEvent<events::HeliumStarted>([](events::HeliumStarted const &event) { logger->info("Event test 1"); });
     std::thread event_thread{events::mainEventLoop};
-    event_thread.detach();
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 
@@ -103,23 +101,23 @@ auto heliumMain(int argc, const char *argv[]) -> int
     plugin_manager.SearchAndLoadAllPlugins();
 
     events::EventListener event_listener_2{events::main_event_bus};
-    event_listener_2.listenToEvent<events::HeliumStarted>([](events::HeliumStarted const &event) { logger->info("Event test 2"); });
 
     event_emitter.postponeEvent(events::HeliumStarted{});
-    event_emitter.postponeEvent(events::HeliumStarted{});
-    event_emitter.postponeEvent(events::HeliumStarted{});
 
-    cli::mainCLILoop();
+    std::thread cli_thread{cli::mainCLILoop};
+
+    utils::run_loop_executor.run();
 
     config::saveConfig();
 
     event_emitter.postponeEvent(events::HeliumStopping{});
 
-    logger->info("Stopping main event thread");
+    event_thread.join();
+    cli_thread.join();
+
+    utils::run_loop_executor.finish();
 
     events::main_event_bus.reset();
-
-    logger->info("Main event thread stopped");
 
     return 0;
 }

@@ -59,7 +59,7 @@ target_sources(
         Base/Version/Helium.Base.Version.cppm
         Base/Helium.Base.cppm
         CLI/Helium.CLI.cppm
-        CLI/CLIMainLoop/Helium.CLI.CLIMainLoop.cppm
+        CLI/CLIMainLoop/Helium.CLI.MainCLILoop.cppm
         Commands/BindingHelper/Helium.Commands.BindingHelper.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
@@ -109,6 +109,7 @@ target_sources(
         Server/Helium.Server.cppm
         Server/ServerInstance/Helium.Server.ServerInstance.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
+        Utils/RunLoopExecutor/Helium.Utils.RunLoopExecutor.cppm
         Utils/Test/Helium.Utils.Test.cppm
         Utils/Helium.Utils.cppm
 )

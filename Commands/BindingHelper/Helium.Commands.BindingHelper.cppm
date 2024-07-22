@@ -188,12 +188,14 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, bool param) -> void { callback(context, py::bool_{param}); }));
+        (void)this->real_node_.execute(
+            std::move([callback](CommandContext const &context, bool param) -> void { callback(context, py::bool_{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(std::move([callback](CommandContext const &context, bool param) -> bool { return callback(context, py::bool_{param}); }));
+        (void)this->real_node_.require(
+            std::move([callback](CommandContext const &context, bool param) -> bool { return callback(context, py::bool_{param}); }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -330,7 +332,8 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, double param) -> void { callback(context, py::float_{param}); }));
+        (void)this->real_node_.execute(
+            std::move([callback](CommandContext const &context, double param) -> void { callback(context, py::float_{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
@@ -401,7 +404,8 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
+        (void)this->real_node_.execute(
+            std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
@@ -472,7 +476,8 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
+        (void)this->real_node_.execute(
+            std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
