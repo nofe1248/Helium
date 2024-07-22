@@ -24,6 +24,7 @@ import Helium.Commands.CommandLiteral;
 import Helium.Commands.CommandArgument;
 import Helium.Commands.CommandContext;
 import Helium.Commands.CommandSource;
+import Helium.Utils;
 
 namespace py = pybind11;
 

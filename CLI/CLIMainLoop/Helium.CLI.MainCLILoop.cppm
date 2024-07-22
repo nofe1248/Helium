@@ -26,6 +26,7 @@ import Helium.Commands;
 import Helium.Events;
 import Helium.Logger;
 import Helium.Config;
+import Helium.Utils;
 
 namespace repl = replxx;
 namespace py = pybind11;
@@ -456,6 +457,7 @@ auto mainCLILoop()
     std::string prompt = "";
     events::EventEmitter emitter{events::main_event_bus};
 
+    utils::RunLoopExecutor::getInstance().execute([] { logger->debug("executor test"); });
     while (cli_loop_continue)
     {
         do

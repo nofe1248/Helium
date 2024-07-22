@@ -39,6 +39,12 @@ public:
     {
     }
 
+    static auto getInstance() noexcept -> RunLoopExecutor &
+    {
+        static RunLoopExecutor run_loop_executor;
+        return run_loop_executor;
+    }
+
     auto run(this auto &&self) noexcept -> void
     {
         executor_logger->info("Executor running");
@@ -57,11 +63,11 @@ public:
     }
 
     template <typename FuncT, typename... Args>
-    auto add_task(this auto &&self, FuncT &&task, Args &&...args) noexcept -> stdex::sender auto
+    auto execute(this auto &&self, FuncT &&task, Args &&...args) noexcept
     {
-        return stdex::on(std::forward<decltype(self)>(self).loop_.get_scheduler(),
-                         stdex::just(std::forward<Args>(args)...) | stdex::then(std::forward<FuncT>(task)));
+        return stdex::sync_wait(stdex::on(std::forward<decltype(self)>(self).loop_.get_scheduler(),
+                                          stdex::just(std::forward<Args>(args)...) | stdex::then(std::forward<FuncT>(task))))
+            .value();
     }
 };
-RunLoopExecutor run_loop_executor;
 } // namespace helium::utils
