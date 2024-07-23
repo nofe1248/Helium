@@ -5,6 +5,7 @@
 
 module;
 
+#include <any>
 #include <functional>
 #include <memory>
 #include <string>
@@ -114,12 +115,17 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(std::move([callback](CommandContext const &context) -> void { callback(context, py::none{}); }));
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context) -> void {
+            utils::RunLoopExecutor::getInstance().execute([callback, context] { callback(context, py::none{}); });
+        }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(std::move([callback](CommandContext const &context) -> bool { return callback(context, py::none{}); }));
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context) -> bool {
+            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
+                [callback, context]() -> std::any { return callback(context, py::none{}); }, utils::need_return));
+        }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -189,14 +195,17 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(
-            std::move([callback](CommandContext const &context, bool param) -> void { callback(context, py::bool_{param}); }));
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, bool param) -> void {
+            utils::RunLoopExecutor::getInstance().execute([callback, context, param] { callback(context, py::bool_{param}); });
+        }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(
-            std::move([callback](CommandContext const &context, bool param) -> bool { return callback(context, py::bool_{param}); }));
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context, bool param) -> bool {
+            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
+                [callback, context, param]() -> std::any { return callback(context, py::bool_{param}); }, utils::need_return));
+        }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -261,14 +270,17 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(
-            std::move([callback](CommandContext const &context, int_least64_t param) -> void { callback(context, py::int_{param}); }));
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, int_least64_t param) -> void {
+            utils::RunLoopExecutor::getInstance().execute([callback, context, param] { callback(context, py::int_{param}); });
+        }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(
-            std::move([callback](CommandContext const &context, int_least64_t param) -> bool { return callback(context, py::int_{param}); }));
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context, int_least64_t param) -> bool {
+            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
+                [callback, context, param]() -> std::any { return callback(context, py::int_{param}); }, utils::need_return));
+        }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -333,14 +345,17 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(
-            std::move([callback](CommandContext const &context, double param) -> void { callback(context, py::float_{param}); }));
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, double param) -> void {
+            utils::RunLoopExecutor::getInstance().execute([callback, context, param] { callback(context, py::float_{param}); });
+        }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(
-            std::move([callback](CommandContext const &context, double param) -> bool { return callback(context, py::float_{param}); }));
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context, double param) -> bool {
+            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
+                [callback, context, param]() -> std::any { return callback(context, py::float_{param}); }, utils::need_return));
+        }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -405,14 +420,17 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(
-            std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, std::string param) -> void {
+            utils::RunLoopExecutor::getInstance().execute([callback, context, param] { callback(context, py::str{param}); });
+        }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(
-            std::move([callback](CommandContext const &context, std::string param) -> bool { return callback(context, py::str{param}); }));
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context, std::string param) -> bool {
+            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
+                [callback, context, param]() -> std::any { return callback(context, py::str{param}); }, utils::need_return));
+        }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override
@@ -477,14 +495,17 @@ public:
     }
     auto execute(py::function callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.execute(
-            std::move([callback](CommandContext const &context, std::string param) -> void { callback(context, py::str{param}); }));
+        (void)this->real_node_.execute(std::move([callback](CommandContext const &context, std::string param) -> void {
+            utils::RunLoopExecutor::getInstance().execute([callback, context, param] { callback(context, py::str{param}); });
+        }));
         return *this;
     }
     auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
     {
-        (void)this->real_node_.require(
-            std::move([callback](CommandContext const &context, std::string const &param) -> bool { return callback(context, py::str{param}); }));
+        (void)this->real_node_.require(std::move([callback](CommandContext const &context, std::string const &param) -> bool {
+            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
+                [callback, context, param]() -> std::any { return callback(context, py::str{param}); }, utils::need_return));
+        }));
         return *this;
     }
     auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding & override

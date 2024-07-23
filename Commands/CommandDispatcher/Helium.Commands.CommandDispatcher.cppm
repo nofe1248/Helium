@@ -47,7 +47,7 @@ public:
     constexpr auto registerCommand(Command &&command) -> void
         requires concepts::IsCommandNode<Command>
     {
-        this->command_root_.then(FWD(command));
+        (void)this->command_root_.then(FWD(command));
     }
 
     constexpr auto registerRawCommandNodeDescriptor(std::shared_ptr<CommandNodeDescriptor> descriptor) -> void

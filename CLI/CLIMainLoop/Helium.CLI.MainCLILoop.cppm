@@ -457,7 +457,6 @@ auto mainCLILoop()
     std::string prompt = "";
     events::EventEmitter emitter{events::main_event_bus};
 
-    utils::RunLoopExecutor::getInstance().execute([] { logger->debug("executor test"); });
     while (cli_loop_continue)
     {
         do
@@ -500,5 +499,6 @@ auto mainCLILoop()
 
     auto event_emitter = events::EventEmitter{events::main_event_bus};
     event_emitter.postponeEvent(events::HeliumStopping{});
+    utils::RunLoopExecutor::getInstance().finish();
 }
 } // namespace helium::cli

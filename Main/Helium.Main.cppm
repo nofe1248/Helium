@@ -67,7 +67,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     events::main_event_bus = std::make_shared<events::EventBus>();
     events::EventEmitter event_emitter{events::main_event_bus};
-    events::EventListener event_listener{events::main_event_bus};
     std::thread event_thread{events::mainEventLoop};
 
     event_emitter.postponeEvent(events::HeliumStarting{});
@@ -104,8 +103,6 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     std::thread cli_thread{cli::mainCLILoop};
 
-    event_listener.listenToEvent<events::HeliumStopping>([](events::HeliumStopping const &event) { utils::run_loop_executor.finish(); });
-    logger->debug("executor running");
     utils::RunLoopExecutor::getInstance().run();
 
     config::saveConfig();
@@ -113,7 +110,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     event_thread.join();
     cli_thread.join();
 
-    utils::run_loop_executor.finish();
+    utils::RunLoopExecutor::getInstance().finish();
 
     events::main_event_bus.reset();
 

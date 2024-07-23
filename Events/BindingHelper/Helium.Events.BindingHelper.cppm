@@ -16,13 +16,14 @@ module;
 
 export module Helium.Events.BindingHelper;
 
+import Helium.Base;
 import Helium.Commands;
 import Helium.Events.EventBus;
 import Helium.Events.EventListener;
 import Helium.Events.EventEmitter;
 import Helium.Events.Helium;
-import Helium.Utils;
 import Helium.Logger;
+import Helium.Utils;
 
 namespace py = pybind11;
 
@@ -204,103 +205,103 @@ public:
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
         {
             return this->event_listener_.listenToEvent<HeliumStarting>(std::move([callback](HeliumStarting const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
         {
-            binding_logger->debug("Registering event listener");
-            return this->event_listener_.listenToEvent<HeliumStarted>(std::move(
-                [callback](HeliumStarted const &event) { utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); }); }));
+            return this->event_listener_.listenToEvent<HeliumStarted>(std::move([callback](HeliumStarted const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
         {
             return this->event_listener_.listenToEvent<HeliumStopping>(std::move([callback](HeliumStopping const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
         {
             return this->event_listener_.listenToEvent<PluginLoaded>(std::move([callback](PluginLoaded const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
         {
             return this->event_listener_.listenToEvent<PluginUnloaded>(std::move([callback](PluginUnloaded const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
         {
             return this->event_listener_.listenToEvent<PluginReloaded>(std::move([callback](PluginReloaded const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTING)
         {
             return this->event_listener_.listenToEvent<ServerStarting>(std::move([callback](ServerStarting const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTED)
         {
             return this->event_listener_.listenToEvent<ServerStarted>(std::move([callback](ServerStarted const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
         {
             return this->event_listener_.listenToEvent<ServerStopping>(std::move([callback](ServerStopping const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
         {
             return this->event_listener_.listenToEvent<ServerStopped>(std::move([callback](ServerStopped const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
         {
             return this->event_listener_.listenToEvent<ServerPaused>(std::move([callback](ServerPaused const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
         {
             return this->event_listener_.listenToEvent<ServerResumed>(std::move([callback](ServerResumed const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
             return this->event_listener_.listenToEvent<ConsoleInput>(std::move([callback](ConsoleInput const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
         {
             return this->event_listener_.listenToEvent<ServerOutputRaw>(std::move([callback](ServerOutputRaw const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
         {
             return this->event_listener_.listenToEvent<PlayerInputRaw>(std::move([callback](PlayerInputRaw const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
             return this->event_listener_.listenToEvent<ServerOutput>(std::move([callback](ServerOutput const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
         {
             return this->event_listener_.listenToEvent<PlayerInput>(std::move([callback](PlayerInput const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([event, callback]() { callback(event); });
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
         throw cpptrace::runtime_error{"Unknown default event type"};
@@ -309,8 +310,7 @@ public:
     auto listenToCustomEvent(std::string const &event_id, std::function<void(PythonEvent const &)> const &callback) -> bool
     {
         return this->event_listener_.listenToDynamicIDEvent(event_id, std::move([callback](PythonEvent const &event) -> void {
-                                                                utils::RunLoopExecutor::getInstance().execute(
-                                                                    [event, callback]() { callback(event); });
+                                                                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
                                                             }));
     }
 
