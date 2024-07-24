@@ -41,7 +41,6 @@ export import Helium.Config;
 export import Helium.Events;
 export import Helium.Exceptions;
 export import Helium.Logger;
-export import Helium.Parser;
 export import Helium.Plugins;
 export import Helium.Server;
 export import Helium.Utils;
@@ -68,6 +67,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     events::main_event_bus = std::make_shared<events::EventBus>();
     events::EventEmitter event_emitter{events::main_event_bus};
     std::thread event_thread{events::mainEventLoop};
+    event_thread.detach();
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 
@@ -102,15 +102,11 @@ auto heliumMain(int argc, const char *argv[]) -> int
     event_emitter.postponeEvent(events::HeliumStarted{});
 
     std::thread cli_thread{cli::mainCLILoop};
+    cli_thread.detach();
 
     utils::RunLoopExecutor::getInstance().run();
 
     config::saveConfig();
-
-    event_thread.join();
-    cli_thread.join();
-
-    utils::RunLoopExecutor::getInstance().finish();
 
     events::main_event_bus.reset();
 

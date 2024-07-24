@@ -98,7 +98,6 @@ target_sources(
         Logger/Test/Helium.Logger.Test.cppm
         Logger/Helium.Logger.cppm
         Main/Helium.Main.cppm
-        Parser/Helium.Parser.cppm
         Plugins/Bindings/Helium.Plugins.Bindings.cppm
         Plugins/Bindings/Helium.Plugins.Bindings.Python.cppm
         Plugins/Helium.Plugins.cppm
@@ -108,6 +107,17 @@ target_sources(
         Plugins/Test/Helium.Plugins.Test.cppm
         Server/Helium.Server.cppm
         Server/ServerInstance/Helium.Server.ServerInstance.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Arclight.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Beta18.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Bukkit.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.BukkitLegacy.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Bungeecord.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.CatServer.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Forge.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Vanilla.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Velocity.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Waterfall.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
         Utils/RunLoopExecutor/Helium.Utils.RunLoopExecutor.cppm
         Utils/Test/Helium.Utils.Test.cppm

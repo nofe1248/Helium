@@ -73,6 +73,14 @@ auto completionHook(std::string const &context, int &context_len) -> repl::Replx
 {
     std::vector<std::string> suggestions{};
     repl::Replxx::completions_t completions;
+    if (context.empty())
+    {
+        return completions;
+    }
+    if (context_len == 0 and not std::isblank(context.back()))
+    {
+        return completions;
+    }
     if (context_len <= 1)
     {
         suggestions = dispatcher.getSuggestions(context, 0.0f, true);
@@ -90,6 +98,14 @@ auto completionHook(std::string const &context, int &context_len) -> repl::Replx
 auto hintHook(std::string const &context, int &context_len, repl::Replxx::Color &color) -> repl::Replxx::hints_t
 {
     repl::Replxx::hints_t hints;
+    if(context.empty())
+    {
+        return hints;
+    }
+    if (context_len == 0 and not std::isblank(context.back()))
+    {
+        return hints;
+    }
     if (context_len <= 1)
     {
         hints = dispatcher.getSuggestions(context, 0.0f, true);

@@ -29,7 +29,7 @@ class ServerInstance final : public base::HeliumObject
 {
 private:
     asio::io_context io_context_;
-    process::process server_process_;
+    std::shared_ptr<process::process> server_process_ptr_;
 
     fs::path server_path_;
     config::ServerType server_type_;
@@ -60,13 +60,13 @@ private:
 
 public:
     explicit ServerInstance()
-        : io_context_(), server_process_(this->io_context_.get_executor()), server_path_(config::config.server.path),
-          server_type_(config::config.server.type), server_startup_command_(config::config.server.startup_command),
-          server_stdout_pipe_(this->io_context_), server_stderr_pipe_(this->io_context_), server_stdin_pipe_(this->io_context_)
+        : io_context_(), server_process_ptr_(), server_path_(config::config.server.path), server_type_(config::config.server.type),
+          server_startup_command_(config::config.server.startup_command), server_stdout_pipe_(this->io_context_),
+          server_stderr_pipe_(this->io_context_), server_stdin_pipe_(this->io_context_)
     {
-        this->server_process_ = std::move(process::process(
+        this->server_process_ptr_ = std::make_shared<process::process>(std::move(process::process(
             this->io_context_, "", {}, process::process_stdio{this->server_stdin_pipe_, this->server_stdout_pipe_, this->server_stderr_pipe_},
-            process::process_start_dir{this->server_path_.string()}));
+            process::process_start_dir{this->server_path_.string()})));
     }
 
     ~ServerInstance()
