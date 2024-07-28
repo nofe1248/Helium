@@ -435,4 +435,6 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     auto plugins_module = m.def_submodule("plugins");
 
     auto servers_module = m.def_submodule("servers");
+
+    auto utils_module = m.def_submodule("utils");
 }

@@ -13,18 +13,21 @@ export module Helium.Logger.SharedLogger;
 import Helium.Base.HeliumSharedObject;
 import Helium.Logger.LoggerImpl;
 
-export namespace helium::logger {
-    class SharedLogger : public base::HeliumSharedObjectBase<SharedLogger, LoggerImpl> {
-    public:
-        using HeliumSharedObjectBase::HeliumSharedObjectBase;
+export namespace helium::logger
+{
+class SharedLogger : public base::HeliumSharedObjectBase<SharedLogger, LoggerImpl>
+{
+public:
+    using HeliumSharedObjectBase::HeliumSharedObjectBase;
 
-        SharedLogger(std::string_view const name, std::string_view const thread) : HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread)))
-        {
-        }
+    SharedLogger(std::string_view const name, std::string_view const thread, bool no_format = false)
+        : HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread, no_format)))
+    {
+    }
 
-        [[nodiscard]] static auto getSharedLogger(std::string_view const name, std::string_view const thread) -> SharedLogger
-        {
-            return SharedLogger(name, thread);
-        }
-    };
+    [[nodiscard]] static auto getSharedLogger(std::string_view const name, std::string_view const thread, bool no_format = false) -> SharedLogger
+    {
+        return SharedLogger(name, thread, no_format);
+    }
+};
 } // namespace helium::logger

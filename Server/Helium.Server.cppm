@@ -8,3 +8,4 @@ module;
 export module Helium.Server;
 
 export import Helium.Server.ServerInstance;
+export import Helium.Server.ServerOutputParser;

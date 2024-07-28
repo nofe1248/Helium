@@ -101,6 +101,8 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     event_emitter.postponeEvent(events::HeliumStarted{});
 
+    server::ServerInstance server_instance;
+
     std::thread cli_thread{cli::mainCLILoop};
     cli_thread.detach();
 

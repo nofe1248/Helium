@@ -40,7 +40,7 @@ private:
     std::string thread_;
     std::shared_ptr<spdlog::logger> logger_ptr_;
 
-    [[nodiscard]] static auto initLogger(std::string const &name) -> std::shared_ptr<spdlog::logger>
+    [[nodiscard]] static auto initLogger(std::string const &name, bool no_format = false) -> std::shared_ptr<spdlog::logger>
     {
         static auto stdout_sink{std::make_shared<spdlog::sinks::stdout_color_sink_mt>()};
         static auto file_sink{std::make_shared<spdlog::sinks::daily_file_sink_mt>("./logs/helium-log.log", 0, 0)};
@@ -56,15 +56,22 @@ private:
         }
 
         auto logger_ptr = std::make_shared<spdlog::async_logger>(name, vec, spdlog::thread_pool());
-        logger_ptr->set_pattern("[%Y-%m-%d %T.%f] [%^%=8l%$] %v");
+        if (no_format)
+        {
+            logger_ptr->set_pattern("%v");
+        }
+        else
+        {
+            logger_ptr->set_pattern("[%Y-%m-%d %T.%f] [%^%=8l%$] %v");
+        }
 
         spdlog::register_logger(logger_ptr);
         return logger_ptr;
     }
 
 public:
-    explicit LoggerImpl(std::string_view const name, std::string_view const thread)
-        : name_(name), thread_(thread), logger_ptr_(LoggerImpl::initLogger(std::format("{}/{}", this->name_, this->thread_)))
+    explicit LoggerImpl(std::string_view const name, std::string_view const thread, bool no_format = false)
+        : name_(name), thread_(thread), logger_ptr_(LoggerImpl::initLogger(std::format("{}/{}", this->name_, this->thread_, no_format)))
     {
     }
 
@@ -91,6 +98,20 @@ public:
         else
         {
             this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level), std::format("[{}/{}] {}", this->name_, this->thread_, fmt_str));
+        }
+    }
+
+    template <typename... Args>
+    auto log_raw(LogLevel log_level, std::string_view fmt_str, Args &&...fmt_args) const -> void
+    {
+        if constexpr (sizeof...(fmt_args) >= 1)
+        {
+            this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level),
+                                   std::format(std::runtime_format(fmt_str), std::forward<Args>(fmt_args)...));
+        }
+        else
+        {
+            this->logger_ptr_->log(static_cast<spdlog::level::level_enum>(log_level), fmt_str);
         }
     }
 

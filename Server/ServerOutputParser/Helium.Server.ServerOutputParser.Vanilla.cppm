@@ -5,4 +5,4 @@
 
 module;
 
-export module Helium.Server.Vanilla;
+export module Helium.Server.ServerOutputParser.Vanilla;
