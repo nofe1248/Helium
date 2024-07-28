@@ -45,7 +45,8 @@ struct ServerConfig
 {
     std::string path = "./server";
     ServerType type = ServerType::VANILLA;
-    std::string startup_command = "java -jar server.jar";
+    std::string startup_command_executable = "java";
+    std::vector<std::string> startup_command_parameters = {"-jar server.jar", "nogui"};
     ServerRCONConfig rcon;
 };
 struct DebugConfig

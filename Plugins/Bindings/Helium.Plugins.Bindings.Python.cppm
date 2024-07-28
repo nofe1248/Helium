@@ -72,7 +72,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<config::ServerConfig>(config_module, "ServerConfig")
         .def_readwrite("path", &config::ServerConfig::path)
         .def_readwrite("type", &config::ServerConfig::type)
-        .def_readwrite("startup_command", &config::ServerConfig::startup_command)
+        .def_readwrite("startup_command_executable", &config::ServerConfig::startup_command_executable)
+        .def_readwrite("startup_command_parameters", &config::ServerConfig::startup_command_parameters)
         .def_readwrite("rcon", &config::ServerConfig::rcon);
 
     py::class_<config::PythonPluginConfig>(config_module, "PythonPluginConfig").def_readwrite("path", &config::PythonPluginConfig::path);

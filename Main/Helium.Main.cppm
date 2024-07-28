@@ -64,6 +64,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
 
+    logger->info("Initializing Helium main event bus");
     events::main_event_bus = std::make_shared<events::EventBus>();
     events::EventEmitter event_emitter{events::main_event_bus};
     std::thread event_thread{events::mainEventLoop};
@@ -110,6 +111,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     config::saveConfig();
 
+    logger->info("Finalizing Helium main event bus");
     events::main_event_bus.reset();
 
     return 0;
