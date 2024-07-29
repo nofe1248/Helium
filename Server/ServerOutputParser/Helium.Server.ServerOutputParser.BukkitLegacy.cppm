@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.BukkitLegacy;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class BukkitLegacyServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

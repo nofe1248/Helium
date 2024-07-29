@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.CatServer;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class CatServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.Waterfall;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class WaterfallServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

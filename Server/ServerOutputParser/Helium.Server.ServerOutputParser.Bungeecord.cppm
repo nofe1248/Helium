@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.Bungeecord;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class BungeecordServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

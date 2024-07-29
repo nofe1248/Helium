@@ -20,14 +20,14 @@ class SharedLogger : public base::HeliumSharedObjectBase<SharedLogger, LoggerImp
 public:
     using HeliumSharedObjectBase::HeliumSharedObjectBase;
 
-    SharedLogger(std::string_view const name, std::string_view const thread, bool no_format = false)
-        : HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread, no_format)))
+    SharedLogger(std::string_view const name, std::string_view const thread)
+        : HeliumSharedObjectBase(HeliumSharedObjectBase::cloneFrom(LoggerImpl(name, thread)))
     {
     }
 
-    [[nodiscard]] static auto getSharedLogger(std::string_view const name, std::string_view const thread, bool no_format = false) -> SharedLogger
+    [[nodiscard]] static auto getSharedLogger(std::string_view const name, std::string_view const thread) -> SharedLogger
     {
-        return SharedLogger(name, thread, no_format);
+        return SharedLogger(name, thread);
     }
 };
 } // namespace helium::logger

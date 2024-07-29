@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.Velocity;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class VelocityServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

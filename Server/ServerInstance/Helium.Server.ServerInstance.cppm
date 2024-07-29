@@ -17,6 +17,10 @@ module;
 
 #include <boost/sml2>
 
+#include <spdlog/async.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Server.ServerInstance;
@@ -25,6 +29,7 @@ import Helium.Base.HeliumObject;
 import Helium.Config;
 import Helium.Events;
 import Helium.Logger;
+import Helium.Server.ServerOutputParser;
 
 namespace asio = boost::asio;
 namespace fs = std::filesystem;
@@ -34,7 +39,6 @@ namespace bstalgo = boost::algorithm;
 namespace helium::server
 {
 auto server_logger = logger::SharedLogger::getSharedLogger("Server", "ServerInstance");
-auto server_output_logger = logger::SharedLogger::getSharedLogger("Server", "ServerOutput", true);
 } // namespace helium::server
 
 export namespace helium::server
@@ -106,6 +110,12 @@ public:
             server_logger->info("Server output processing thread started");
             boost::system::error_code ec;
             std::string output_buffer;
+
+            auto logger_ptr = std::make_shared<spdlog::async_logger>("helium_server_output_logger", std::make_shared<spdlog::sinks::stdout_color_sink_mt>(), spdlog::thread_pool());
+            logger_ptr->set_pattern("%v");
+
+            spdlog::register_logger(logger_ptr);
+
             while (this->server_process_ptr_->running())
             {
                 asio::read_until(*this->server_process_ptr_, asio::dynamic_buffer(output_buffer), '\n');
@@ -114,7 +124,7 @@ public:
                     continue;
                 }
                 output_buffer.erase(output_buffer.size() - 1);
-                server_output_logger->log_raw(logger::LogLevel::info, output_buffer);
+                logger_ptr->info(output_buffer);
                 output_buffer.clear();
             }
             server_logger->info("Server stopped with return code {}", this->server_process_ptr_->exit_code());

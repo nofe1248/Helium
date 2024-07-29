@@ -3,6 +3,10 @@
  * Please refer to Helium.Main.cppm for full license info.
  */
 
+module;
+
+#include <proxy/proxy.h>
+
 export module Helium.Server.ServerOutputParser;
 
 export import Helium.Server.ServerOutputParser.Arclight;
@@ -12,6 +16,12 @@ export import Helium.Server.ServerOutputParser.BukkitLegacy;
 export import Helium.Server.ServerOutputParser.Bungeecord;
 export import Helium.Server.ServerOutputParser.CatServer;
 export import Helium.Server.ServerOutputParser.Forge;
+export import Helium.Server.ServerOutputParser.PythonCustomParserWrapper;
 export import Helium.Server.ServerOutputParser.Vanilla;
 export import Helium.Server.ServerOutputParser.Velocity;
 export import Helium.Server.ServerOutputParser.Waterfall;
+
+export namespace helium::server
+{
+
+}

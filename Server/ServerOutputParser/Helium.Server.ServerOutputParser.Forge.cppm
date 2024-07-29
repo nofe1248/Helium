@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.Forge;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class ForgeServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

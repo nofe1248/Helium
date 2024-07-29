@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.Arclight;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class ArclightServerOutputParser final : public base::HeliumObject
+{
+
+};
+}

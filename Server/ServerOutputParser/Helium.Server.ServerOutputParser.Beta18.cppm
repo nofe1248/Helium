@@ -6,3 +6,13 @@
 module;
 
 export module Helium.Server.ServerOutputParser.Beta18;
+
+import Helium.Base;
+
+export namespace helium::server
+{
+class Beta18ServerOutputParser final : public base::HeliumObject
+{
+
+};
+}
