@@ -23,6 +23,7 @@ module;
 export module Helium.CLI.CLIMainLoop;
 
 import Helium.Commands;
+import Helium.Server;
 import Helium.Events;
 import Helium.Logger;
 import Helium.Config;
@@ -273,9 +274,53 @@ auto mainCLILoop()
                 .then(
                     CommandArgumentQuotedString("plugin_name")
                 ),
+                CommandStringLiteral("reload")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("search")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("enable")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("disable")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("install")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("remove")
+                .then(
+                    CommandArgumentQuotedString("plugin_name")
+                ),
                 CommandStringLiteral("status")
                 .then(
                     CommandArgumentQuotedString("plugin_name")
+                ),
+                CommandStringLiteral("source")
+                .then(
+                    CommandStringLiteral("list"),
+                    CommandStringLiteral("add")
+                    .then(
+                        CommandArgumentString("source_name")
+                        .then(
+                            CommandArgumentQuotedString("source_url")
+                        )
+                    ),
+                    CommandStringLiteral("remove")
+                    .then(
+                        CommandArgumentString("source_name")
+                    ),
+                    CommandStringLiteral("update")
+                    .then(
+                        CommandArgumentString("source_name")
+                    ),
+                    CommandStringLiteral("update-all")
                 )
             ),
             CommandStringLiteral("show")
@@ -490,7 +535,7 @@ auto mainCLILoop()
             {
                 if (bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command); not execution_result)
                 {
-                    logger->error("Command failed to execute");
+                    server::server_instance->send_raw_input(input_command);
                 }
             }
             catch (py::error_already_set const &py_error)

@@ -53,7 +53,7 @@ class ServerInstance final : public base::HeliumObject
 {
 private:
     asio::io_context io_context_;
-    std::shared_ptr<process::process> server_process_ptr_;
+    std::shared_ptr<process::popen> server_process_ptr_;
     std::thread output_processing_thread_;
 
     fs::path server_path_;
@@ -61,18 +61,13 @@ private:
     std::string server_startup_executable_;
     std::vector<std::string> server_startup_parameters_;
 
-    asio::readable_pipe server_stdout_pipe_;
-    asio::readable_pipe server_stderr_pipe_;
-    asio::writable_pipe server_stdin_pipe_;
-
     ServerState server_state_;
 
 public:
     explicit ServerInstance()
         : io_context_(), server_process_ptr_(), server_path_(config::config.server.path), server_type_(config::config.server.type),
           server_startup_executable_(config::config.server.startup_command_executable),
-          server_startup_parameters_(config::config.server.startup_command_parameters), server_stdout_pipe_(this->io_context_),
-          server_stderr_pipe_(this->io_context_), server_stdin_pipe_(this->io_context_), server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
+          server_startup_parameters_(config::config.server.startup_command_parameters), server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
     {
         this->server_state_ = ServerState::SERVER_STATE_STOPPED;
         this->server_state_ = ServerState::SERVER_STATE_STARTING;
@@ -80,35 +75,49 @@ public:
         if (not fs::path{this->server_startup_executable_}.is_absolute())
         {
             this->server_startup_executable_ = process::environment::find_executable(this->server_startup_executable_).string();
+            server_logger->info("Server startup executable path is not absolute, found probable executable path is {}",
+                                this->server_startup_executable_);
         }
 
-        this->server_path_ = fs::absolute(this->server_path_);
+        if (not this->server_path_.is_absolute())
+        {
+            this->server_path_ = fs::absolute(this->server_path_);
+        }
 
-        this->server_process_ptr_ = std::make_shared<process::process>(
-            process::process(this->io_context_, this->server_startup_executable_, this->server_startup_parameters_,
-                             process::process_stdio{this->server_stdin_pipe_, this->server_stdout_pipe_, this->server_stderr_pipe_},
-                             process::process_start_dir{this->server_path_.string()}));
+        server_logger->info("Launching server");
+        this->server_process_ptr_ =
+            std::make_shared<process::popen>(this->io_context_, this->server_startup_executable_, this->server_startup_parameters_,
+                                             process::process_start_dir{this->server_path_.string()});
+
+        if (not this->server_process_ptr_->is_open())
+        {
+            throw std::runtime_error("Failed to open server process");
+        }
+
+        if (not this->server_process_ptr_->running())
+        {
+            throw std::runtime_error("Failed to launch server process");
+        }
+
+        server_logger->info("Server launchered with Process ID {}", this->server_process_ptr_->id());
+
         this->server_state_ = ServerState::SERVER_STATE_RUNNING;
         this->output_processing_thread_ = std::move(std::thread{[this] {
             server_logger->info("Server output processing thread started");
             boost::system::error_code ec;
             std::string output_buffer;
-            std::vector<std::string> output_lines;
             while (this->server_process_ptr_->running())
             {
-                this->server_stdout_pipe_.read_some(asio::buffer(output_buffer), ec);
-                assert(ec == asio::eof);
+                asio::read_until(*this->server_process_ptr_, asio::dynamic_buffer(output_buffer), '\n');
                 if (output_buffer.empty())
                 {
                     continue;
                 }
-                bstalgo::trim(output_buffer);
-                boost::split(output_lines, output_buffer, boost::is_any_of("\n"), boost::token_compress_on);
-                for (auto const &line : output_lines)
-                {
-                    server_output_logger->log_raw(logger::LogLevel::info, line);
-                }
+                output_buffer.erase(output_buffer.size() - 1);
+                server_output_logger->log_raw(logger::LogLevel::info, output_buffer);
+                output_buffer.clear();
             }
+            server_logger->info("Server stopped with return code {}", this->server_process_ptr_->exit_code());
             server_logger->info("Server output processing thread stopping");
         }});
         this->output_processing_thread_.detach();
@@ -116,7 +125,20 @@ public:
 
     ~ServerInstance()
     {
-        //this->stop();
+        // this->stop();
+    }
+
+    auto send_raw_input(this auto &&self, std::string const &input) -> bool
+    {
+        if (FWD(self).server_state_ != ServerState::SERVER_STATE_RUNNING)
+        {
+            return false;
+        }
+        assert(FWD(self).server_process_ptr_->running());
+        auto buffer = input;
+        buffer.append("\n");
+        asio::write(*FWD(self).server_process_ptr_, asio::const_buffer{buffer.data(), buffer.size()});
+        return true;
     }
 
     auto stop(this auto &&self) -> bool
@@ -148,4 +170,6 @@ public:
         return true;
     }
 };
+
+std::shared_ptr<ServerInstance> server_instance = nullptr;
 } // namespace helium::server

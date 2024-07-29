@@ -102,12 +102,14 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     event_emitter.postponeEvent(events::HeliumStarted{});
 
-    server::ServerInstance server_instance;
+    server::server_instance = std::make_shared<server::ServerInstance>();
 
     std::thread cli_thread{cli::mainCLILoop};
     cli_thread.detach();
 
     utils::RunLoopExecutor::getInstance().run();
+
+    server::server_instance.reset();
 
     config::saveConfig();
 
