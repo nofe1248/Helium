@@ -22,6 +22,7 @@ import Helium.Commands;
 import Helium.Config;
 import Helium.Events;
 import Helium.Logger;
+import Helium.Server;
 
 namespace py = pybind11;
 
@@ -436,6 +437,21 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     auto plugins_module = m.def_submodule("plugins");
 
     auto servers_module = m.def_submodule("servers");
+    py::class_<server::ServerOutputInfoTimeStamp>(servers_module, "ServerOutputInfoTimeStamp")
+        .def(py::init<int, int, int>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("hour", &server::ServerOutputInfoTimeStamp::hour)
+        .def_readwrite("minute", &server::ServerOutputInfoTimeStamp::minute)
+        .def_readwrite("second", &server::ServerOutputInfoTimeStamp::second);
+    py::class_<server::ServerOutputInfo>(servers_module, "ServerOutputInfo")
+        .def(py::init<server::ServerOutputInfoTimeStamp, std::string, std::string, std::string, std::optional<std::string>>(),
+             py::arg("timestamp"), py::arg("raw_content"), py::arg("content"), py::arg("log_level"), py::arg("player_name") = py::none{},
+             py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("id", &server::ServerOutputInfo::id)
+        .def_readwrite("timestamp", &server::ServerOutputInfo::timestamp)
+        .def_readwrite("raw_content", &server::ServerOutputInfo::raw_content)
+        .def_readwrite("content", &server::ServerOutputInfo::content)
+        .def_readwrite("log_level", &server::ServerOutputInfo::log_level)
+        .def_readwrite("player_name", &server::ServerOutputInfo::player_name);
 
     auto utils_module = m.def_submodule("utils");
 }

@@ -41,6 +41,9 @@ find_package(replxx CONFIG REQUIRED)
 find_package(proxy CONFIG REQUIRED)
 set(stdexec_DIR "C:/vcpkg/installed/x64-mingw-dynamic/share/stdexec")
 find_package(stdexec CONFIG REQUIRED)
+set(re2_DIR "C:/vcpkg/installed/x64-mingw-dynamic/share/re2")
+set(absl_DIR "C:/vcpkg/installed/x64-mingw-dynamic/share/absl")
+find_package(re2 CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -106,6 +109,7 @@ target_sources(
         Plugins/PluginMetadata/Helium.Plugins.PluginMetadata.cppm
         Plugins/Test/Helium.Plugins.Test.cppm
         Server/Helium.Server.cppm
+        Server/BindingHelper/Helium.Server.BindingHelper.cppm
         Server/ServerInstance/Helium.Server.ServerInstance.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Arclight.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Beta18.cppm
@@ -116,10 +120,12 @@ target_sources(
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Forge.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.PythonCustomParserWrapper.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.Utils.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Vanilla.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Velocity.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Waterfall.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
+        Utils/RText/Helium.Utils.RText.cppm
         Utils/RunLoopExecutor/Helium.Utils.RunLoopExecutor.cppm
         Utils/Test/Helium.Utils.Test.cppm
         Utils/Helium.Utils.cppm
@@ -148,3 +154,4 @@ target_link_libraries(Helium PRIVATE tomlplusplus::tomlplusplus)
 target_link_libraries(Helium PRIVATE Graaf::Graaf)
 target_link_libraries(Helium PRIVATE cpptrace::cpptrace)
 target_link_libraries(Helium PRIVATE STDEXEC::stdexec)
+target_link_libraries(Helium PRIVATE re2::re2)

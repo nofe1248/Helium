@@ -9,21 +9,28 @@ module;
 
 #include <re2/re2.h>
 
+#include <pybind11/chrono.h>
+#include <pybind11/embed.h>
+#include <pybind11/functional.h>
+#include <pybind11/stl.h>
+
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
-export module Helium.Server.ServerOutputParser.Waterfall;
+export module Helium.Server.ServerOutputParser.PythonCustomParserWrapper;
 
 import Helium.Base;
 import Helium.Server.ServerOutputParser.Utils;
 
+namespace py = pybind11;
+
 export namespace helium::server
 {
-class WaterfallServerOutputParser final : public base::HeliumObject
+class PythonCustomParserWrapper final : public base::HeliumObject
 {
 public:
     constexpr auto getParserName(this auto &&self) noexcept -> std::string
     {
-        return "WaterfallServerOutputParser";
+        return "PythonCustomParserWrapper";
     }
 
     constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, std::string const &info) noexcept -> std::string
@@ -74,4 +81,4 @@ public:
     {
     }
 };
-} // namespace helium::server
+}

@@ -111,7 +111,8 @@ public:
             boost::system::error_code ec;
             std::string output_buffer;
 
-            auto logger_ptr = std::make_shared<spdlog::async_logger>("helium_server_output_logger", std::make_shared<spdlog::sinks::stdout_color_sink_mt>(), spdlog::thread_pool());
+            auto logger_ptr = std::make_shared<spdlog::async_logger>("helium_server_output_logger",
+                                                                     std::make_shared<spdlog::sinks::stdout_color_sink_mt>(), spdlog::thread_pool());
             logger_ptr->set_pattern("%v");
 
             spdlog::register_logger(logger_ptr);
