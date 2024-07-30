@@ -36,6 +36,7 @@ public:
 
     constexpr auto getStopCommand(this auto &&self) noexcept -> std::string
     {
+        return "stop";
     }
 
     constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::string

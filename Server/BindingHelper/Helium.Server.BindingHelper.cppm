@@ -22,4 +22,775 @@ export namespace helium::server::binding
 class ServerInstanceBindingHelper
 {
 };
+
+class ArclightServerOutputParserBindingHelper
+{
+    ArclightServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class Beta18ServerOutputParserBindingHelper
+{
+    Beta18ServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class BukkitServerOutputParserBindingHelper
+{
+    BukkitServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class BukkitLegacyServerOutputParserBindingHelper
+{
+    BukkitLegacyServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class BungeecordServerOutputParserBindingHelper
+{
+    BungeecordServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class CatServerOutputParserBindingHelper
+{
+    CatServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class ForgeServerOutputParserBindingHelper
+{
+    ForgeServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class PythonCustomParserWrapperBindingHelper
+{
+    PythonCustomParserWrapper parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class VanillaServerOutputParserBindingHelper
+{
+    VanillaServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class VelocityServerOutputParserBindingHelper
+{
+    VelocityServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
+class WaterfallServerOutputParserBindingHelper
+{
+    WaterfallServerOutputParser parser_;
+
+public:
+    auto getParserName() noexcept -> std::string
+    {
+        return this->parser_.getParserName();
+    }
+
+    auto getSendMessageCommand(std::string const &target, std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+
+    auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+
+    auto getStopCommand() noexcept -> std::string
+    {
+        return this->parser_.getStopCommand();
+    }
+
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.preprocessServerOutput(raw_output);
+    }
+
+    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    {
+        return this->parser_.parseServerOutput(raw_output);
+    }
+
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerJoined(raw_output);
+    }
+
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parsePlayerLeft(raw_output);
+    }
+
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerVersion(raw_output);
+    }
+
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    {
+        return this->parser_.parseServerAddress(raw_output);
+    }
+
+    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStartupDone(raw_output);
+    }
+
+    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testRCONStarted(raw_output);
+    }
+
+    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(raw_output);
+    }
+};
 } // namespace helium::server::binding

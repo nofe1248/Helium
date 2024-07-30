@@ -110,6 +110,7 @@ target_sources(
         Plugins/Test/Helium.Plugins.Test.cppm
         Server/Helium.Server.cppm
         Server/BindingHelper/Helium.Server.BindingHelper.cppm
+        Server/RCON/Helium.Server.RCON.cppm
         Server/ServerInstance/Helium.Server.ServerInstance.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Arclight.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Beta18.cppm

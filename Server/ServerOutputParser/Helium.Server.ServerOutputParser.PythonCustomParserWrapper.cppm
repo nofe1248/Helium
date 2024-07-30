@@ -81,4 +81,4 @@ public:
     {
     }
 };
-}
+} // namespace helium::server

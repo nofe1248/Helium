@@ -6,6 +6,8 @@
 module;
 
 #include <filesystem>
+#include <optional>
+#include <string>
 
 #include <rfl.hpp>
 #include <rfl/toml.hpp>
@@ -32,7 +34,8 @@ enum class ServerType
     ARCLIGHT,
     BUNGEECORD,
     WATERFALL,
-    VELOCITY
+    VELOCITY,
+    CUSTOM
 };
 struct ServerRCONConfig
 {
@@ -45,6 +48,7 @@ struct ServerConfig
 {
     std::string path = "./server";
     ServerType type = ServerType::VANILLA;
+    std::optional<std::string> custom_parser = std::nullopt;
     std::string startup_command_executable = "java";
     std::vector<std::string> startup_command_parameters = {"-jar server.jar", "nogui"};
     ServerRCONConfig rcon;
