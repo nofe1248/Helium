@@ -11,12 +11,8 @@ export namespace helium::utils {
 	template <typename ... Ts>
 	struct OverloadSet : public Ts... {
 		using Ts::operator()...;
-
-		consteval auto operator()(auto ... dummy) -> void { 
-			//We need this until MSVC support the C++26 Pack Indexing
-			//If a future version of MSVC officially support the feature,
-			//the boost::mp11::mp_nth_element should be replaced by pack...[I]
-			static_assert(false, "Unsupported type.");
-		}
 	};
+
+    template <typename ... Ts>
+    OverloadSet(Ts...) -> OverloadSet<Ts...>;
 }

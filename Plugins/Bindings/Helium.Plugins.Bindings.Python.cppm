@@ -23,6 +23,7 @@ import Helium.Config;
 import Helium.Events;
 import Helium.Logger;
 import Helium.Server;
+import Helium.Utils;
 
 namespace py = pybind11;
 
@@ -624,4 +625,6 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("test_server_stopping", &server::binding::WaterfallServerOutputParserBindingHelper::testServerStopping);
 
     auto utils_module = m.def_submodule("utils");
+
+    auto rtext_module = utils_module.def_submodule("rtext");
 }
