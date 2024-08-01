@@ -5,6 +5,8 @@
 
 module;
 
+#include <string>
+
 #include <semver.hpp>
 
 export module Helium.Base.Version;
@@ -12,4 +14,9 @@ export module Helium.Base.Version;
 export namespace helium::base
 {
 constexpr semver::version helium_version{0, 2, 2, semver::prerelease::alpha, 2};
+
+auto getHeliumVersionString() -> std::string
+{
+    return helium_version.to_string();
+}
 }

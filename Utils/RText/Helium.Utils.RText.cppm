@@ -13,7 +13,6 @@ module;
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <variant>
 
 #include <rfl.hpp>
 #include <rfl/json.hpp>
@@ -21,8 +20,6 @@ module;
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Utils.RText;
-
-import Helium.Utils.OverloadSet;
 
 namespace ranges = std::ranges;
 namespace views = std::ranges::views;
@@ -35,12 +32,9 @@ concept RangeOf = ranges::range<R> and std::convertible_to<std::decay_t<T>, rang
 
 export namespace helium::utils::rtext
 {
-class RText;
-
 class RColorClassic
 {
-private:
-    friend class RText;
+public:
     struct RColorClassicInternal
     {
         std::string_view name;
@@ -53,7 +47,6 @@ private:
         }
     };
 
-public:
     constexpr static auto black = RColorClassicInternal{.name = "black", .mc_code = "§0", .console_code = "\x1b[30m"};
     constexpr static auto dark_blue = RColorClassicInternal{.name = "dark_blue", .mc_code = "§1", .console_code = "\x1b[34m"};
     constexpr static auto dark_green = RColorClassicInternal{.name = "dark_green", .mc_code = "§2", .console_code = "\x1b[32m"};
@@ -74,8 +67,7 @@ public:
 };
 class RStyleClassic final
 {
-private:
-    friend class RText;
+public:
     struct RStyleClassicInternal
     {
         std::string_view name;
@@ -88,7 +80,6 @@ private:
         }
     };
 
-public:
     constexpr static auto bold = RStyleClassicInternal{.name = "bold", .mc_code = "§l", .console_code = "\x1b[1m"};
     constexpr static auto italic = RStyleClassicInternal{.name = "italic", .mc_code = "§o", .console_code = ""};
     constexpr static auto underlined = RStyleClassicInternal{.name = "underlined", .mc_code = "§n", .console_code = ""};
@@ -97,8 +88,7 @@ public:
 };
 class RAction final
 {
-private:
-    friend class RText;
+public:
     struct RActionInternal
     {
         std::string_view action;
@@ -109,7 +99,6 @@ private:
         }
     };
 
-public:
     constexpr static auto suggest_command = RActionInternal{.action = "suggest_command"};
     constexpr static auto run_command = RActionInternal{.action = "run_command"};
     constexpr static auto open_url = RActionInternal{.action = "open_url"};
@@ -159,23 +148,23 @@ public:
         blue_value = value;
     }
 
-    [[nodiscard]] auto to_string() const -> std::string
+    [[nodiscard]] auto toString() const -> std::string
     {
         std::string r{"  "}, g{"  "}, b{"  "};
         std::to_chars(r.data(), r.data() + r.size(), this->red_value, 16);
         std::to_chars(g.data(), g.data() + g.size(), this->green_value, 16);
         std::to_chars(b.data(), b.data() + b.size(), this->blue_value, 16);
-        if(this->red_value <= 16)
+        if (this->red_value <= 16)
         {
             r.erase(r.size() - 1);
             r.insert(r.begin(), '0');
         }
-        if(this->green_value <= 16)
+        if (this->green_value <= 16)
         {
             g.erase(g.size() - 1);
             g.insert(g.begin(), '0');
         }
-        if(this->blue_value <= 16)
+        if (this->blue_value <= 16)
         {
             b.erase(b.size() - 1);
             b.insert(b.begin(), '0');
@@ -221,9 +210,9 @@ public:
     }
     auto setText(internal::RangeOf<std::string> auto &&texts) -> RText &
     {
-        if (ranges::size(FWD(texts)) > 1)
+        if (std::size(FWD(texts)) > 1)
         {
-            this->setText(*ranges::begin(FWD(texts)));
+            this->setText(*std::begin(FWD(texts)));
             rfl::Generic::Array array;
             for (auto const &extra : FWD(texts) | views::drop(1))
             {
@@ -231,9 +220,9 @@ public:
             }
             this->json_object["extra"] = array;
         }
-        else if (ranges::size(FWD(texts)) == 1)
+        else if (std::size(FWD(texts)) == 1)
         {
-            this->setText(*ranges::begin(FWD(texts)));
+            this->setText(*std::begin(FWD(texts)));
         }
         return *this;
     }
@@ -260,11 +249,14 @@ public:
         this->json_object["font"] = font;
         return *this;
     }
-    auto setColor(std::variant<RColor, RColorClassic::RColorClassicInternal> const &color) -> RText &
+    auto setColor(RColorClassic::RColorClassicInternal const &color) -> RText &
     {
-        std::visit(OverloadSet{[this](RColor const &color) { this->json_object["color"] = color.to_string(); },
-                               [this](RColorClassic::RColorClassicInternal const &color) { this->json_object["color"] = std::string{color.name}; }},
-                   color);
+        this->json_object["color"] = std::string{color.name};
+        return *this;
+    }
+    auto setColor(RColor const &color) -> RText &
+    {
+        this->json_object["color"] = color.toString();
         return *this;
     }
     auto setStyle(RStyleClassic::RStyleClassicInternal const &style) -> RText &
@@ -319,11 +311,11 @@ public:
         this->json_object["clickEvent"] = event;
         return *this;
     }
-    auto setHoverText(std::string_view text) -> RText &
+    auto setHoverText(std::string const &text) -> RText &
     {
         rfl::Generic::Object hover_text;
         hover_text["action"] = "show_text";
-        hover_text["value"] = std::string{text};
+        hover_text["value"] = text;
         this->json_object["hoverEvent"] = hover_text;
         return *this;
     }

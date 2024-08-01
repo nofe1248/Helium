@@ -17,6 +17,7 @@ module;
 
 export module Helium.Plugins.Bindings.Python;
 
+import Helium.Base;
 import Helium.CLI;
 import Helium.Commands;
 import Helium.Config;
@@ -34,6 +35,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     m.doc() = "Python bindings for Helium plugins";
 
     auto base_module = m.def_submodule("base");
+    base_module.def("get_helium_version_string", &base::getHeliumVersionString);
 
     auto logger_module = m.def_submodule("logger");
     py::class_<logger::LoggerImpl, std::shared_ptr<logger::LoggerImpl>>(logger_module, "Logger")
@@ -627,4 +629,65 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     auto utils_module = m.def_submodule("utils");
 
     auto rtext_module = utils_module.def_submodule("rtext");
+    py::class_<utils::rtext::RStyleClassic>(rtext_module, "RStyleClassic")
+        .def_readonly_static("bold", &utils::rtext::RStyleClassic::bold)
+        .def_readonly_static("italic", &utils::rtext::RStyleClassic::italic)
+        .def_readonly_static("underlined", &utils::rtext::RStyleClassic::underlined)
+        .def_readonly_static("strikethrough", &utils::rtext::RStyleClassic::strikethrough)
+        .def_readonly_static("obfuscated", &utils::rtext::RStyleClassic::obfuscated);
+    py::class_<utils::rtext::RColorClassic>(rtext_module, "RColorClassic")
+        .def_readonly_static("black", &utils::rtext::RColorClassic::black)
+        .def_readonly_static("dark_blue", &utils::rtext::RColorClassic::dark_blue)
+        .def_readonly_static("dark_green", &utils::rtext::RColorClassic::dark_green)
+        .def_readonly_static("dark_aqua", &utils::rtext::RColorClassic::dark_aqua)
+        .def_readonly_static("dark_red", &utils::rtext::RColorClassic::dark_red)
+        .def_readonly_static("dark_purple", &utils::rtext::RColorClassic::dark_purple)
+        .def_readonly_static("gold", &utils::rtext::RColorClassic::gold)
+        .def_readonly_static("gray", &utils::rtext::RColorClassic::gray)
+        .def_readonly_static("dark_gray", &utils::rtext::RColorClassic::dark_gray)
+        .def_readonly_static("blue", &utils::rtext::RColorClassic::blue)
+        .def_readonly_static("green", &utils::rtext::RColorClassic::green)
+        .def_readonly_static("aqua", &utils::rtext::RColorClassic::aqua)
+        .def_readonly_static("red", &utils::rtext::RColorClassic::red)
+        .def_readonly_static("light_purple", &utils::rtext::RColorClassic::light_purple)
+        .def_readonly_static("yellow", &utils::rtext::RColorClassic::yellow)
+        .def_readonly_static("white", &utils::rtext::RColorClassic::white)
+        .def_readonly_static("reset", &utils::rtext::RColorClassic::reset);
+    py::class_<utils::rtext::RColor>(rtext_module, "RColor")
+        .def(py::init<short const, short const, short const>(), py::arg("red"), py::arg("green"), py::arg("blue"),
+             py::call_guard<py::gil_scoped_release>())
+        .def_property("red", &utils::rtext::RColor::getRed, &utils::rtext::RColor::setRed)
+        .def_property("green", &utils::rtext::RColor::getGreen, &utils::rtext::RColor::setGreen)
+        .def_property("blue", &utils::rtext::RColor::getBlue, &utils::rtext::RColor::setBlue)
+        .def("to_string", &utils::rtext::RColor::toString);
+    py::class_<utils::rtext::RAction>(rtext_module, "RAction")
+        .def_readonly_static("suggest_command", &utils::rtext::RAction::suggest_command)
+        .def_readonly_static("run_command", &utils::rtext::RAction::run_command)
+        .def_readonly_static("open_url", &utils::rtext::RAction::open_url)
+        .def_readonly_static("open_file", &utils::rtext::RAction::open_file)
+        .def_readonly_static("change_page", &utils::rtext::RAction::change_page)
+        .def_readonly_static("copy_to_clipboard", &utils::rtext::RAction::copy_to_clipboard);
+    py::class_<utils::rtext::RText>(rtext_module, "RText")
+        .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
+        .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def("to_json_string", &utils::rtext::RText::toJSONString, py::call_guard<py::gil_scoped_release>())
+        .def("to_plain_text", &utils::rtext::RText::toPlainText, py::call_guard<py::gil_scoped_release>())
+        .def("to_colored_text", &utils::rtext::RText::toColoredText, py::call_guard<py::gil_scoped_release>())
+        .def("to_legacy_text", &utils::rtext::RText::toLegacyText, py::call_guard<py::gil_scoped_release>())
+        .def("set_text", static_cast<utils::rtext::RText &(utils::rtext::RText::*)(std::string const &)>(&utils::rtext::RText::setText))
+        .def("set_text",
+             static_cast<utils::rtext::RText &(utils::rtext::RText::*)(std::initializer_list<std::string>)>(&utils::rtext::RText::setText))
+        .def("set_text", &utils::rtext::RText::setText<std::vector<std::string>>)
+        .def("set_font", &utils::rtext::RText::setFont)
+        .def("set_color", py::overload_cast<utils::rtext::RColorClassic::RColorClassicInternal const &>(&utils::rtext::RText::setColor))
+        .def("set_color", py::overload_cast<utils::rtext::RColor const &>(&utils::rtext::RText::setColor))
+        .def("set_style", static_cast<utils::rtext::RText &(utils::rtext::RText::*)(utils::rtext::RStyleClassic::RStyleClassicInternal const &)>(
+                              &utils::rtext::RText::setStyle))
+        .def("set_style",
+             static_cast<utils::rtext::RText &(utils::rtext::RText::*)(std::initializer_list<utils::rtext::RStyleClassic::RStyleClassicInternal>)>(
+                 &utils::rtext::RText::setStyle))
+        .def("set_style", &utils::rtext::RText::setStyle<std::vector<utils::rtext::RStyleClassic::RStyleClassicInternal>>)
+        .def("set_click_event", &utils::rtext::RText::setClickEvent)
+        .def("set_hover_text", py::overload_cast<std::string const &>(&utils::rtext::RText::setHoverText))
+        .def("set_hover_text", py::overload_cast<utils::rtext::RText const &>(&utils::rtext::RText::setHoverText));
 }
