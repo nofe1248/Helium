@@ -5,17 +5,20 @@
 
 module;
 
+#include <charconv>
 #include <concepts>
 #include <format>
 #include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <variant>
-#include <charconv>
 
 #include <rfl.hpp>
 #include <rfl/json.hpp>
+
+#define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Utils.RText;
 
@@ -27,7 +30,7 @@ namespace views = std::ranges::views;
 namespace helium::utils::rtext::internal
 {
 template <typename R, typename T>
-concept RangeOf = ranges::range<R> and std::same_as<T, ranges::range_value_t<R>>;
+concept RangeOf = ranges::range<R> and std::convertible_to<std::decay_t<T>, ranges::range_value_t<R>>;
 }
 
 export namespace helium::utils::rtext
@@ -43,6 +46,11 @@ private:
         std::string_view name;
         std::string_view mc_code;
         std::string_view console_code;
+
+        friend auto operator==(RColorClassicInternal const &lhs, RColorClassicInternal const &rhs) -> bool
+        {
+            return lhs.name == rhs.name;
+        }
     };
 
 public:
@@ -73,6 +81,11 @@ private:
         std::string_view name;
         std::string_view mc_code;
         std::string_view console_code;
+
+        friend auto operator==(RStyleClassicInternal const &lhs, RStyleClassicInternal const &rhs) -> bool
+        {
+            return lhs.name == rhs.name;
+        }
     };
 
 public:
@@ -89,6 +102,11 @@ private:
     struct RActionInternal
     {
         std::string_view action;
+
+        friend auto operator==(RActionInternal const &lhs, RActionInternal const &rhs) -> bool
+        {
+            return lhs.action == rhs.action;
+        }
     };
 
 public:
@@ -141,21 +159,43 @@ public:
         blue_value = value;
     }
 
-    auto to_string() const -> std::string
+    [[nodiscard]] auto to_string() const -> std::string
     {
-        char r[3], g[3], b[3];
-        std::to_chars(r, r + 2, this->red_value, 16);
-        std::to_chars(g, g + 2, this->green_value, 16);
-        std::to_chars(b, b + 2, this->blue_value, 16);
-        return std::format("{}{}{}", r, g, b);
+        std::string r{"  "}, g{"  "}, b{"  "};
+        std::to_chars(r.data(), r.data() + r.size(), this->red_value, 16);
+        std::to_chars(g.data(), g.data() + g.size(), this->green_value, 16);
+        std::to_chars(b.data(), b.data() + b.size(), this->blue_value, 16);
+        if(this->red_value <= 16)
+        {
+            r.erase(r.size() - 1);
+            r.insert(r.begin(), '0');
+        }
+        if(this->green_value <= 16)
+        {
+            g.erase(g.size() - 1);
+            g.insert(g.begin(), '0');
+        }
+        if(this->blue_value <= 16)
+        {
+            b.erase(b.size() - 1);
+            b.insert(b.begin(), '0');
+        }
+        return std::format("#{}{}{}", r, g, b) | views::transform([](char c) { return std::toupper(c); }) | ranges::to<std::string>();
     }
 };
 class RText final
 {
 private:
     rfl::Generic::Object json_object;
+
 public:
-    RText() : json_object{} {}
+    RText() : json_object{}
+    {
+    }
+    explicit RText(std::string const &text) : json_object{}
+    {
+        this->json_object["text"] = text;
+    }
     RText(RText const &) = default;
     RText(RText &&) noexcept = default;
     auto operator=(RText const &) -> RText & = default;
@@ -174,32 +214,125 @@ public:
     [[nodiscard]] auto toLegacyText() const -> std::string
     {
     }
+    auto setText(std::string const &text) -> RText &
+    {
+        this->json_object["text"] = text;
+        return *this;
+    }
+    auto setText(internal::RangeOf<std::string> auto &&texts) -> RText &
+    {
+        if (ranges::size(FWD(texts)) > 1)
+        {
+            this->setText(*ranges::begin(FWD(texts)));
+            rfl::Generic::Array array;
+            for (auto const &extra : FWD(texts) | views::drop(1))
+            {
+                array.push_back(extra);
+            }
+            this->json_object["extra"] = array;
+        }
+        else if (ranges::size(FWD(texts)) == 1)
+        {
+            this->setText(*ranges::begin(FWD(texts)));
+        }
+        return *this;
+    }
+    auto setText(std::initializer_list<std::string> texts) -> RText &
+    {
+        if (texts.size() > 1)
+        {
+            this->setText(*texts.begin());
+            rfl::Generic::Array array;
+            for (auto const &extra : texts | views::drop(1))
+            {
+                array.emplace_back(extra);
+            }
+            this->json_object["extra"] = array;
+        }
+        else if (texts.size() == 1)
+        {
+            this->setText(*texts.begin());
+        }
+        return *this;
+    }
+    auto setFont(std::string const &font) -> RText &
+    {
+        this->json_object["font"] = font;
+        return *this;
+    }
     auto setColor(std::variant<RColor, RColorClassic::RColorClassicInternal> const &color) -> RText &
     {
-        std::visit(OverloadSet{
-            [this](RColor const &color) {
-                this->json_object["color"] = color.to_string();
-            },
-            [this](RColorClassic::RColorClassicInternal const &color) {
-                this->json_object["color"] = std::string{color.name};
-            }
-        }, color);
+        std::visit(OverloadSet{[this](RColor const &color) { this->json_object["color"] = color.to_string(); },
+                               [this](RColorClassic::RColorClassicInternal const &color) { this->json_object["color"] = std::string{color.name}; }},
+                   color);
         return *this;
     }
-    auto setStyle(RStyleClassic const &style) -> RText &
+    auto setStyle(RStyleClassic::RStyleClassicInternal const &style) -> RText &
     {
+        if (style == RStyleClassic::bold)
+        {
+            this->json_object["bold"] = true;
+        }
+        else if (style == RStyleClassic::italic)
+        {
+            this->json_object["italic"] = true;
+        }
+        else if (style == RStyleClassic::underlined)
+        {
+            this->json_object["underlined"] = true;
+        }
+        else if (style == RStyleClassic::strikethrough)
+        {
+            this->json_object["strikethrough"] = true;
+        }
+        else if (style == RStyleClassic::obfuscated)
+        {
+            this->json_object["obfuscated"] = true;
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid RText style");
+        }
         return *this;
     }
-    auto setStyle(internal::RangeOf<RStyleClassic> auto const &style) -> RText &
+    auto setStyle(internal::RangeOf<RStyleClassic::RStyleClassicInternal> auto &&styles) -> RText &
     {
+        for (auto const &style : styles)
+        {
+            this->setStyle(style);
+        }
         return *this;
     }
-    auto setClickEvent(RAction const &action, std::string_view value) -> RText &
+    auto setStyle(std::initializer_list<RStyleClassic::RStyleClassicInternal> styles) -> RText &
     {
+        for (auto const &style : styles)
+        {
+            this->setStyle(style);
+        }
         return *this;
     }
-    auto setHoverText(internal::RangeOf<RText> auto const &hover_text) -> RText &
+    auto setClickEvent(RAction::RActionInternal const &action, std::string const &value) -> RText &
     {
+        rfl::Generic::Object event;
+        event["action"] = std::string{action.action};
+        event["value"] = value;
+        this->json_object["clickEvent"] = event;
+        return *this;
+    }
+    auto setHoverText(std::string_view text) -> RText &
+    {
+        rfl::Generic::Object hover_text;
+        hover_text["action"] = "show_text";
+        hover_text["value"] = std::string{text};
+        this->json_object["hoverEvent"] = hover_text;
+        return *this;
+    }
+    auto setHoverText(RText const &text) -> RText &
+    {
+        rfl::Generic::Object hover_text;
+        hover_text["action"] = "show_text";
+        hover_text["value"] = text.json_object;
+        this->json_object["hoverEvent"] = hover_text;
         return *this;
     }
 
