@@ -5,8 +5,8 @@
 
 module;
 
-#include <string>
 #include <optional>
+#include <string>
 #include <tuple>
 
 #include <pybind11/chrono.h>
@@ -73,39 +73,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class Beta18ServerOutputParserBindingHelper
@@ -151,39 +156,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class BukkitServerOutputParserBindingHelper
@@ -229,39 +239,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class BukkitLegacyServerOutputParserBindingHelper
@@ -307,39 +322,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class BungeecordServerOutputParserBindingHelper
@@ -385,39 +405,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class CatServerOutputParserBindingHelper
@@ -463,39 +488,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class ForgeServerOutputParserBindingHelper
@@ -541,39 +571,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class PythonCustomParserWrapperBindingHelper
@@ -619,39 +654,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class VanillaServerOutputParserBindingHelper
@@ -697,39 +737,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class VelocityServerOutputParserBindingHelper
@@ -775,39 +820,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 class WaterfallServerOutputParserBindingHelper
@@ -853,39 +903,44 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
-        return this->parser_.parsePlayerJoined(raw_output);
+        return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parsePlayerLeft(raw_output);
+        return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerVersion(raw_output);
+        return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.parseServerAddress(raw_output);
+        return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto testServerStartupDone(std::string const &raw_output) noexcept -> bool
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
-        return this->parser_.testServerStartupDone(raw_output);
+        return this->parser_.parseServerAddress(preprocessed_output);
     }
 
-    auto testRCONStarted(std::string const &raw_output) noexcept -> bool
+    auto testServerStartupDone(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testRCONStarted(raw_output);
+        return this->parser_.testServerStartupDone(preprocessed_output);
     }
 
-    auto testServerStopping(std::string const &raw_output) noexcept -> bool
+    auto testRCONStarted(std::string const &preprocessed_output) noexcept -> bool
     {
-        return this->parser_.testServerStopping(raw_output);
+        return this->parser_.testRCONStarted(preprocessed_output);
+    }
+
+    auto testServerStopping(std::string const &preprocessed_output) noexcept -> bool
+    {
+        return this->parser_.testServerStopping(preprocessed_output);
     }
 };
 } // namespace helium::server::binding

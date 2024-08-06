@@ -29,9 +29,25 @@ struct PreprocessedInfo
     ServerOutputInfoTimeStamp timestamp;
     std::string log_level;
 };
+enum class ServerOutputInfoType
+{
+    SERVER_OUTPUT,
+    PLAYER_MESSAGE,
+    PLAYER_JOINED,
+    PLAYER_LEFT,
+    SERVER_STARTED,
+    SERVER_STOPPING,
+    SERVER_ADDRESS,
+    SERVER_VERSION,
+    RCON_STARTED,
+    CUSTOM_INFO_TYPE
+};
 struct ServerOutputInfo
 {
     uuids::uuid id;
+
+    ServerOutputInfoType info_type;
+    std::optional<std::string> extra_info_type;
 
     std::string raw_content;
     std::string content;
@@ -40,10 +56,10 @@ struct ServerOutputInfo
 
     std::optional<std::string> player_name;
 
-    explicit ServerOutputInfo(ServerOutputInfoTimeStamp timestamp, std::string raw_content, std::string content, std::string log_level,
-                              std::optional<std::string> player_name = std::nullopt)
-        : id(uuids::random_generator()()), raw_content(std::move(raw_content)), content(std::move(content)),
-          preprocessed_info(timestamp, std::move(log_level)), player_name(std::move(player_name))
+    explicit ServerOutputInfo(ServerOutputInfoType info_type, PreprocessedInfo preprocessed_info, std::string raw_content, std::string content,
+                              std::optional<std::string> player_name = std::nullopt, std::optional<std::string> extra_info_type = std::nullopt)
+        : id(uuids::random_generator()()), info_type(info_type), extra_info_type(std::move(extra_info_type)), raw_content(std::move(raw_content)),
+          content(std::move(content)), preprocessed_info(std::move(preprocessed_info)), player_name(std::move(player_name))
     {
     }
 

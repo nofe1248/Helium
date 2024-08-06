@@ -271,7 +271,24 @@ public:
                 {
                     continue;
                 }
-                output_buffer.erase(output_buffer.size() - 1);
+                while (true)
+                {
+                    auto pos = output_buffer.find('\n');
+                    if (pos == std::string::npos)
+                    {
+                        break;
+                    }
+                    output_buffer.erase(pos);
+                }
+                while (true)
+                {
+                    auto pos = output_buffer.find('\r');
+                    if (pos == std::string::npos)
+                    {
+                        break;
+                    }
+                    output_buffer.erase(pos);
+                }
                 if (not self.parser_->preprocessServerOutput(output_buffer).has_value())
                 {
                     server_logger->debug("Preprocess failed");

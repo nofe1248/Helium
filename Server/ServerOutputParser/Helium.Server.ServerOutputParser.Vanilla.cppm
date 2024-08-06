@@ -65,21 +65,15 @@ public:
     constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept
         -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
-        RE2 timestamp_and_loglevel_regex{R"(\[\d{2}:\d{2}:\d{2}\] \[[a-zA-Z ]+\/(INFO|WARN|ERROR|FATAL|DEBUG)\]: )", RE2::Quiet};
+        RE2 timestamp_and_loglevel_regex{R"(\[(\d{2}):(\d{2}):(\d{2})\] \[([0-9a-zA-Z -]+)\/(INFO|WARN|ERROR|FATAL|DEBUG)\]: )", RE2::Quiet};
         int hour = 0, minute = 0, second = 0;
         std::string thread_name, log_level;
-        std::string preprocessed_output = raw_output;
+        std::string_view preprocessed_output_view{raw_output};
 
         try
         {
-            if (not RE2::PartialMatch(preprocessed_output, timestamp_and_loglevel_regex, &hour, &minute, &second))
+            if (not RE2::Consume(&preprocessed_output_view, timestamp_and_loglevel_regex, &hour, &minute, &second, &thread_name, &log_level))
             {
-                vanilla_logger->error("Server output preprocessing failed (PartialMatch)");
-                return std::nullopt;
-            }
-            if (not RE2::Replace(&preprocessed_output, timestamp_and_loglevel_regex, ""))
-            {
-                vanilla_logger->error("Server output preprocessing failed (Replace)");
                 return std::nullopt;
             }
         }
@@ -94,45 +88,80 @@ public:
             return std::nullopt;
         }
 
-        vanilla_logger->debug("preprocess matched : {} {} {} {} {} preprocessed:({})", hour, minute, second, thread_name, log_level, preprocessed_output);
-
-        return std::make_tuple(preprocessed_output,
-                               PreprocessedInfo{
-                                   .timestamp = ServerOutputInfoTimeStamp{.hour = hour, .minute = minute, .second = second},
-                                     .log_level = log_level
-        });
+        return std::make_tuple(
+            std::string{
+                preprocessed_output_view
+        },
+            PreprocessedInfo{.timestamp = ServerOutputInfoTimeStamp{.hour = hour, .minute = minute, .second = second}, .log_level = log_level});
     }
 
     constexpr auto parseServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
+        auto preprocessed_output_tuple = FWD(self).preprocessServerOutput(raw_output);
+        if (not preprocessed_output_tuple.has_value())
+        {
+            return std::nullopt;
+        }
+        auto [preprocessed_output, preprocessed_info] = preprocessed_output_tuple.value();
+
+        if (auto player_name_opt = FWD(self).parsePlayerJoined(preprocessed_output); preprocessed_output_tuple.has_value())
+        {
+            return ServerOutputInfo{ServerOutputInfoType::PLAYER_JOINED, preprocessed_info, raw_output, preprocessed_output, player_name_opt};
+        }
+
+        if (auto player_name_opt = FWD(self).parsePlayerLeft(preprocessed_output); preprocessed_output_tuple.has_value())
+        {
+            return ServerOutputInfo{ServerOutputInfoType::PLAYER_LEFT, preprocessed_info, raw_output, preprocessed_output, player_name_opt};
+        }
+
+        if (auto player_name_opt = FWD(self).parsePlayerMessage(preprocessed_output); preprocessed_output_tuple.has_value())
+        {
+            return ServerOutputInfo{ServerOutputInfoType::PLAYER_MESSAGE, preprocessed_info, raw_output, preprocessed_output,
+                                    std::get<1>(player_name_opt.value())};
+        }
+
+        return std::nullopt;
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerMessage(this auto &&self, std::string const &preprocessed_output) noexcept
+        -> std::optional<std::tuple<std::string, std::string>>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parsePlayerLeft(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parseServerVersion(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerLeft(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parseServerAddress(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parseServerVersion(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto testServerStartupDone(this auto &&self, std::string const &raw_output) noexcept -> bool
+    constexpr auto parseServerAddress(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto testRCONStarted(this auto &&self, std::string const &raw_output) noexcept -> bool
+    constexpr auto testServerStartupDone(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
+        return false;
     }
 
-    constexpr auto testServerStopping(this auto &&self, std::string const &raw_output) noexcept -> bool
+    constexpr auto testRCONStarted(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
+        return false;
+    }
+
+    constexpr auto testServerStopping(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
+    {
+        return false;
     }
 };
 } // namespace helium::server

@@ -37,6 +37,7 @@ PRO_DEF_MEM_DISPATCH(MemberGetBroadcastMessageCommand, getBroadcastMessageComman
 PRO_DEF_MEM_DISPATCH(MemberGetStopCommand, getStopCommand);
 PRO_DEF_MEM_DISPATCH(MemberPreprocessServerOutput, preprocessServerOutput);
 PRO_DEF_MEM_DISPATCH(MemberParseServerOutput, parseServerOutput);
+PRO_DEF_MEM_DISPATCH(MemberParsePlayerMessage, parsePlayerMessage);
 PRO_DEF_MEM_DISPATCH(MemberParsePlayerJoined, parsePlayerJoined);
 PRO_DEF_MEM_DISPATCH(MemberParsePlayerLeft, parsePlayerLeft);
 PRO_DEF_MEM_DISPATCH(MemberParseServerVersion, parseServerVersion);
@@ -57,6 +58,7 @@ struct ServerOutputParserFacade : pro::facade_builder
     ::add_convention<proxy::MemberGetStopCommand, std::string()>
     ::add_convention<proxy::MemberPreprocessServerOutput, std::optional<std::tuple<std::string, PreprocessedInfo>>(std::string const &)>
     ::add_convention<proxy::MemberParseServerOutput, std::optional<ServerOutputInfo>(std::string const &)>
+    ::add_convention<proxy::MemberParsePlayerMessage, std::optional<std::tuple<std::string, std::string>>(std::string const &)>
     ::add_convention<proxy::MemberParsePlayerJoined, std::optional<std::string>(std::string const &)>
     ::add_convention<proxy::MemberParsePlayerLeft, std::optional<std::string>(std::string const &)>
     ::add_convention<proxy::MemberParseServerVersion, std::optional<std::string>(std::string const &)>

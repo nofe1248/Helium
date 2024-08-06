@@ -71,37 +71,42 @@ public:
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerMessage(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
     {
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerLeft(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
         return std::nullopt;
     }
 
-    constexpr auto parseServerVersion(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerLeft(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
         return std::nullopt;
     }
 
-    constexpr auto parseServerAddress(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
+    constexpr auto parseServerVersion(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
     {
         return std::nullopt;
     }
 
-    constexpr auto testServerStartupDone(this auto &&self, std::string const &raw_output) noexcept -> bool
+    constexpr auto parseServerAddress(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    {
+        return std::nullopt;
+    }
+
+    constexpr auto testServerStartupDone(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
         return false;
     }
 
-    constexpr auto testRCONStarted(this auto &&self, std::string const &raw_output) noexcept -> bool
+    constexpr auto testRCONStarted(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
         return false;
     }
 
-    constexpr auto testServerStopping(this auto &&self, std::string const &raw_output) noexcept -> bool
+    constexpr auto testServerStopping(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
         return false;
     }
