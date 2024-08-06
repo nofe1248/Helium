@@ -7,6 +7,7 @@ module;
 
 #include <string>
 #include <tuple>
+#include <optional>
 
 #include <proxy/proxy.h>
 
@@ -54,12 +55,12 @@ struct ServerOutputParserFacade : pro::facade_builder
     ::add_convention<proxy::MemberGetSendMessageCommand, std::string(std::string const &, std::string const&), std::string(std::string const &, utils::rtext::RText const&)>
     ::add_convention<proxy::MemberGetBroadcastMessageCommand, std::string(std::string const &), std::string(utils::rtext::RText const&)>
     ::add_convention<proxy::MemberGetStopCommand, std::string()>
-    ::add_convention<proxy::MemberPreprocessServerOutput, std::tuple<std::string, PreprocessedInfo>(std::string const &)>
-    ::add_convention<proxy::MemberParseServerOutput, ServerOutputInfo(std::string const &)>
-    ::add_convention<proxy::MemberParsePlayerJoined, std::string(std::string const &)>
-    ::add_convention<proxy::MemberParsePlayerLeft, std::string(std::string const &)>
-    ::add_convention<proxy::MemberParseServerVersion, std::string(std::string const &)>
-    ::add_convention<proxy::MemberParseServerAddress, std::string(std::string const &)>
+    ::add_convention<proxy::MemberPreprocessServerOutput, std::optional<std::tuple<std::string, PreprocessedInfo>>(std::string const &)>
+    ::add_convention<proxy::MemberParseServerOutput, std::optional<ServerOutputInfo>(std::string const &)>
+    ::add_convention<proxy::MemberParsePlayerJoined, std::optional<std::string>(std::string const &)>
+    ::add_convention<proxy::MemberParsePlayerLeft, std::optional<std::string>(std::string const &)>
+    ::add_convention<proxy::MemberParseServerVersion, std::optional<std::string>(std::string const &)>
+    ::add_convention<proxy::MemberParseServerAddress, std::optional<std::string>(std::string const &)>
     ::add_convention<proxy::MemberTestServerStartupDone, bool(std::string const &)>
     ::add_convention<proxy::MemberTestRCONStarted, bool(std::string const &)>
     ::add_convention<proxy::MemberTestServerStopping, bool(std::string const &)>

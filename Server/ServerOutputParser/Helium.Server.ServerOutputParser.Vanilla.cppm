@@ -5,7 +5,9 @@
 
 module;
 
+#include <optional>
 #include <string>
+#include <tuple>
 
 #include <re2/re2.h>
 
@@ -17,6 +19,12 @@ import Helium.Base;
 import Helium.Server.ServerOutputParser.Utils;
 import Helium.Server.ServerOutputParser.ServerOutputInfo;
 import Helium.Utils.RText;
+import Helium.Logger;
+
+namespace helium::server
+{
+auto vanilla_logger = logger::SharedLogger::getSharedLogger("ServerOutputParser", "Vanilla");
+}
 
 export namespace helium::server
 {
@@ -54,27 +62,64 @@ public:
         return "stop";
     }
 
-    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept
+        -> std::optional<std::tuple<std::string, PreprocessedInfo>>
+    {
+        RE2 timestamp_and_loglevel_regex{R"(\[\d{2}:\d{2}:\d{2}\] \[[a-zA-Z ]+\/(INFO|WARN|ERROR|FATAL|DEBUG)\]: )", RE2::Quiet};
+        int hour = 0, minute = 0, second = 0;
+        std::string thread_name, log_level;
+        std::string preprocessed_output = raw_output;
+
+        try
+        {
+            if (not RE2::PartialMatch(preprocessed_output, timestamp_and_loglevel_regex, &hour, &minute, &second))
+            {
+                vanilla_logger->error("Server output preprocessing failed (PartialMatch)");
+                return std::nullopt;
+            }
+            if (not RE2::Replace(&preprocessed_output, timestamp_and_loglevel_regex, ""))
+            {
+                vanilla_logger->error("Server output preprocessing failed (Replace)");
+                return std::nullopt;
+            }
+        }
+        catch (std::exception const &e)
+        {
+            vanilla_logger->error("Server output preprocessing failed due to an exception: {}", e.what());
+            return std::nullopt;
+        }
+        catch (...)
+        {
+            vanilla_logger->error("Server output preprocessing failed due to an unknown exception");
+            return std::nullopt;
+        }
+
+        vanilla_logger->debug("preprocess matched : {} {} {} {} {} preprocessed:({})", hour, minute, second, thread_name, log_level, preprocessed_output);
+
+        return std::make_tuple(preprocessed_output,
+                               PreprocessedInfo{
+                                   .timestamp = ServerOutputInfoTimeStamp{.hour = hour, .minute = minute, .second = second},
+                                     .log_level = log_level
+        });
+    }
+
+    constexpr auto parseServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
     }
 
-    constexpr auto parseServerOutput(this auto &&self, std::string const &raw_output) noexcept -> ServerOutputInfo
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parsePlayerLeft(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
     }
 
-    constexpr auto parsePlayerLeft(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parseServerVersion(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
     }
 
-    constexpr auto parseServerVersion(this auto &&self, std::string const &raw_output) noexcept -> std::string
-    {
-    }
-
-    constexpr auto parseServerAddress(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parseServerAddress(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
     }
 

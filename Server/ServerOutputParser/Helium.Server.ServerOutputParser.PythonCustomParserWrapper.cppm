@@ -38,58 +38,72 @@ public:
 
     constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, std::string const &info) noexcept -> std::string
     {
+        return "";
     }
 
     constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, RText const &info) noexcept -> std::string
     {
+        return "";
     }
 
     constexpr auto getBroadcastMessageCommand(this auto &&self, std::string const &info) noexcept -> std::string
     {
+        return "";
     }
 
     constexpr auto getBroadcastMessageCommand(this auto &&self, RText const &info) noexcept -> std::string
     {
+        return "";
     }
 
     constexpr auto getStopCommand(this auto &&self) noexcept -> std::string
     {
+        return "";
     }
 
-    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parseServerOutput(this auto &&self, std::string const &raw_output) noexcept -> ServerOutputInfo
+    constexpr auto parseServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parsePlayerLeft(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parsePlayerLeft(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parseServerVersion(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parseServerVersion(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
-    constexpr auto parseServerAddress(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto parseServerAddress(this auto &&self, std::string const &raw_output) noexcept -> std::optional<std::string>
     {
+        return std::nullopt;
     }
 
     constexpr auto testServerStartupDone(this auto &&self, std::string const &raw_output) noexcept -> bool
     {
+        return false;
     }
 
     constexpr auto testRCONStarted(this auto &&self, std::string const &raw_output) noexcept -> bool
     {
+        return false;
     }
 
     constexpr auto testServerStopping(this auto &&self, std::string const &raw_output) noexcept -> bool
     {
+        return false;
     }
 };
 } // namespace helium::server

@@ -5,6 +5,10 @@
 
 module;
 
+#include <string>
+#include <optional>
+#include <tuple>
+
 #include <pybind11/chrono.h>
 #include <pybind11/embed.h>
 #include <pybind11/functional.h>
@@ -14,8 +18,11 @@ export module Helium.Server.BindingHelper;
 
 import Helium.Server.ServerInstance;
 import Helium.Server.ServerOutputParser;
+import Helium.Utils.RText;
 
 namespace py = pybind11;
+
+using RText = helium::utils::rtext::RText;
 
 export namespace helium::server::binding
 {
@@ -37,8 +44,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -48,32 +63,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -107,8 +122,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -118,32 +141,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -177,8 +200,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -188,32 +219,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -247,8 +278,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -258,32 +297,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -317,8 +356,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -328,32 +375,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -387,8 +434,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -398,32 +453,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -457,8 +512,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -468,32 +531,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -527,8 +590,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -538,32 +609,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -597,8 +668,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -608,32 +687,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -667,8 +746,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -678,32 +765,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }
@@ -737,8 +824,16 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
     }
@@ -748,32 +843,32 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
 
-    auto parseServerOutput(std::string const &raw_output) noexcept -> ServerOutputInfo
+    auto parseServerOutput(std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
     {
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerJoined(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerJoined(raw_output);
     }
 
-    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::string
+    auto parsePlayerLeft(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parsePlayerLeft(raw_output);
     }
 
-    auto parseServerVersion(std::string const &raw_output) noexcept -> std::string
+    auto parseServerVersion(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerVersion(raw_output);
     }
 
-    auto parseServerAddress(std::string const &raw_output) noexcept -> std::string
+    auto parseServerAddress(std::string const &raw_output) noexcept -> std::optional<std::string>
     {
         return this->parser_.parseServerAddress(raw_output);
     }

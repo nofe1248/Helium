@@ -466,8 +466,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::ArclightServerOutputParserBindingHelper>(server_module, "ArclightServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::ArclightServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::ArclightServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::ArclightServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::ArclightServerOutputParserBindingHelper::parseServerOutput)
@@ -481,8 +487,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::Beta18ServerOutputParserBindingHelper>(server_module, "Beta18ServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::Beta18ServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::Beta18ServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::Beta18ServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::Beta18ServerOutputParserBindingHelper::parseServerOutput)
@@ -496,8 +508,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::BukkitServerOutputParserBindingHelper>(server_module, "BukkitServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::BukkitServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::BukkitServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::BukkitServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::BukkitServerOutputParserBindingHelper::parseServerOutput)
@@ -511,8 +529,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::BukkitLegacyServerOutputParserBindingHelper>(server_module, "BukkitLegacyServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::BukkitLegacyServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::BukkitLegacyServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::BukkitLegacyServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::BukkitLegacyServerOutputParserBindingHelper::parseServerOutput)
@@ -526,8 +550,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::BungeecordServerOutputParserBindingHelper>(server_module, "BungeecordServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::BungeecordServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::BungeecordServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::BungeecordServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::BungeecordServerOutputParserBindingHelper::parseServerOutput)
@@ -541,8 +571,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::CatServerOutputParserBindingHelper>(server_module, "CatServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::CatServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::CatServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::CatServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::CatServerOutputParserBindingHelper::parseServerOutput)
@@ -556,8 +592,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::ForgeServerOutputParserBindingHelper>(server_module, "ForgeServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::ForgeServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::ForgeServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::ForgeServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::ForgeServerOutputParserBindingHelper::parseServerOutput)
@@ -571,8 +613,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::PythonCustomParserWrapperBindingHelper>(server_module, "PythonCustomParserWrapper")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::PythonCustomParserWrapperBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::PythonCustomParserWrapperBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::PythonCustomParserWrapperBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::PythonCustomParserWrapperBindingHelper::parseServerOutput)
@@ -586,8 +634,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::VanillaServerOutputParserBindingHelper>(server_module, "VanillaServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::VanillaServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::VanillaServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::VanillaServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::VanillaServerOutputParserBindingHelper::parseServerOutput)
@@ -601,8 +655,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::VelocityServerOutputParserBindingHelper>(server_module, "VelocityServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::VelocityServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::VelocityServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::VelocityServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::VelocityServerOutputParserBindingHelper::parseServerOutput)
@@ -616,8 +676,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<server::binding::WaterfallServerOutputParserBindingHelper>(server_module, "WaterfallServerOutputParser")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>())
         .def("get_parser_name", &server::binding::WaterfallServerOutputParserBindingHelper::getParserName)
-        .def("get_send_message_command", &server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand)
-        .def("get_broadcast_message_command", &server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand)
+        .def("get_send_message_command", py::overload_cast<std::string const &, std::string const &>(
+                                             &server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
+                                             &server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<std::string const &>(&server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RText const &>(&server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::WaterfallServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::WaterfallServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::WaterfallServerOutputParserBindingHelper::parseServerOutput)

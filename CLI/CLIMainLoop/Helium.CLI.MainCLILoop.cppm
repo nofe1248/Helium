@@ -567,7 +567,7 @@ auto mainCLILoop()
                 }
                 else
                 {
-                    if (not server::server_instance->send_raw_input(input_command))
+                    if (not server::server_instance->sendRawInput(input_command))
                     {
                         logger->error("Failed to send command {} to server", input_command);
                     }

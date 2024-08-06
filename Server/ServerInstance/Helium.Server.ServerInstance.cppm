@@ -31,11 +31,14 @@ import Helium.Config;
 import Helium.Events;
 import Helium.Logger;
 import Helium.Server.ServerOutputParser;
+import Helium.Utils.RText;
 
 namespace asio = boost::asio;
 namespace fs = std::filesystem;
 namespace process = boost::process::v2;
 namespace bstalgo = boost::algorithm;
+
+using RText = helium::utils::rtext::RText;
 
 namespace helium::server
 {
@@ -184,7 +187,7 @@ public:
         this->parser_deleter_();
     }
 
-    auto send_raw_input(this auto &&self, std::string const &input) -> bool
+    auto sendRawInput(this auto &&self, std::string const &input) -> bool
     {
         if (FWD(self).server_state_ != ServerState::SERVER_STATE_RUNNING)
         {
@@ -269,6 +272,10 @@ public:
                     continue;
                 }
                 output_buffer.erase(output_buffer.size() - 1);
+                if (not self.parser_->preprocessServerOutput(output_buffer).has_value())
+                {
+                    server_logger->debug("Preprocess failed");
+                }
                 logger_ptr->info(output_buffer);
                 output_buffer.clear();
             }
@@ -288,7 +295,7 @@ public:
         {
             return false;
         }
-        FWD(self).send_raw_input(FWD(self).parser_->getStopCommand());
+        FWD(self).sendRawInput(FWD(self).parser_->getStopCommand());
         FWD(self).server_process_ptr_->wait();
         FWD(self).server_state_ = ServerState::SERVER_STATE_STOPPED;
         if (FWD(self).output_processing_thread_)
@@ -327,6 +334,25 @@ public:
     auto getServerState(this auto &&self) -> ServerState
     {
         return FWD(self).server_state_;
+    }
+
+    auto sendMessage(this auto &&self, std::string const &target, std::string const &info) -> bool
+    {
+        return FWD(self).sendRawInput(FWD(self).parser_->getSendMessageCommand(target, info));
+    }
+
+    auto sendMessage(this auto &&self, std::string const &target, RText const &info) -> bool
+    {
+        return FWD(self).sendRawInput(FWD(self).parser_->getSendMessageCommand(target, info));
+    }
+
+    auto broadcastMessage(this auto &&self, std::string const &info) -> bool
+    {
+        return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
+    }
+    auto broadcastMessage(this auto &&self, RText const &info) -> bool
+    {
+        return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
     }
 };
 
