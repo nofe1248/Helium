@@ -15,9 +15,12 @@ export module Helium.Server.ServerOutputParser.Velocity;
 
 import Helium.Base;
 import Helium.Server.ServerOutputParser.Utils;
+import Helium.Server.ServerOutputParser.ServerOutputInfo;
+import Helium.Utils.RText;
 
 export namespace helium::server
 {
+using RText = utils::rtext::RText;
 class VelocityServerOutputParser final : public base::HeliumObject
 {
 public:
@@ -30,7 +33,15 @@ public:
     {
     }
 
+    constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, RText const &info) noexcept -> std::string
+    {
+    }
+
     constexpr auto getBroadcastMessageCommand(this auto &&self, std::string const &info) noexcept -> std::string
+    {
+    }
+
+    constexpr auto getBroadcastMessageCommand(this auto &&self, RText const &info) noexcept -> std::string
     {
     }
 
@@ -38,7 +49,7 @@ public:
     {
     }
 
-    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
     }
 

@@ -109,7 +109,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     utils::RunLoopExecutor::getInstance().run();
 
-    server::server_instance.reset();
+    server::server_instance->stop();
 
     config::saveConfig();
 

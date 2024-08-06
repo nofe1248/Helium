@@ -19,4 +19,4 @@ auto getHeliumVersionString() -> std::string
 {
     return helium_version.to_string();
 }
-}
+} // namespace helium::base

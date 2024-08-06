@@ -74,7 +74,7 @@ auto completionHook(std::string const &context, int &context_len) -> repl::Replx
 {
     std::vector<std::string> suggestions{};
     repl::Replxx::completions_t completions;
-    if (context.empty())
+    if (context.empty() or context.front() != '#')
     {
         return completions;
     }
@@ -99,7 +99,7 @@ auto completionHook(std::string const &context, int &context_len) -> repl::Replx
 auto hintHook(std::string const &context, int &context_len, repl::Replxx::Color &color) -> repl::Replxx::hints_t
 {
     repl::Replxx::hints_t hints;
-    if(context.empty())
+    if (context.empty() or context.front() != '#')
     {
         return hints;
     }
@@ -256,11 +256,36 @@ auto mainCLILoop()
             CommandStringLiteral("status"),
             CommandStringLiteral("server")
             .then(
-                CommandStringLiteral("start"),
-                CommandStringLiteral("stop"),
-                CommandStringLiteral("pause"),
-                CommandStringLiteral("resume"),
-                CommandStringLiteral("terminate"),
+                CommandStringLiteral("start")
+                .execute([](CommandContext const &ctx) -> void {
+                    if (server::server_instance)
+                    {
+                        if (not server::server_instance->start())
+                        {
+                            logger->error("Failed to start server");
+                        }
+                    }
+                }),
+                CommandStringLiteral("stop")
+                .execute([](CommandContext const &ctx) -> void {
+                    if (server::server_instance)
+                    {
+                        if (not server::server_instance->stop())
+                        {
+                        logger->error("Failed to stop server");
+                        }
+                    }
+                }),
+                CommandStringLiteral("terminate")
+                .execute([](CommandContext const &ctx) -> void {
+                    if (server::server_instance)
+                    {
+                        if (not server::server_instance->kill())
+                        {
+                        logger->error("Failed to terminate server");
+                        }
+                    }
+                }),
                 CommandStringLiteral("status")
             ),
             CommandStringLiteral("plugin")
@@ -533,9 +558,19 @@ auto mainCLILoop()
 
             try
             {
-                if (bool execution_result = dispatcher.tryExecuteCommand(console_source, input_command); not execution_result)
+                if (input_command.front() == '#')
                 {
-                    server::server_instance->send_raw_input(input_command);
+                    if (not dispatcher.tryExecuteCommand(console_source, input_command))
+                    {
+                        logger->error("Command {} failed to execute", input_command);
+                    }
+                }
+                else
+                {
+                    if (not server::server_instance->send_raw_input(input_command))
+                    {
+                        logger->error("Failed to send command {} to server", input_command);
+                    }
                 }
             }
             catch (py::error_already_set const &py_error)

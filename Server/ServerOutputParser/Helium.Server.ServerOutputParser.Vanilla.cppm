@@ -15,9 +15,12 @@ export module Helium.Server.ServerOutputParser.Vanilla;
 
 import Helium.Base;
 import Helium.Server.ServerOutputParser.Utils;
+import Helium.Server.ServerOutputParser.ServerOutputInfo;
+import Helium.Utils.RText;
 
 export namespace helium::server
 {
+using RText = utils::rtext::RText;
 class VanillaServerOutputParser final : public base::HeliumObject
 {
 public:
@@ -28,10 +31,22 @@ public:
 
     constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, std::string const &info) noexcept -> std::string
     {
+        return std::format("tellraw {} {{\"text\":{}}}", target, info);
+    }
+
+    constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, RText const &info) noexcept -> std::string
+    {
+        return std::format("tellraw {} {}", target, info.toJSONString());
     }
 
     constexpr auto getBroadcastMessageCommand(this auto &&self, std::string const &info) noexcept -> std::string
     {
+        return std::format("tellraw @e {{\"text\":{}}}", info);
+    }
+
+    constexpr auto getBroadcastMessageCommand(this auto &&self, RText const &info) noexcept -> std::string
+    {
+        return std::format("tellraw @e {}", info.toJSONString());
     }
 
     constexpr auto getStopCommand(this auto &&self) noexcept -> std::string
@@ -39,7 +54,7 @@ public:
         return "stop";
     }
 
-    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::string
+    constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
     }
 

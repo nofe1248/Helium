@@ -48,7 +48,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -118,7 +118,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -188,7 +188,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -258,7 +258,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -328,7 +328,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -398,7 +398,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -468,7 +468,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -538,7 +538,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -608,7 +608,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -678,7 +678,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }
@@ -748,7 +748,7 @@ public:
         return this->parser_.getStopCommand();
     }
 
-    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::string
+    auto preprocessServerOutput(std::string const &raw_output) noexcept -> std::tuple<std::string, PreprocessedInfo>
     {
         return this->parser_.preprocessServerOutput(raw_output);
     }

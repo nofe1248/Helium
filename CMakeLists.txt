@@ -121,6 +121,7 @@ target_sources(
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Forge.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.PythonCustomParserWrapper.cppm
+        Server/ServerOutputParser/Helium.Server.ServerOutputParser.ServerOutputInfo.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Utils.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Vanilla.cppm
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Velocity.cppm

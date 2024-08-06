@@ -175,15 +175,17 @@ public:
 class RText final
 {
 private:
-    rfl::Generic::Object json_object;
+    rfl::Generic::Object json_object_;
+    std::optional<RColorClassic::RColorClassicInternal> color_;
+    std::vector<RStyleClassic::RStyleClassicInternal> styles_;
 
 public:
-    RText() : json_object{}
+    RText() : json_object_{}, color_{std::nullopt}, styles_{}
     {
     }
-    explicit RText(std::string const &text) : json_object{}
+    explicit RText(std::string const &text) : json_object_{}, color_{std::nullopt}, styles_{}
     {
-        this->json_object["text"] = text;
+        this->json_object_["text"] = text;
     }
     RText(RText const &) = default;
     RText(RText &&) noexcept = default;
@@ -192,20 +194,53 @@ public:
 
     [[nodiscard]] auto toJSONString() const -> std::string
     {
-        return rfl::json::write(this->json_object);
+        return rfl::json::write(this->json_object_);
     }
-    [[nodiscard]] auto toPlainText() const -> std::string
+    [[nodiscard]] auto toPlainText() -> std::string
     {
+        return this->json_object_["text"].to_string().value_or("");
     }
-    [[nodiscard]] auto toColoredText() const -> std::string
+    [[nodiscard]] auto toColoredText() -> std::string
     {
+        std::stringstream ss;
+        if (this->color_.has_value())
+        {
+            ss << this->color_.value().console_code;
+        }
+        for (auto const &style : this->styles_)
+        {
+            ss << style.console_code;
+        }
+        auto head = ss.str();
+        std::string tail;
+        if (not head.empty())
+        {
+            tail = RColorClassic::reset.console_code;
+        }
+        return std::format("{}{}{}", head, this->json_object_["text"].to_string().value_or(""), tail);
     }
-    [[nodiscard]] auto toLegacyText() const -> std::string
+    [[nodiscard]] auto toLegacyText() -> std::string
     {
+        std::stringstream ss;
+        if (this->color_.has_value())
+        {
+            ss << this->color_.value().mc_code;
+        }
+        for (auto const &style : this->styles_)
+        {
+            ss << style.mc_code;
+        }
+        auto head = ss.str();
+        std::string tail;
+        if (not head.empty())
+        {
+            tail = RColorClassic::reset.console_code;
+        }
+        return std::format("{}{}{}", head, this->json_object_["text"].to_string().value_or(""), tail);
     }
     auto setText(std::string const &text) -> RText &
     {
-        this->json_object["text"] = text;
+        this->json_object_["text"] = text;
         return *this;
     }
     auto setText(internal::RangeOf<std::string> auto &&texts) -> RText &
@@ -218,7 +253,7 @@ public:
             {
                 array.push_back(extra);
             }
-            this->json_object["extra"] = array;
+            this->json_object_["extra"] = array;
         }
         else if (std::size(FWD(texts)) == 1)
         {
@@ -236,7 +271,7 @@ public:
             {
                 array.emplace_back(extra);
             }
-            this->json_object["extra"] = array;
+            this->json_object_["extra"] = array;
         }
         else if (texts.size() == 1)
         {
@@ -246,40 +281,42 @@ public:
     }
     auto setFont(std::string const &font) -> RText &
     {
-        this->json_object["font"] = font;
+        this->json_object_["font"] = font;
         return *this;
     }
     auto setColor(RColorClassic::RColorClassicInternal const &color) -> RText &
     {
-        this->json_object["color"] = std::string{color.name};
+        this->json_object_["color"] = std::string{color.name};
+        this->color_ = color;
         return *this;
     }
     auto setColor(RColor const &color) -> RText &
     {
-        this->json_object["color"] = color.toString();
+        this->json_object_["color"] = color.toString();
         return *this;
     }
     auto setStyle(RStyleClassic::RStyleClassicInternal const &style) -> RText &
     {
+        this->styles_.push_back(style);
         if (style == RStyleClassic::bold)
         {
-            this->json_object["bold"] = true;
+            this->json_object_["bold"] = true;
         }
         else if (style == RStyleClassic::italic)
         {
-            this->json_object["italic"] = true;
+            this->json_object_["italic"] = true;
         }
         else if (style == RStyleClassic::underlined)
         {
-            this->json_object["underlined"] = true;
+            this->json_object_["underlined"] = true;
         }
         else if (style == RStyleClassic::strikethrough)
         {
-            this->json_object["strikethrough"] = true;
+            this->json_object_["strikethrough"] = true;
         }
         else if (style == RStyleClassic::obfuscated)
         {
-            this->json_object["obfuscated"] = true;
+            this->json_object_["obfuscated"] = true;
         }
         else
         {
@@ -308,7 +345,7 @@ public:
         rfl::Generic::Object event;
         event["action"] = std::string{action.action};
         event["value"] = value;
-        this->json_object["clickEvent"] = event;
+        this->json_object_["clickEvent"] = event;
         return *this;
     }
     auto setHoverText(std::string const &text) -> RText &
@@ -316,21 +353,21 @@ public:
         rfl::Generic::Object hover_text;
         hover_text["action"] = "show_text";
         hover_text["value"] = text;
-        this->json_object["hoverEvent"] = hover_text;
+        this->json_object_["hoverEvent"] = hover_text;
         return *this;
     }
     auto setHoverText(RText const &text) -> RText &
     {
         rfl::Generic::Object hover_text;
         hover_text["action"] = "show_text";
-        hover_text["value"] = text.json_object;
-        this->json_object["hoverEvent"] = hover_text;
+        hover_text["value"] = text.json_object_;
+        this->json_object_["hoverEvent"] = hover_text;
         return *this;
     }
 
     friend auto to_string(RText const &rtext) -> std::string
     {
-        return rtext.toPlainText();
+        return rtext.toJSONString();
     }
 };
 } // namespace helium::utils::rtext
@@ -348,7 +385,7 @@ struct std::formatter<helium::utils::rtext::RText>
     auto format(helium::utils::rtext::RText const &rtext, FormatContext &ctx) const -> typename FormatContext::iterator
     {
         std::ostringstream oss;
-        oss << rtext.toPlainText();
+        oss << rtext.toJSONString();
         return std::ranges::copy(std::move(oss).str(), ctx.out()).out;
     }
 };

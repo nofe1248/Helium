@@ -7,6 +7,7 @@ module;
 
 #include <chrono>
 #include <filesystem>
+#include <stop_token>
 #include <string>
 #include <thread>
 #include <vector>
@@ -48,7 +49,6 @@ enum class ServerState
     SERVER_STATE_UNINITIALIZED,
     SERVER_STATE_STARTING,
     SERVER_STATE_RUNNING,
-    SERVER_STATE_SUSPENDED,
     SERVER_STATE_STOPPING,
     SERVER_STATE_STOPPED
 };
@@ -58,7 +58,7 @@ class ServerInstance final : public base::HeliumObject
 private:
     asio::io_context io_context_;
     std::shared_ptr<process::popen> server_process_ptr_;
-    std::thread output_processing_thread_;
+    std::unique_ptr<std::jthread> output_processing_thread_;
 
     fs::path server_path_;
     config::ServerType server_type_;
@@ -67,19 +67,95 @@ private:
 
     ServerState server_state_;
 
+    ServerOutputParserProxy parser_;
+    std::function<void()> parser_deleter_;
+
+    auto setServerState(this auto &&self, ServerState state) -> void
+    {
+        FWD(self).server_state_ = state;
+    }
+
 public:
     explicit ServerInstance()
         : io_context_(), server_process_ptr_(), server_path_(config::config.server.path), server_type_(config::config.server.type),
           server_startup_executable_(config::config.server.startup_command_executable),
           server_startup_parameters_(config::config.server.startup_command_parameters), server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
     {
-        this->server_state_ = ServerState::SERVER_STATE_STOPPED;
-        this->server_state_ = ServerState::SERVER_STATE_STARTING;
+        if (this->server_type_ == config::ServerType::VANILLA)
+        {
+            auto *parser_ptr = new VanillaServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::BETA18)
+        {
+            auto *parser_ptr = new Beta18ServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::BUKKIT_LEGACY)
+        {
+            auto *parser_ptr = new BukkitLegacyServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::BUKKIT)
+        {
+            auto *parser_ptr = new BukkitServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::FORGE)
+        {
+            auto *parser_ptr = new ForgeServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::CAT_SERVER)
+        {
+            auto *parser_ptr = new CatServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::ARCLIGHT)
+        {
+            auto *parser_ptr = new ArclightServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::BUNGEECORD)
+        {
+            auto *parser_ptr = new BungeecordServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::WATERFALL)
+        {
+            auto *parser_ptr = new WaterfallServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::VELOCITY)
+        {
+            auto *parser_ptr = new VelocityServerOutputParser;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else if (this->server_type_ == config::ServerType::CUSTOM)
+        {
+            auto *parser_ptr = new PythonCustomParserWrapper;
+            this->parser_deleter_ = [parser_ptr] { delete parser_ptr; };
+            this->parser_ = parser_ptr;
+        }
+        else
+        {
+            std::unreachable();
+        }
 
         if (not fs::path{this->server_startup_executable_}.is_absolute())
         {
             this->server_startup_executable_ = process::environment::find_executable(this->server_startup_executable_).string();
-            server_logger->info("Server startup executable path is not absolute, found probable executable path is {}",
+            server_logger->info("Server startup executable path is not absolute, found probable executable path : {}",
                                 this->server_startup_executable_);
         }
 
@@ -88,55 +164,24 @@ public:
             this->server_path_ = fs::absolute(this->server_path_);
         }
 
-        server_logger->info("Launching server");
-        this->server_process_ptr_ =
-            std::make_shared<process::popen>(this->io_context_, this->server_startup_executable_, this->server_startup_parameters_,
-                                             process::process_start_dir{this->server_path_.string()});
+        this->server_state_ = ServerState::SERVER_STATE_STOPPED;
 
-        if (not this->server_process_ptr_->is_open())
-        {
-            throw std::runtime_error("Failed to open server process");
-        }
-
-        if (not this->server_process_ptr_->running())
-        {
-            throw std::runtime_error("Failed to launch server process");
-        }
-
-        server_logger->info("Server launchered with Process ID {}", this->server_process_ptr_->id());
-
-        this->server_state_ = ServerState::SERVER_STATE_RUNNING;
-        this->output_processing_thread_ = std::move(std::thread{[this] {
-            server_logger->info("Server output processing thread started");
-            boost::system::error_code ec;
-            std::string output_buffer;
-
-            auto logger_ptr = std::make_shared<spdlog::async_logger>("helium_server_output_logger",
-                                                                     std::make_shared<spdlog::sinks::stdout_color_sink_mt>(), spdlog::thread_pool());
-            logger_ptr->set_pattern("%v");
-
-            spdlog::register_logger(logger_ptr);
-
-            while (this->server_process_ptr_->running())
-            {
-                asio::read_until(*this->server_process_ptr_, asio::dynamic_buffer(output_buffer), '\n');
-                if (output_buffer.empty())
-                {
-                    continue;
-                }
-                output_buffer.erase(output_buffer.size() - 1);
-                logger_ptr->info(output_buffer);
-                output_buffer.clear();
-            }
-            server_logger->info("Server stopped with return code {}", this->server_process_ptr_->exit_code());
-            server_logger->info("Server output processing thread stopping");
-        }});
-        this->output_processing_thread_.detach();
+        this->start();
     }
 
     ~ServerInstance()
     {
-        // this->stop();
+        this->stop();
+        if (this->output_processing_thread_)
+        {
+            if (this->output_processing_thread_->joinable())
+            {
+                this->output_processing_thread_->request_stop();
+                this->output_processing_thread_->join();
+            }
+            this->output_processing_thread_.reset();
+        }
+        this->parser_deleter_();
     }
 
     auto send_raw_input(this auto &&self, std::string const &input) -> bool
@@ -152,33 +197,136 @@ public:
         return true;
     }
 
+    auto start(this auto &&self) -> bool
+    {
+        if (FWD(self).server_state_ != ServerState::SERVER_STATE_STOPPED)
+        {
+            return false;
+        }
+
+        FWD(self).server_state_ = ServerState::SERVER_STATE_STARTING;
+
+        if (FWD(self).server_process_ptr_)
+        {
+            FWD(self).server_process_ptr_.reset();
+        }
+        if (FWD(self).output_processing_thread_)
+        {
+            if (FWD(self).output_processing_thread_->joinable())
+            {
+                FWD(self).output_processing_thread_->request_stop();
+                FWD(self).output_processing_thread_->join();
+            }
+            FWD(self).output_processing_thread_.reset();
+        }
+
+        server_logger->info("Launching server");
+
+        FWD(self).server_process_ptr_ =
+            std::make_shared<process::popen>(FWD(self).io_context_, FWD(self).server_startup_executable_, FWD(self).server_startup_parameters_,
+                                             process::process_start_dir{FWD(self).server_path_.string()});
+
+        if (not FWD(self).server_process_ptr_->is_open())
+        {
+            throw std::runtime_error("Failed to open server process");
+        }
+
+        if (not FWD(self).server_process_ptr_->running())
+        {
+            throw std::runtime_error("Failed to launch server process");
+        }
+
+        server_logger->info("Server launchered with Process ID {}", FWD(self).server_process_ptr_->id());
+
+        FWD(self).server_state_ = ServerState::SERVER_STATE_RUNNING;
+        FWD(self).output_processing_thread_ = std::make_unique<std::jthread>([&self](std::stop_token st) {
+            server_logger->info("Server output processing thread started");
+            boost::system::error_code ec;
+            std::string output_buffer;
+
+            auto logger_ptr = std::make_shared<spdlog::async_logger>("helium_server_output_logger",
+                                                                     std::make_shared<spdlog::sinks::stdout_color_sink_mt>(), spdlog::thread_pool());
+            logger_ptr->set_pattern("%v");
+
+            spdlog::register_logger(logger_ptr);
+
+            while (not st.stop_requested())
+            {
+                if (not self.server_process_ptr_->running())
+                {
+                    break;
+                }
+                try
+                {
+                    asio::read_until(*self.server_process_ptr_, asio::dynamic_buffer(output_buffer), '\n');
+                }
+                catch (...)
+                {
+                    break;
+                }
+                if (output_buffer.empty())
+                {
+                    continue;
+                }
+                output_buffer.erase(output_buffer.size() - 1);
+                logger_ptr->info(output_buffer);
+                output_buffer.clear();
+            }
+            self.setServerState(ServerState::SERVER_STATE_STOPPED);
+            server_logger->info("Server stopped with return code {}", self.server_process_ptr_->exit_code());
+            server_logger->info("Server output processing thread stopping");
+        });
+
+        self.server_state_ = ServerState::SERVER_STATE_RUNNING;
+
+        return true;
+    }
+
     auto stop(this auto &&self) -> bool
-    {
-    }
-
-    auto kill(this auto &&self) -> bool
-    {
-        FWD(self).server_process_ptr_->terminate();
-    }
-
-    auto suspend(this auto &&self) -> bool
     {
         if (FWD(self).server_state_ != ServerState::SERVER_STATE_RUNNING)
         {
             return false;
         }
-        FWD(self).server_process_ptr_->suspend();
+        FWD(self).send_raw_input(FWD(self).parser_->getStopCommand());
+        FWD(self).server_process_ptr_->wait();
+        FWD(self).server_state_ = ServerState::SERVER_STATE_STOPPED;
+        if (FWD(self).output_processing_thread_)
+        {
+            if (FWD(self).output_processing_thread_->joinable())
+            {
+                FWD(self).output_processing_thread_->request_stop();
+                FWD(self).output_processing_thread_->join();
+            }
+            FWD(self).output_processing_thread_.reset();
+        }
         return true;
     }
 
-    auto resume(this auto &&self) -> bool
+    auto kill(this auto &&self) -> bool
     {
-        if (FWD(self).server_state_ != ServerState::SERVER_STATE_SUSPENDED)
+        if (FWD(self).server_state_ != ServerState::SERVER_STATE_RUNNING)
         {
             return false;
         }
-        FWD(self).server_process_ptr_->resume();
+        FWD(self).server_process_ptr_->terminate();
+        FWD(self).server_process_ptr_->wait();
+        FWD(self).server_state_ = ServerState::SERVER_STATE_STOPPED;
+        if (FWD(self).output_processing_thread_)
+        {
+            if (FWD(self).output_processing_thread_->joinable())
+            {
+                FWD(self).output_processing_thread_->request_stop();
+                FWD(self).output_processing_thread_->join();
+            }
+            FWD(self).output_processing_thread_.reset();
+        }
         return true;
+    }
+
+    auto getServerState(this auto &&self) -> ServerState
+    {
+        return FWD(self).server_state_;
     }
 };
 
