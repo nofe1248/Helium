@@ -59,7 +59,7 @@ struct ServerOutputParserFacade : pro::facade_builder
     ::add_convention<proxy::MemberPreprocessServerOutput, std::optional<std::tuple<std::string, PreprocessedInfo>>(std::string const &)>
     ::add_convention<proxy::MemberParseServerOutput, std::optional<ServerOutputInfo>(std::string const &)>
     ::add_convention<proxy::MemberParsePlayerMessage, std::optional<PlayerMessage>(std::string const &)>
-    ::add_convention<proxy::MemberParsePlayerJoined, std::optional<PlayerJoin>(std::string const &)>
+    ::add_convention<proxy::MemberParsePlayerJoined, std::optional<PlayerJoined>(std::string const &)>
     ::add_convention<proxy::MemberParsePlayerLeft, std::optional<PlayerLeft>(std::string const &)>
     ::add_convention<proxy::MemberParseServerVersion, std::optional<ServerVersion>(std::string const &)>
     ::add_convention<proxy::MemberParseServerAddress, std::optional<ServerAddress>(std::string const &)>

@@ -370,31 +370,45 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<events::HeliumStarting>(events_module, "HeliumStartingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::class_<events::HeliumStarted>(events_module, "HeliumStartedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::class_<events::HeliumStopping>(events_module, "HeliumStoppingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PluginLoaded>(events_module, "PluginLoadedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PluginUnloaded>(events_module, "PluginUnloadedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PluginReloaded>(events_module, "PluginReloadedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::PluginLoaded>(events_module, "PluginLoadedEvent")
+        .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("id", &events::PluginLoaded::id);
+    py::class_<events::PluginUnloaded>(events_module, "PluginUnloadedEvent")
+        .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("id", &events::PluginUnloaded::id);
+    py::class_<events::PluginReloaded>(events_module, "PluginReloadedEvent")
+        .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("id", &events::PluginReloaded::id);
     py::class_<events::ServerStarting>(events_module, "ServerStartingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::class_<events::ServerStarted>(events_module, "ServerStartedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::class_<events::ServerStopping>(events_module, "ServerStoppingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::class_<events::ServerStopped>(events_module, "ServerStoppedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerPaused>(events_module, "ServerPausedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerResumed>(events_module, "ServerResumedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::class_<events::ConsoleInput>(events_module, "ConsoleInputEvent")
         .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("input", &events::ConsoleInput::input);
-    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRawEvent")
-        .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
-        .def_readwrite("output", &events::ServerOutputRaw::output);
-    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRawEvent")
-        .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
-        .def_readwrite("input", &events::PlayerInputRaw::input);
-    py::class_<events::ServerOutput>(events_module, "ServerOutputEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PlayerInput>(events_module, "PlayerInputEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerOutput>(events_module, "ServerOutputEvent")
+        .def(py::init<server::ServerOutputInfo const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("info", &events::ServerOutput::info);
+    py::class_<events::PlayerMessage>(events_module, "PlayerMessageEvent")
+        .def(py::init<server::PlayerMessage const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("info", &events::PlayerMessage::info);
+    py::class_<events::PlayerJoined>(events_module, "PlayerJoinedEvent")
+        .def(py::init<server::PlayerJoined const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("info", &events::PlayerJoined::info);
+    py::class_<events::PlayerLeft>(events_module, "PlayerLeftEvent")
+        .def(py::init<server::PlayerLeft const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("info", &events::PlayerLeft::info);
+    py::class_<events::ServerAddress>(events_module, "ServerAddressEvent")
+        .def(py::init<server::ServerAddress const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("address", &events::ServerAddress::info);
+    py::class_<events::ServerVersion>(events_module, "ServerVersionEvent")
+        .def(py::init<server::ServerVersion const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("info", &events::ServerVersion::info);
     py::class_<events::PythonEvent>(events_module, "PythonEventEvent")
         .def(py::init<std::string, py::object>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("event_id", &events::PythonEvent::event_id)
         .def_readwrite("event_arg", &events::PythonEvent::event_arg);
-
+    py::class_<events::RCONStarted>(events_module, "RCONStartedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
     py::enum_<events::binding::HeliumDefaultEventsBindingEnum>(events_module, "DefaultEvents")
         .value("EventHeliumStarting", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
         .value("EventHeliumStarted", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
@@ -406,13 +420,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .value("EventServerStarted", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTED)
         .value("EventServerStopping", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
         .value("EventServerStopped", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
-        .value("EventServerPaused", events::binding::HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
-        .value("EventServerResumed", events::binding::HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
         .value("EventConsoleInput", events::binding::HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
-        .value("EventServerOutputRaw", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
-        .value("EventPlayerInputRaw", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
         .value("EventServerOutput", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
-        .value("EventPlayerInput", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        .value("EventPlayerMessage", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
+        .value("EventPlayerJoined", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_JOINED)
+        .value("EventPlayerLeft", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_LEFT)
+        .value("EventServerAddress", events::binding::HeliumDefaultEventsBindingEnum::SERVER_ADDRESS)
+        .value("EventServerVersion", events::binding::HeliumDefaultEventsBindingEnum::SERVER_VERSION)
+        .value("EventRCONStarted", events::binding::HeliumDefaultEventsBindingEnum::RCON_STARTED)
         .export_values();
 
     py::class_<events::binding::EventBusBinding>(events_module, "EventBus")
@@ -476,13 +491,13 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<std::string const &, int>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("ip", &server::IPAddress::ip)
         .def_readwrite("port", &server::IPAddress::port);
-    py::class_<server::PlayerJoin>(server_module, "PlayerJoinInfo")
+    py::class_<server::PlayerJoined>(server_module, "PlayerJoinedInfo")
         .def(py::init<std::string const &, int, server::Position const &, std::optional<server::IPAddress>>(), py::arg("player_name"),
              py::arg("entity_id"), py::arg("position"), py::arg("address") = py::none{}, py::call_guard<py::gil_scoped_release>())
-        .def_readwrite("player_name", &server::PlayerJoin::player_name)
-        .def_readwrite("entity_id", &server::PlayerJoin::entity_id)
-        .def_readwrite("position", &server::PlayerJoin::position)
-        .def_readwrite("address", &server::PlayerJoin::address);
+        .def_readwrite("player_name", &server::PlayerJoined::player_name)
+        .def_readwrite("entity_id", &server::PlayerJoined::entity_id)
+        .def_readwrite("position", &server::PlayerJoined::position)
+        .def_readwrite("address", &server::PlayerJoined::address);
     py::class_<server::PlayerLeft>(server_module, "PlayerLeftInfo")
         .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("player_name", &server::PlayerLeft::player_name);

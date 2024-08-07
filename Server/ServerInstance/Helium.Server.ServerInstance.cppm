@@ -33,6 +33,8 @@ import Helium.Logger;
 import Helium.Server.ServerOutputParser;
 import Helium.Server.ServerOutputProcessThread;
 import Helium.Utils.RText;
+import Helium.Events.EventBus;
+import Helium.Events.Helium;
 
 namespace asio = boost::asio;
 namespace fs = std::filesystem;
@@ -225,6 +227,7 @@ public:
         }
 
         server_logger->info("Launching server");
+        events::main_event_bus->postponeEvent<events::ServerStarting>(events::ServerStarting{});
 
         FWD(self).server_process_ptr_ =
             std::make_shared<process::popen>(FWD(self).io_context_, FWD(self).server_startup_executable_, FWD(self).server_startup_parameters_,
@@ -298,6 +301,7 @@ public:
                 output_buffer.clear();
             }
             self.setServerState(ServerState::SERVER_STATE_STOPPED);
+            events::main_event_bus->postponeEvent<events::ServerStopped>(events::ServerStopped{});
             server_logger->info("Server stopped with return code {}", self.server_process_ptr_->exit_code());
             server_logger->info("Server output processing thread stopping");
         });

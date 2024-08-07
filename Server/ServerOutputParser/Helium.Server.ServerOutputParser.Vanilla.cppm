@@ -152,7 +152,7 @@ public:
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         RE2 const player_join_regex{R"(([^\[]+)\[(.*?)] logged in with entity id (\d+) at \(([0-9.-]+), ([0-9.-]+), ([0-9.-]+)\))"};
         std::string player_name, raw_address, ip;
@@ -174,12 +174,12 @@ public:
                 }
                 if (raw_address == "IP hidden")
                 {
-                    return PlayerJoin{
+                    return PlayerJoined{
                         .player_name = player_name, .entity_id = entity_id, .position = Position{.x = x, .y = y, .z = z},
                                 .address = std::nullopt
                     };
                 }
-                return PlayerJoin{
+                return PlayerJoined{
                     .player_name = player_name,
                     .entity_id = entity_id,
                     .position = Position{.x = x, .y = y, .z = z},

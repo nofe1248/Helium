@@ -11,6 +11,8 @@ module;
 
 export module Helium.Events.Helium;
 
+import Helium.Server.ServerOutputParser.ServerOutputInfo;
+
 namespace py = pybind11;
 
 export namespace helium::events
@@ -20,19 +22,21 @@ struct HeliumStarting
 };
 struct HeliumStarted
 {
-    HeliumStarted() {}
 };
 struct HeliumStopping
 {
 };
 struct PluginLoaded
 {
+    std::string id;
 };
 struct PluginUnloaded
 {
+    std::string id;
 };
 struct PluginReloaded
 {
+    std::string id;
 };
 struct ServerStarting
 {
@@ -46,28 +50,35 @@ struct ServerStopping
 struct ServerStopped
 {
 };
-struct ServerPaused
-{
-};
-struct ServerResumed
-{
-};
 struct ConsoleInput
-{
-    std::string input;
-};
-struct ServerOutputRaw
-{
-    std::string output;
-};
-struct PlayerInputRaw
 {
     std::string input;
 };
 struct ServerOutput
 {
+    server::ServerOutputInfo info;
 };
-struct PlayerInput
+struct PlayerMessage
+{
+    server::PlayerMessage info;
+};
+struct PlayerJoined
+{
+    server::PlayerJoined info;
+};
+struct PlayerLeft
+{
+    server::PlayerLeft info;
+};
+struct ServerAddress
+{
+    server::ServerAddress info;
+};
+struct ServerVersion
+{
+    server::ServerVersion info;
+};
+struct RCONStarted
 {
 };
 struct PythonEvent

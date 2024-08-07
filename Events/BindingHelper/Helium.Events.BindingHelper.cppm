@@ -24,6 +24,7 @@ import Helium.Events.EventEmitter;
 import Helium.Events.Helium;
 import Helium.Logger;
 import Helium.Utils;
+import Helium.Server.ServerOutputParser.ServerOutputInfo;
 
 namespace py = pybind11;
 
@@ -46,13 +47,14 @@ enum class HeliumDefaultEventsBindingEnum
     SERVER_STARTED,
     SERVER_STOPPING,
     SERVER_STOPPED,
-    SERVER_PAUSED,
-    SERVER_RESUMED,
     CONSOLE_INPUT,
-    SERVER_OUTPUT_RAW,
-    PLAYER_INPUT_RAW,
     SERVER_OUTPUT,
-    PLAYER_INPUT,
+    PLAYER_MESSAGE,
+    PLAYER_JOINED,
+    PLAYER_LEFT,
+    SERVER_ADDRESS,
+    SERVER_VERSION,
+    RCON_STARTED
 };
 class EventBusBinding final
 {
@@ -118,15 +120,15 @@ public:
         }
         else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
         {
-            this->event_emitter_.postponeEvent(PluginLoaded{});
+            this->event_emitter_.postponeEvent(PluginLoaded{event_arg.cast<std::string>()});
         }
         else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
         {
-            this->event_emitter_.postponeEvent(PluginUnloaded{});
+            this->event_emitter_.postponeEvent(PluginUnloaded{event_arg.cast<std::string>()});
         }
         else if (event_type == HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
         {
-            this->event_emitter_.postponeEvent(PluginReloaded{});
+            this->event_emitter_.postponeEvent(PluginReloaded{event_arg.cast<std::string>()});
         }
         else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_STARTING)
         {
@@ -144,33 +146,37 @@ public:
         {
             this->event_emitter_.postponeEvent(ServerStopped{});
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
-        {
-            this->event_emitter_.postponeEvent(ServerPaused{});
-        }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
-        {
-            this->event_emitter_.postponeEvent(ServerResumed{});
-        }
         else if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
             this->event_emitter_.postponeEvent(ConsoleInput{event_arg.cast<std::string>()});
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
-        {
-            this->event_emitter_.postponeEvent(ServerOutputRaw{event_arg.cast<std::string>()});
-        }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
-        {
-            this->event_emitter_.postponeEvent(PlayerInputRaw{event_arg.cast<std::string>()});
-        }
         else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
-            this->event_emitter_.postponeEvent(ServerOutput{});
+            this->event_emitter_.postponeEvent(ServerOutput{event_arg.cast<server::ServerOutputInfo>()});
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
-            this->event_emitter_.postponeEvent(PlayerInput{});
+            this->event_emitter_.postponeEvent(PlayerMessage{event_arg.cast<server::PlayerMessage>()});
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_JOINED)
+        {
+            this->event_emitter_.postponeEvent(PlayerJoined{event_arg.cast<server::PlayerJoined>()});
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_LEFT)
+        {
+            this->event_emitter_.postponeEvent(PlayerLeft{event_arg.cast<server::PlayerLeft>()});
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_ADDRESS)
+        {
+            this->event_emitter_.postponeEvent(ServerAddress{event_arg.cast<server::ServerAddress>()});
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_VERSION)
+        {
+            this->event_emitter_.postponeEvent(ServerVersion{event_arg.cast<server::ServerVersion>()});
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::RCON_STARTED)
+        {
+            this->event_emitter_.postponeEvent(RCONStarted{});
         }
         else
         {
@@ -262,33 +268,9 @@ public:
                 utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
-        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
-        {
-            return this->event_listener_.listenToEvent<ServerPaused>(std::move([callback](ServerPaused const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
-            }));
-        }
-        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
-        {
-            return this->event_listener_.listenToEvent<ServerResumed>(std::move([callback](ServerResumed const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
-            }));
-        }
         if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
             return this->event_listener_.listenToEvent<ConsoleInput>(std::move([callback](ConsoleInput const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
-            }));
-        }
-        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
-        {
-            return this->event_listener_.listenToEvent<ServerOutputRaw>(std::move([callback](ServerOutputRaw const &event) -> void {
-                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
-            }));
-        }
-        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
-        {
-            return this->event_listener_.listenToEvent<PlayerInputRaw>(std::move([callback](PlayerInputRaw const &event) -> void {
                 utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
@@ -298,9 +280,39 @@ public:
                 utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
-        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
-            return this->event_listener_.listenToEvent<PlayerInput>(std::move([callback](PlayerInput const &event) -> void {
+            return this->event_listener_.listenToEvent<PlayerMessage>(std::move([callback](PlayerMessage const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_JOINED)
+        {
+            return this->event_listener_.listenToEvent<PlayerJoined>(std::move([callback](PlayerJoined const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_LEFT)
+        {
+            return this->event_listener_.listenToEvent<PlayerLeft>(std::move([callback](PlayerLeft const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_ADDRESS)
+        {
+            return this->event_listener_.listenToEvent<ServerAddress>(std::move([callback](ServerAddress const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_VERSION)
+        {
+            return this->event_listener_.listenToEvent<ServerVersion>(std::move([callback](ServerVersion const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::RCON_STARTED)
+        {
+            return this->event_listener_.listenToEvent<RCONStarted>(std::move([callback](RCONStarted const &event) -> void {
                 utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
@@ -356,33 +368,37 @@ public:
         {
             this->event_listener_.unlistenToEvent<ServerStopped>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
-        {
-            this->event_listener_.unlistenToEvent<ServerPaused>();
-        }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
-        {
-            this->event_listener_.unlistenToEvent<ServerResumed>();
-        }
         else if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
             this->event_listener_.unlistenToEvent<ConsoleInput>();
-        }
-        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
-        {
-            this->event_listener_.unlistenToEvent<ServerOutputRaw>();
-        }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
-        {
-            this->event_listener_.unlistenToEvent<PlayerInputRaw>();
         }
         else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
             this->event_listener_.unlistenToEvent<ServerOutput>();
         }
-        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
-            this->event_listener_.unlistenToEvent<PlayerInput>();
+            this->event_listener_.unlistenToEvent<PlayerMessage>();
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_JOINED)
+        {
+            this->event_listener_.unlistenToEvent<PlayerJoined>();
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_LEFT)
+        {
+            this->event_listener_.unlistenToEvent<PlayerLeft>();
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_ADDRESS)
+        {
+            this->event_listener_.unlistenToEvent<ServerAddress>();
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_VERSION)
+        {
+            this->event_listener_.unlistenToEvent<ServerVersion>();
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::RCON_STARTED)
+        {
+            this->event_listener_.unlistenToEvent<RCONStarted>();
         }
         else
         {
@@ -437,33 +453,37 @@ public:
         {
             return this->event_listener_.isListeningToEvent<ServerStopped>();
         }
-        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
-        {
-            return this->event_listener_.isListeningToEvent<ServerPaused>();
-        }
-        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
-        {
-            return this->event_listener_.isListeningToEvent<ServerResumed>();
-        }
         if (event_type == HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         {
             return this->event_listener_.isListeningToEvent<ConsoleInput>();
-        }
-        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
-        {
-            return this->event_listener_.isListeningToEvent<ServerOutputRaw>();
-        }
-        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
-        {
-            return this->event_listener_.isListeningToEvent<PlayerInputRaw>();
         }
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
             return this->event_listener_.isListeningToEvent<ServerOutput>();
         }
-        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
-            return this->event_listener_.isListeningToEvent<PlayerInput>();
+            return this->event_listener_.isListeningToEvent<PlayerMessage>();
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_JOINED)
+        {
+            return this->event_listener_.isListeningToEvent<PlayerJoined>();
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_LEFT)
+        {
+            return this->event_listener_.isListeningToEvent<PlayerLeft>();
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_ADDRESS)
+        {
+            return this->event_listener_.isListeningToEvent<ServerAddress>();
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_VERSION)
+        {
+            return this->event_listener_.isListeningToEvent<ServerVersion>();
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::RCON_STARTED)
+        {
+            return this->event_listener_.isListeningToEvent<RCONStarted>();
         }
         throw cpptrace::runtime_error{"Unknown default event type"};
     }

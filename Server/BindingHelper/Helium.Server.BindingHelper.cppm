@@ -78,7 +78,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -161,7 +161,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -244,7 +244,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -327,7 +327,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -410,7 +410,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -493,7 +493,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -576,7 +576,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -659,7 +659,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -742,7 +742,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -825,7 +825,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
@@ -908,7 +908,7 @@ public:
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }

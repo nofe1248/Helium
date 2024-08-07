@@ -10,3 +10,4 @@ export module Helium.Server;
 export import Helium.Server.BindingHelper;
 export import Helium.Server.ServerInstance;
 export import Helium.Server.ServerOutputParser;
+export import Helium.Server.ServerOutputProcessThread;

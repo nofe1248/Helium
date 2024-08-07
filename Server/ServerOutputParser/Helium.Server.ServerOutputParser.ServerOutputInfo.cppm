@@ -60,7 +60,7 @@ struct IPAddress
     std::string ip;
     int port;
 };
-struct PlayerJoin
+struct PlayerJoined
 {
     std::string player_name;
     int entity_id = 0;
@@ -92,7 +92,7 @@ struct ServerOutputInfo
 
     PreprocessedInfo preprocessed_info;
 
-    using InfoType = std::variant<PlayerJoin, PlayerLeft, PlayerMessage, ServerAddress, ServerVersion>;
+    using InfoType = std::variant<PlayerJoined, PlayerLeft, PlayerMessage, ServerAddress, ServerVersion>;
     std::optional<InfoType> info = std::nullopt;
 
     explicit ServerOutputInfo(ServerOutputInfoType const info_type, PreprocessedInfo preprocessed_info, std::string raw_content, std::string content,

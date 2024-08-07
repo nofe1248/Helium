@@ -76,7 +76,7 @@ public:
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoined>
     {
         return std::nullopt;
     }
