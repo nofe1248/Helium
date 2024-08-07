@@ -65,7 +65,7 @@ public:
     constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept
         -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
-        RE2 timestamp_and_loglevel_regex{R"(\[(\d{2}):(\d{2}):(\d{2})\] \[([0-9a-zA-Z -]+)\/(DEBUG|INFO|FINE|WARN|ERROR|FATAL)\]: )", RE2::Quiet};
+        RE2 const timestamp_and_loglevel_regex{R"(\[(\d{2}):(\d{2}):(\d{2})\] \[(.+)\/(DEBUG|INFO|FINE|WARN|ERROR|FATAL)\]: )", RE2::Quiet};
         int hour = 0, minute = 0, second = 0;
         std::string thread_name, log_level;
         std::string_view preprocessed_output_view{raw_output};
@@ -93,52 +93,44 @@ public:
 
         if (auto player_join_opt = FWD(self).parsePlayerJoined(preprocessed_output); player_join_opt.has_value())
         {
-            vanilla_logger->debug("Parsed player joined");
             return ServerOutputInfo(ServerOutputInfoType::PLAYER_JOINED, preprocessed_info, raw_output, preprocessed_output, player_join_opt.value());
         }
 
         if (auto player_left_opt = FWD(self).parsePlayerLeft(preprocessed_output); player_left_opt.has_value())
         {
-            vanilla_logger->debug("Parsed player left");
             return ServerOutputInfo(ServerOutputInfoType::PLAYER_LEFT, preprocessed_info, raw_output, preprocessed_output, player_left_opt.value());
         }
 
         if (auto player_message_opt = FWD(self).parsePlayerMessage(preprocessed_output); player_message_opt.has_value())
         {
-            vanilla_logger->debug("Parsed player message");
             return ServerOutputInfo(ServerOutputInfoType::PLAYER_MESSAGE, preprocessed_info, raw_output, preprocessed_output,
                                     player_message_opt.value());
         }
 
-        if (auto server_address_opt = FWD(self).parseServerAddress(raw_output); server_address_opt.has_value())
+        if (auto server_address_opt = FWD(self).parseServerAddress(preprocessed_output); server_address_opt.has_value())
         {
-            vanilla_logger->debug("Parsed server address");
             return ServerOutputInfo(ServerOutputInfoType::SERVER_ADDRESS, preprocessed_info, raw_output, preprocessed_output,
                                     server_address_opt.value());
         }
 
-        if (auto server_version_opt = FWD(self).parseServerVersion(raw_output); server_version_opt.has_value())
+        if (auto server_version_opt = FWD(self).parseServerVersion(preprocessed_output); server_version_opt.has_value())
         {
-            vanilla_logger->debug("Parsed server version");
             return ServerOutputInfo(ServerOutputInfoType::SERVER_VERSION, preprocessed_info, raw_output, preprocessed_output,
                                     server_version_opt.value());
         }
 
         if (FWD(self).testServerStartupDone(preprocessed_output))
         {
-            vanilla_logger->debug("Parsed server startup done");
             return ServerOutputInfo(ServerOutputInfoType::SERVER_STARTED, preprocessed_info, raw_output, preprocessed_output);
         }
 
         if (FWD(self).testServerStopping(preprocessed_output))
         {
-            vanilla_logger->debug("Parsed server stopping");
             return ServerOutputInfo(ServerOutputInfoType::SERVER_STOPPING, preprocessed_info, raw_output, preprocessed_output);
         }
 
         if (FWD(self).testRCONStarted(preprocessed_output))
         {
-            vanilla_logger->debug("Parsed rcon started");
             return ServerOutputInfo(ServerOutputInfoType::RCON_STARTED, preprocessed_info, raw_output, preprocessed_output);
         }
 
@@ -147,7 +139,7 @@ public:
 
     constexpr auto parsePlayerMessage(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
-        RE2 message_regex{R"((\[Not Secure])? <([^>]+)> (.*))"};
+        RE2 const message_regex{R"((\[Not Secure\] )?<([^>]+)> (.*))"};
         std::string not_secure, player_name, message;
         if (RE2::FullMatch(preprocessed_output, message_regex, &not_secure, &player_name, &message))
         {
@@ -162,7 +154,7 @@ public:
 
     constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
-        RE2 player_join_regex{R"(([^\[]+)\[(.*?)] logged in with entity id (\d+) at \(([0-9.]+), ([0-9.]+), ([0-9.]+)\))"};
+        RE2 const player_join_regex{R"(([^\[]+)\[(.*?)] logged in with entity id (\d+) at \(([0-9.-]+), ([0-9.-]+), ([0-9.-]+)\))"};
         std::string player_name, raw_address, ip;
         int entity_id = 0, port = 0;
         double x = 0.0f, y = 0.0f, z = 0.0f;
@@ -172,7 +164,7 @@ public:
             {
                 if (raw_address.front() == '/')
                 {
-                    RE2 address_regex{R"((\S+):(\d+))"};
+                    RE2 const address_regex{R"((\S+):(\d+))"};
                     raw_address.erase(raw_address.begin());
                     RE2::FullMatch(raw_address, address_regex, &ip, &port);
                 }
@@ -200,7 +192,7 @@ public:
 
     constexpr auto parsePlayerLeft(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
-        RE2 player_left_regex{R"(([^ ]+) left the game)"};
+        RE2 const player_left_regex{R"(([^ ]+) left the game)"};
         std::string player_name;
         if (RE2::FullMatch(preprocessed_output, player_left_regex, &player_name))
         {
@@ -214,7 +206,7 @@ public:
 
     constexpr auto parseServerVersion(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
-        RE2 version_regex{R"(Starting minecraft server version (.+))"};
+        RE2 const version_regex{R"(Starting minecraft server version (.+))"};
         std::string version;
         if (RE2::FullMatch(preprocessed_output, version_regex, &version))
         {
@@ -225,7 +217,7 @@ public:
 
     constexpr auto parseServerAddress(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
-        RE2 address_regex{R"(Starting Minecraft server on (\S+):(\d+))"};
+        RE2 const address_regex{R"(Starting Minecraft server on (\S+):(\d+))"};
         std::string ip;
         int port = 0;
         if (RE2::FullMatch(preprocessed_output, address_regex, &ip, &port))
@@ -237,20 +229,20 @@ public:
 
     constexpr auto testServerStartupDone(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
-        RE2 started_regex_above_113{R"(Done (3.500s)! For help, type "help")"};
-        RE2 started_regex_under_113{R"(Done (3.500s)! For help, type "help" or "?")"};
+        RE2 const started_regex_above_113{R"(Done \([0-9.]+s\)! For help, type "help")"};
+        RE2 const started_regex_under_113{R"(Done \([0-9.]+s\)! For help, type "help" or "?")"};
         return RE2::FullMatch(preprocessed_output, started_regex_above_113) or RE2::FullMatch(preprocessed_output, started_regex_under_113);
     }
 
     constexpr auto testRCONStarted(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
-        RE2 rcon_regex{R"(RCON running on [\w.]+:\d+)"};
+        RE2 const rcon_regex{R"(RCON running on [\w.]+:\d+)"};
         return RE2::FullMatch(preprocessed_output, rcon_regex);
     }
 
     constexpr auto testServerStopping(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
-        return preprocessed_output == "Stopping Server";
+        return preprocessed_output == "Stopping server";
     }
 };
 } // namespace helium::server

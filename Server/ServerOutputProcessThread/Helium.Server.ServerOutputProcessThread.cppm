@@ -25,9 +25,38 @@ private:
 
     auto mainServerOutputProcessLoop(std::stop_token st) -> void
     {
-        while(not st.stop_requested())
+        while (not st.stop_requested())
         {
-
+            for (auto const &output_info : this->info_queue_)
+            {
+                if (output_info.info_type == ServerOutputInfoType::RCON_STARTED)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::SERVER_STARTED)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::SERVER_STOPPING)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::SERVER_ADDRESS)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::SERVER_VERSION)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::SERVER_OUTPUT)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::PLAYER_MESSAGE)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::PLAYER_JOINED)
+                {
+                }
+                else if (output_info.info_type == ServerOutputInfoType::PLAYER_LEFT)
+                {
+                }
+            }
         }
     }
 
@@ -35,5 +64,17 @@ public:
     ServerOutputProcessThread() : info_queue_(), thread_(std::move(std::jthread(&ServerOutputProcessThread::mainServerOutputProcessLoop, this)))
     {
     }
+
+    ~ServerOutputProcessThread()
+    {
+        this->thread_.request_stop();
+        this->thread_.join();
+    }
+
+    auto addServerOutputInfo(ServerOutputInfo const &output_info) -> void
+    {
+        this->info_queue_.insert(output_info);
+    }
 };
+ServerOutputProcessThread server_output_process_thread;
 } // namespace helium::server

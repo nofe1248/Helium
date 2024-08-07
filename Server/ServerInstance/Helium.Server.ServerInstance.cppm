@@ -31,6 +31,7 @@ import Helium.Config;
 import Helium.Events;
 import Helium.Logger;
 import Helium.Server.ServerOutputParser;
+import Helium.Server.ServerOutputProcessThread;
 import Helium.Utils.RText;
 
 namespace asio = boost::asio;
@@ -289,9 +290,9 @@ public:
                     }
                     output_buffer.erase(pos);
                 }
-                if (not self.parser_->parseServerOutput(output_buffer).has_value())
+                if (auto info_opt = self.parser_->parseServerOutput(output_buffer); info_opt.has_value())
                 {
-                    server_logger->debug("Parsing failed");
+                    server_output_process_thread.addServerOutputInfo(info_opt.value());
                 }
                 logger_ptr->info(output_buffer);
                 output_buffer.clear();

@@ -367,52 +367,52 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
 
     auto events_module = m.def_submodule("events");
 
-    py::class_<events::HeliumStarting>(events_module, "HeliumStarting").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::HeliumStarted>(events_module, "HeliumStarted").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::HeliumStopping>(events_module, "HeliumStopping").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PluginLoaded>(events_module, "PluginLoaded").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PluginUnloaded>(events_module, "PluginUnloaded").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PluginReloaded>(events_module, "PluginReloaded").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerStarting>(events_module, "ServerStarting").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerStarted>(events_module, "ServerStarted").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerStopping>(events_module, "ServerStopping").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerStopped>(events_module, "ServerStopped").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerPaused>(events_module, "ServerPaused").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ServerResumed>(events_module, "ServerResumed").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::ConsoleInput>(events_module, "ConsoleInput")
+    py::class_<events::HeliumStarting>(events_module, "HeliumStartingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::HeliumStarted>(events_module, "HeliumStartedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::HeliumStopping>(events_module, "HeliumStoppingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::PluginLoaded>(events_module, "PluginLoadedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::PluginUnloaded>(events_module, "PluginUnloadedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::PluginReloaded>(events_module, "PluginReloadedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerStarting>(events_module, "ServerStartingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerStarted>(events_module, "ServerStartedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerStopping>(events_module, "ServerStoppingEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerStopped>(events_module, "ServerStoppedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerPaused>(events_module, "ServerPausedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ServerResumed>(events_module, "ServerResumedEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::ConsoleInput>(events_module, "ConsoleInputEvent")
         .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("input", &events::ConsoleInput::input);
-    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRaw")
+    py::class_<events::ServerOutputRaw>(events_module, "ServerOutputRawEvent")
         .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("output", &events::ServerOutputRaw::output);
-    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRaw")
+    py::class_<events::PlayerInputRaw>(events_module, "PlayerInputRawEvent")
         .def(py::init<std::string>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("input", &events::PlayerInputRaw::input);
-    py::class_<events::ServerOutput>(events_module, "ServerOutput").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PlayerInput>(events_module, "PlayerInput").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
-    py::class_<events::PythonEvent>(events_module, "PythonEvent")
+    py::class_<events::ServerOutput>(events_module, "ServerOutputEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::PlayerInput>(events_module, "PlayerInputEvent").def(py::init<>(), py::call_guard<py::gil_scoped_release>());
+    py::class_<events::PythonEvent>(events_module, "PythonEventEvent")
         .def(py::init<std::string, py::object>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("event_id", &events::PythonEvent::event_id)
         .def_readwrite("event_arg", &events::PythonEvent::event_arg);
 
     py::enum_<events::binding::HeliumDefaultEventsBindingEnum>(events_module, "DefaultEvents")
-        .value("HeliumStarting", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
-        .value("HeliumStarted", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
-        .value("HeliumStopping", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
-        .value("PluginLoaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
-        .value("PluginUnloaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
-        .value("PluginReloaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
-        .value("ServerStarting", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTING)
-        .value("ServerStarted", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTED)
-        .value("ServerStopping", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
-        .value("ServerStopped", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
-        .value("ServerPaused", events::binding::HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
-        .value("ServerResumed", events::binding::HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
-        .value("ConsoleInput", events::binding::HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
-        .value("ServerOutputRaw", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
-        .value("PlayerInputRaw", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
-        .value("ServerOutput", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
-        .value("PlayerInput", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
+        .value("EventHeliumStarting", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTING)
+        .value("EventHeliumStarted", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STARTED)
+        .value("EventHeliumStopping", events::binding::HeliumDefaultEventsBindingEnum::HELIUM_STOPPING)
+        .value("EventPluginLoaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_LOADED)
+        .value("EventPluginUnloaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_UNLOADED)
+        .value("EventPluginReloaded", events::binding::HeliumDefaultEventsBindingEnum::PLUGIN_RELOADED)
+        .value("EventServerStarting", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTING)
+        .value("EventServerStarted", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STARTED)
+        .value("EventServerStopping", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPING)
+        .value("EventServerStopped", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
+        .value("EventServerPaused", events::binding::HeliumDefaultEventsBindingEnum::SERVER_PAUSED)
+        .value("EventServerResumed", events::binding::HeliumDefaultEventsBindingEnum::SERVER_RESUMED)
+        .value("EventConsoleInput", events::binding::HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
+        .value("EventServerOutputRaw", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT_RAW)
+        .value("EventPlayerInputRaw", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT_RAW)
+        .value("EventServerOutput", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
+        .value("EventPlayerInput", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_INPUT)
         .export_values();
 
     py::class_<events::binding::EventBusBinding>(events_module, "EventBus")
@@ -462,7 +462,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<server::ServerOutputInfoTimeStamp, std::string>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("timestamp", &server::PreprocessedInfo::timestamp)
         .def_readwrite("log_level", &server::PreprocessedInfo::log_level);
-    py::class_<server::PlayerMessage>(server_module, "PlayerMessage")
+    py::class_<server::PlayerMessage>(server_module, "PlayerMessageInfo")
         .def(py::init<bool, std::string const &, std::string const &>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("is_secure", &server::PlayerMessage::is_secure)
         .def_readwrite("player_name", &server::PlayerMessage::player_name)
@@ -476,20 +476,20 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<std::string const &, int>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("ip", &server::IPAddress::ip)
         .def_readwrite("port", &server::IPAddress::port);
-    py::class_<server::PlayerJoin>(server_module, "PlayerJoin")
+    py::class_<server::PlayerJoin>(server_module, "PlayerJoinInfo")
         .def(py::init<std::string const &, int, server::Position const &, std::optional<server::IPAddress>>(), py::arg("player_name"),
              py::arg("entity_id"), py::arg("position"), py::arg("address") = py::none{}, py::call_guard<py::gil_scoped_release>())
         .def_readwrite("player_name", &server::PlayerJoin::player_name)
         .def_readwrite("entity_id", &server::PlayerJoin::entity_id)
         .def_readwrite("position", &server::PlayerJoin::position)
         .def_readwrite("address", &server::PlayerJoin::address);
-    py::class_<server::PlayerLeft>(server_module, "PlayerLeft")
+    py::class_<server::PlayerLeft>(server_module, "PlayerLeftInfo")
         .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("player_name", &server::PlayerLeft::player_name);
-    py::class_<server::ServerAddress>(server_module, "ServerAddress")
+    py::class_<server::ServerAddress>(server_module, "ServerAddressInfo")
         .def_readwrite("ip", &server::ServerAddress::ip)
         .def_readwrite("port", &server::ServerAddress::port);
-    py::class_<server::ServerVersion>(server_module, "ServerVersion")
+    py::class_<server::ServerVersion>(server_module, "ServerVersionInfo")
         .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("version", &server::ServerVersion::version);
     py::class_<server::ServerOutputInfo>(server_module, "ServerOutputInfo")
