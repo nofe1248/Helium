@@ -462,16 +462,48 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<server::ServerOutputInfoTimeStamp, std::string>(), py::call_guard<py::gil_scoped_release>())
         .def_readwrite("timestamp", &server::PreprocessedInfo::timestamp)
         .def_readwrite("log_level", &server::PreprocessedInfo::log_level);
+    py::class_<server::PlayerMessage>(server_module, "PlayerMessage")
+        .def(py::init<bool, std::string const &, std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("is_secure", &server::PlayerMessage::is_secure)
+        .def_readwrite("player_name", &server::PlayerMessage::player_name)
+        .def_readwrite("player_message", &server::PlayerMessage::player_message);
+    py::class_<server::Position>(server_module, "Position")
+        .def(py::init<double, double, double>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("x", &server::Position::x)
+        .def_readwrite("y", &server::Position::y)
+        .def_readwrite("z", &server::Position::z);
+    py::class_<server::IPAddress>(server_module, "IPAddress")
+        .def(py::init<std::string const &, int>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("ip", &server::IPAddress::ip)
+        .def_readwrite("port", &server::IPAddress::port);
+    py::class_<server::PlayerJoin>(server_module, "PlayerJoin")
+        .def(py::init<std::string const &, int, server::Position const &, std::optional<server::IPAddress>>(), py::arg("player_name"),
+             py::arg("entity_id"), py::arg("position"), py::arg("address") = py::none{}, py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("player_name", &server::PlayerJoin::player_name)
+        .def_readwrite("entity_id", &server::PlayerJoin::entity_id)
+        .def_readwrite("position", &server::PlayerJoin::position)
+        .def_readwrite("address", &server::PlayerJoin::address);
+    py::class_<server::PlayerLeft>(server_module, "PlayerLeft")
+        .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("player_name", &server::PlayerLeft::player_name);
+    py::class_<server::ServerAddress>(server_module, "ServerAddress")
+        .def_readwrite("ip", &server::ServerAddress::ip)
+        .def_readwrite("port", &server::ServerAddress::port);
+    py::class_<server::ServerVersion>(server_module, "ServerVersion")
+        .def(py::init<std::string const &>(), py::call_guard<py::gil_scoped_release>())
+        .def_readwrite("version", &server::ServerVersion::version);
     py::class_<server::ServerOutputInfo>(server_module, "ServerOutputInfo")
-        .def(py::init<server::ServerOutputInfoType, server::PreprocessedInfo, std::string, std::string, std::optional<std::string>,
-                      std::optional<std::string>>(),
-             py::arg("info_type"), py::arg("preprocessed_info"), py::arg("raw_content"), py::arg("content"), py::arg("player_name") = py::none{},
+        .def(py::init<server::ServerOutputInfoType, server::PreprocessedInfo, std::string, std::string,
+                      std::optional<server::ServerOutputInfo::InfoType>, std::optional<std::string>>(),
+             py::arg("info_type"), py::arg("preprocessed_info"), py::arg("raw_content"), py::arg("content"), py::arg("info") = py::none{},
              py::arg("extra_info_type") = py::none{}, py::call_guard<py::gil_scoped_release>())
         .def_readwrite("id", &server::ServerOutputInfo::id)
+        .def_readwrite("info_type", &server::ServerOutputInfo::info_type)
+        .def_readwrite("extra_info_type", &server::ServerOutputInfo::extra_info_type)
         .def_readwrite("preprocessed_info", &server::ServerOutputInfo::preprocessed_info)
         .def_readwrite("raw_content", &server::ServerOutputInfo::raw_content)
         .def_readwrite("content", &server::ServerOutputInfo::content)
-        .def_readwrite("player_name", &server::ServerOutputInfo::player_name);
+        .def_readwrite("info", &server::ServerOutputInfo::info);
 
     py::class_<server::binding::ServerInstanceBindingHelper>(server_module, "ServerInstance")
         .def(py::init<>(), py::call_guard<py::gil_scoped_release>());

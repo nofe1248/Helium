@@ -73,27 +73,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -156,27 +156,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -239,27 +239,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -322,27 +322,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -405,27 +405,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -488,27 +488,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -571,27 +571,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -654,27 +654,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -737,27 +737,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -820,27 +820,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }
@@ -903,27 +903,27 @@ public:
         return this->parser_.parseServerOutput(raw_output);
     }
 
-    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    auto parsePlayerMessage(std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return this->parser_.parsePlayerMessage(preprocessed_output);
     }
 
-    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerJoined(std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return this->parser_.parsePlayerJoined(preprocessed_output);
     }
 
-    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parsePlayerLeft(std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return this->parser_.parsePlayerLeft(preprocessed_output);
     }
 
-    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerVersion(std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return this->parser_.parseServerVersion(preprocessed_output);
     }
 
-    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    auto parseServerAddress(std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return this->parser_.parseServerAddress(preprocessed_output);
     }

@@ -71,27 +71,27 @@ public:
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerMessage(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::tuple<std::string, std::string>>
+    constexpr auto parsePlayerMessage(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerMessage>
     {
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerJoined(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerJoin>
     {
         return std::nullopt;
     }
 
-    constexpr auto parsePlayerLeft(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    constexpr auto parsePlayerLeft(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<PlayerLeft>
     {
         return std::nullopt;
     }
 
-    constexpr auto parseServerVersion(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    constexpr auto parseServerVersion(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<ServerVersion>
     {
         return std::nullopt;
     }
 
-    constexpr auto parseServerAddress(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<std::string>
+    constexpr auto parseServerAddress(this auto &&self, std::string const &preprocessed_output) noexcept -> std::optional<ServerAddress>
     {
         return std::nullopt;
     }

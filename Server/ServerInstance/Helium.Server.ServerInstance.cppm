@@ -289,9 +289,9 @@ public:
                     }
                     output_buffer.erase(pos);
                 }
-                if (not self.parser_->preprocessServerOutput(output_buffer).has_value())
+                if (not self.parser_->parseServerOutput(output_buffer).has_value())
                 {
-                    server_logger->debug("Preprocess failed");
+                    server_logger->debug("Parsing failed");
                 }
                 logger_ptr->info(output_buffer);
                 output_buffer.clear();

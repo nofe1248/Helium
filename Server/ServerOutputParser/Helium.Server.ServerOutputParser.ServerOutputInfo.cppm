@@ -8,6 +8,7 @@ module;
 #include <compare>
 #include <optional>
 #include <string>
+#include <variant>
 
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -42,6 +43,43 @@ enum class ServerOutputInfoType
     RCON_STARTED,
     CUSTOM_INFO_TYPE
 };
+struct PlayerMessage
+{
+    bool is_secure = false;
+    std::string player_name;
+    std::string player_message;
+};
+struct Position
+{
+    double x = 0.0f;
+    double y = 0.0f;
+    double z = 0.0f;
+};
+struct IPAddress
+{
+    std::string ip;
+    int port;
+};
+struct PlayerJoin
+{
+    std::string player_name;
+    int entity_id = 0;
+    Position position;
+    std::optional<IPAddress> address = std::nullopt;
+};
+struct PlayerLeft
+{
+    std::string player_name;
+};
+struct ServerAddress
+{
+    std::string ip;
+    int port = 0;
+};
+struct ServerVersion
+{
+    std::string version;
+};
 struct ServerOutputInfo
 {
     uuids::uuid id;
@@ -54,12 +92,13 @@ struct ServerOutputInfo
 
     PreprocessedInfo preprocessed_info;
 
-    std::optional<std::string> player_name;
+    using InfoType = std::variant<PlayerJoin, PlayerLeft, PlayerMessage, ServerAddress, ServerVersion>;
+    std::optional<InfoType> info = std::nullopt;
 
-    explicit ServerOutputInfo(ServerOutputInfoType info_type, PreprocessedInfo preprocessed_info, std::string raw_content, std::string content,
-                              std::optional<std::string> player_name = std::nullopt, std::optional<std::string> extra_info_type = std::nullopt)
+    explicit ServerOutputInfo(ServerOutputInfoType const info_type, PreprocessedInfo preprocessed_info, std::string raw_content, std::string content,
+                              std::optional<InfoType> info = std::nullopt, std::optional<std::string> extra_info_type = std::nullopt)
         : id(uuids::random_generator()()), info_type(info_type), extra_info_type(std::move(extra_info_type)), raw_content(std::move(raw_content)),
-          content(std::move(content)), preprocessed_info(std::move(preprocessed_info)), player_name(std::move(player_name))
+          content(std::move(content)), preprocessed_info(std::move(preprocessed_info)), info(std::move(info))
     {
     }
 
