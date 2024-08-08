@@ -56,27 +56,27 @@ struct ConsoleInput
 };
 struct ServerOutput
 {
-    server::ServerOutputInfo info;
+    server::ServerOutputInfo info{};
 };
 struct PlayerMessage
 {
-    server::PlayerMessage info;
+    server::PlayerMessage info{};
 };
 struct PlayerJoined
 {
-    server::PlayerJoined info;
+    server::PlayerJoined info{};
 };
 struct PlayerLeft
 {
-    server::PlayerLeft info;
+    server::PlayerLeft info{};
 };
 struct ServerAddress
 {
-    server::ServerAddress info;
+    server::ServerAddress info{};
 };
 struct ServerVersion
 {
-    server::ServerVersion info;
+    server::ServerVersion info{};
 };
 struct RCONStarted
 {

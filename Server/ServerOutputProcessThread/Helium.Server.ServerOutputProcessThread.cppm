@@ -5,12 +5,11 @@
 
 module;
 
+#include <mutex>
 #include <stop_token>
 #include <thread>
 #include <variant>
-#include <mutex>
-
-#include <plf_hive.h>
+#include <vector>
 
 export module Helium.Server.ServerOutputProcessThread;
 
@@ -30,7 +29,7 @@ export namespace helium::server
 class ServerOutputProcessThread final : public base::HeliumObject
 {
 private:
-    plf::hive<ServerOutputInfo> info_queue_;
+    std::vector<ServerOutputInfo> info_queue_;
     std::jthread thread_;
     mutable std::mutex mutex_;
 
@@ -39,14 +38,13 @@ private:
         output_process_thread_logger->info("Server output info processing thread started");
         while (not st.stop_requested())
         {
-            plf::hive<ServerOutputInfo> process_queue{};
+            std::vector<ServerOutputInfo> process_queue{};
             {
                 std::unique_lock lock(this->mutex_);
                 std::swap(process_queue, this->info_queue_);
             }
             for (auto const &output_info : process_queue)
             {
-                events::main_event_bus->postponeEvent<events::ServerOutput>(events::ServerOutput{.info = output_info});
                 if (output_info.info_type == ServerOutputInfoType::RCON_STARTED)
                 {
                     events::main_event_bus->postponeEvent<events::RCONStarted>(events::RCONStarted{});
@@ -84,6 +82,7 @@ private:
                     events::main_event_bus->postponeEvent<events::PlayerLeft>(
                         events::PlayerLeft{.info = std::get<PlayerLeft>(output_info.info.value())});
                 }
+                events::main_event_bus->postponeEvent<events::ServerOutput>(events::ServerOutput{.info = output_info});
             }
         }
         output_process_thread_logger->info("Server output process thread stopping");
@@ -101,7 +100,7 @@ public:
 
     ~ServerOutputProcessThread()
     {
-        if(this->thread_.joinable())
+        if (this->thread_.joinable())
         {
             this->thread_.request_stop();
             this->thread_.join();
@@ -111,7 +110,7 @@ public:
     auto addServerOutputInfo(ServerOutputInfo const &output_info) -> void
     {
         std::unique_lock lock(this->mutex_);
-        this->info_queue_.insert(output_info);
+        this->info_queue_.push_back(output_info);
     }
 };
 ServerOutputProcessThread server_output_process_thread;

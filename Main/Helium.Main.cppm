@@ -67,8 +67,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
     logger->info("Initializing Helium main event bus");
     events::main_event_bus = std::make_shared<events::EventBus>();
     events::EventEmitter event_emitter{events::main_event_bus};
-    std::thread event_thread{events::mainEventLoop};
-    event_thread.detach();
+    std::jthread event_thread{events::mainEventLoop};
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 
@@ -110,7 +109,11 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     utils::RunLoopExecutor::getInstance().run();
 
-    server::server_instance->stop();
+    if (event_thread.joinable())
+    {
+        event_thread.request_stop();
+        event_thread.join();
+    }
 
     config::saveConfig();
 

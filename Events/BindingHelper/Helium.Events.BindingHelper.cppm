@@ -319,10 +319,11 @@ public:
         throw cpptrace::runtime_error{"Unknown default event type"};
     }
 
-    auto listenToCustomEvent(std::string const &event_id, std::function<void(PythonEvent const &)> const &callback) -> bool
+    auto listenToCustomEvent(std::string const &event_id, py::function const &callback) -> bool
     {
         return this->event_listener_.listenToDynamicIDEvent(event_id, std::move([callback](PythonEvent const &event) -> void {
-                                                                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+                                                                utils::RunLoopExecutor::getInstance().execute(
+                                                                    [callback, event] { callback(event); });
                                                             }));
     }
 

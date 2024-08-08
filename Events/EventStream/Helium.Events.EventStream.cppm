@@ -80,8 +80,17 @@ public:
 
     auto processEvents(this auto &&self) -> void
     {
-        std::lock_guard write_guard(FWD(self).mutex_event_);
-        for (auto const &event : FWD(self).event_queue_)
+        if (FWD(self).event_queue_.empty())
+        {
+            return;
+        }
+        std::vector<EventType> events{};
+        {
+            std::lock_guard write_guard(FWD(self).mutex_event_);
+            std::swap(events, FWD(self).event_queue_);
+        }
+        stream_logger->debug("Processing {} events: {}", events.size(), nameof::nameof_full_type<EventType>());
+        for (auto const &event : events)
         {
             FWD(self).is_processing_ = true;
 
@@ -93,7 +102,6 @@ public:
             FWD(self).is_processing_ = false;
             FWD(self).flushWaitingCallbacks();
         }
-        FWD(self).event_queue_.clear();
     }
 
     [[nodiscard]] auto addListener(this auto &&self, EventListenerIDType const &listenerID, std::any &&callback) -> bool

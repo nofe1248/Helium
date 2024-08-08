@@ -56,7 +56,7 @@ public:
     {
         return *this;
     }
-    virtual auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding &
+    virtual auto require(py::function callback) -> AbstractCommandNodeBinding &
     {
         return *this;
     }
@@ -120,11 +120,11 @@ public:
         }));
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context) -> bool {
             return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context]() -> std::any { return callback(context, py::none{}); }, utils::need_return));
+                [callback, context]() -> std::any { return bool{callback(context, py::none{}).cast<bool>()}; }, utils::need_return));
         }));
         return *this;
     }
@@ -200,11 +200,11 @@ public:
         }));
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, bool param) -> bool {
             return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::bool_{param}); }, utils::need_return));
+                [callback, context, param]() -> std::any { return callback(context, py::bool_{param}).cast<bool>(); }, utils::need_return));
         }));
         return *this;
     }
@@ -275,11 +275,11 @@ public:
         }));
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, int_least64_t param) -> bool {
             return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::int_{param}); }, utils::need_return));
+                [callback, context, param]() -> std::any { return callback(context, py::int_{param}).cast<bool>(); }, utils::need_return));
         }));
         return *this;
     }
@@ -350,11 +350,11 @@ public:
         }));
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, double param) -> bool {
             return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::float_{param}); }, utils::need_return));
+                [callback, context, param]() -> std::any { return callback(context, py::float_{param}).cast<bool>(); }, utils::need_return));
         }));
         return *this;
     }
@@ -425,11 +425,11 @@ public:
         }));
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, std::string param) -> bool {
             return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::str{param}); }, utils::need_return));
+                [callback, context, param]() -> std::any { return callback(context, py::str{param}).cast<bool>(); }, utils::need_return));
         }));
         return *this;
     }
@@ -500,11 +500,11 @@ public:
         }));
         return *this;
     }
-    auto require(std::function<bool(CommandContext const &, py::object)> const &callback) -> AbstractCommandNodeBinding & override
+    auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, std::string const &param) -> bool {
             return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::str{param}); }, utils::need_return));
+                [callback, context, param]() -> std::any { return callback(context, py::str{param}).cast<bool>(); }, utils::need_return));
         }));
         return *this;
     }

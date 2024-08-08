@@ -6,6 +6,7 @@
 module;
 
 #include <atomic>
+#include <stop_token>
 
 export module Helium.Events.MainEventLoop;
 
@@ -22,15 +23,13 @@ auto event_loop_logger = logger::SharedLogger::getSharedLogger("Events", "MainEv
 
 export namespace helium::events
 {
-auto mainEventLoop() -> void
+auto mainEventLoop(std::stop_token st) -> void
 {
     event_loop_logger->info("Helium main event thread started");
     auto main_bus = main_event_bus;
     auto listener = EventListener{main_bus};
-    std::atomic_bool should_run = true;
     utils::RunLoopExecutor::getInstance().execute([] {});
-    listener.listenToEvent<HeliumStopping>([&should_run](HeliumStopping const &event) { should_run = false; });
-    while (should_run)
+    while (not st.stop_requested())
     {
         main_bus->processEvents();
     }

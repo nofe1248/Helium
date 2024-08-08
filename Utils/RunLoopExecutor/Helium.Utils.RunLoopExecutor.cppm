@@ -69,16 +69,16 @@ public:
     }
 
     // use std::function instead of a templated function to sidestep a clang bug related to lambda name mangling in modules
-    [[nodiscard]] auto execute(this auto &&self, std::function<std::any()> &&func, NeedReturn need_return) noexcept -> std::any
+    [[nodiscard]] auto execute(this auto &&self, std::function<std::any()> const &func, NeedReturn need_return) noexcept -> std::any
     {
         return stdex::sync_wait(
-                   stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), std::forward<decltype(func)>(func)))
+                   stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), func))
             .value();
     }
 
-    auto execute(this auto &&self, std::function<void()> &&func) noexcept -> void
+    auto execute(this auto &&self, std::function<void()> const &func) noexcept -> void
     {
-        stdex::sync_wait(stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), std::forward<decltype(func)>(func)));
+        stdex::sync_wait(stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), func));
     }
 };
 } // namespace helium::utils

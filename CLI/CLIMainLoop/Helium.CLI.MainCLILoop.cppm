@@ -595,6 +595,8 @@ auto mainCLILoop()
 
     auto event_emitter = events::EventEmitter{events::main_event_bus};
     event_emitter.postponeEvent(events::HeliumStopping{});
+
+    server::server_instance->stop();
     utils::RunLoopExecutor::getInstance().finish();
 }
 } // namespace helium::cli
