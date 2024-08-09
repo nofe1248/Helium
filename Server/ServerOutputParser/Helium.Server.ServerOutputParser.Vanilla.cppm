@@ -65,21 +65,21 @@ public:
     constexpr auto preprocessServerOutput(this auto &&self, std::string const &raw_output) noexcept
         -> std::optional<std::tuple<std::string, PreprocessedInfo>>
     {
-        RE2 const timestamp_and_loglevel_regex{R"(\[(\d{2}):(\d{2}):(\d{2})\] \[(.+)\/(DEBUG|INFO|FINE|WARN|ERROR|FATAL)\]: )", RE2::Quiet};
+        RE2 const timestamp_and_loglevel_regex{R"(\[(\d{2}):(\d{2}):(\d{2})\] \[(.+)\/(DEBUG|INFO|FINE|WARN|ERROR|FATAL)\]: )"};
         int hour = 0, minute = 0, second = 0;
         std::string thread_name, log_level;
         std::string_view preprocessed_output_view{raw_output};
 
-        if (not RE2::Consume(&preprocessed_output_view, timestamp_and_loglevel_regex, &hour, &minute, &second, &thread_name, &log_level))
+        if (RE2::Consume(&preprocessed_output_view, timestamp_and_loglevel_regex, &hour, &minute, &second, &thread_name, &log_level))
         {
-            return std::nullopt;
+            return std::make_tuple(
+                std::string{
+                    preprocessed_output_view
+            },
+                PreprocessedInfo{.timestamp = ServerOutputInfoTimeStamp{.hour = hour, .minute = minute, .second = second}, .log_level = log_level});
         }
 
-        return std::make_tuple(
-            std::string{
-                preprocessed_output_view
-        },
-            PreprocessedInfo{.timestamp = ServerOutputInfoTimeStamp{.hour = hour, .minute = minute, .second = second}, .log_level = log_level});
+        return std::nullopt;
     }
 
     constexpr auto parseServerOutput(this auto &&self, std::string const &raw_output) noexcept -> std::optional<ServerOutputInfo>
@@ -141,6 +141,7 @@ public:
     {
         RE2 const message_regex{R"((\[Not Secure\] )?<([^>]+)> (.*))"};
         std::string not_secure, player_name, message;
+
         if (RE2::FullMatch(preprocessed_output, message_regex, &not_secure, &player_name, &message))
         {
             bool is_secure = not_secure.empty();
@@ -149,6 +150,7 @@ public:
                 return PlayerMessage{.is_secure = is_secure, .player_name = player_name, .player_message = message};
             }
         }
+
         return std::nullopt;
     }
 
@@ -158,6 +160,7 @@ public:
         std::string player_name, raw_address, ip;
         int entity_id = 0, port = 0;
         double x = 0.0f, y = 0.0f, z = 0.0f;
+
         if (RE2::FullMatch(preprocessed_output, player_join_regex, &player_name, &raw_address, &entity_id, &x, &y, &z))
         {
             if (verifyPlayerName(player_name))
@@ -187,6 +190,7 @@ public:
                 };
             }
         }
+
         return std::nullopt;
     }
 
@@ -194,6 +198,7 @@ public:
     {
         RE2 const player_left_regex{R"(([^ ]+) left the game)"};
         std::string player_name;
+
         if (RE2::FullMatch(preprocessed_output, player_left_regex, &player_name))
         {
             if (verifyPlayerName(player_name))
@@ -201,6 +206,7 @@ public:
                 return PlayerLeft{.player_name = player_name};
             }
         }
+
         return std::nullopt;
     }
 
@@ -208,10 +214,12 @@ public:
     {
         RE2 const version_regex{R"(Starting minecraft server version (.+))"};
         std::string version;
+
         if (RE2::FullMatch(preprocessed_output, version_regex, &version))
         {
             return ServerVersion{.version = version};
         }
+
         return std::nullopt;
     }
 
@@ -220,18 +228,19 @@ public:
         RE2 const address_regex{R"(Starting Minecraft server on (\S+):(\d+))"};
         std::string ip;
         int port = 0;
+
         if (RE2::FullMatch(preprocessed_output, address_regex, &ip, &port))
         {
             return ServerAddress{.ip = ip, .port = port};
         }
+
         return std::nullopt;
     }
 
     constexpr auto testServerStartupDone(this auto &&self, std::string const &preprocessed_output) noexcept -> bool
     {
-        RE2 const started_regex_above_113{R"(Done \([0-9.]+s\)! For help, type "help")"};
-        RE2 const started_regex_under_113{R"(Done \([0-9.]+s\)! For help, type "help" or "?")"};
-        return RE2::FullMatch(preprocessed_output, started_regex_above_113) or RE2::FullMatch(preprocessed_output, started_regex_under_113);
+        RE2 const started_regex{R"(Done \([0-9.]+s\)! For help, type "help"( or "\?")?)"};
+        return RE2::FullMatch(preprocessed_output, started_regex);
     }
 
     constexpr auto testRCONStarted(this auto &&self, std::string const &preprocessed_output) noexcept -> bool

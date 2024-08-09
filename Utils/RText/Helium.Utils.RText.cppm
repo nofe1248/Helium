@@ -175,7 +175,7 @@ public:
 class RText final
 {
 private:
-    rfl::Generic::Object json_object_;
+    mutable rfl::Generic::Object json_object_;
     std::optional<RColorClassic::RColorClassicInternal> color_;
     std::vector<RStyleClassic::RStyleClassicInternal> styles_;
 
@@ -196,11 +196,11 @@ public:
     {
         return rfl::json::write(this->json_object_);
     }
-    [[nodiscard]] auto toPlainText() -> std::string
+    [[nodiscard]] auto toPlainText() const -> std::string
     {
         return this->json_object_["text"].to_string().value_or("");
     }
-    [[nodiscard]] auto toColoredText() -> std::string
+    [[nodiscard]] auto toColoredText() const -> std::string
     {
         std::stringstream ss;
         if (this->color_.has_value())
