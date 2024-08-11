@@ -75,7 +75,6 @@ private:
                     auto message = std::get<PlayerMessage>(output_info.info.value()).player_message;
                     if(message.front() == '#')
                     {
-                        output_process_thread_logger->debug("executing command");
                         commands::CommandSource command_source("player", std::get<PlayerMessage>(output_info.info.value()).player_name);
                         commands::CommandDispatcher::getInstance().tryExecuteCommand(command_source, message);
                     }

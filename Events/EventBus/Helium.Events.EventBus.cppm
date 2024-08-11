@@ -59,6 +59,7 @@ private:
     std::vector<std::function<void()>> stream_deleters_{};
 
     mutable std::shared_mutex mutex_streams_;
+    mutable std::shared_mutex mutex_streams_dynamic_;
     mutable std::shared_mutex mutex_process_;
 
     template <concepts::IsEvent EventT>
@@ -68,7 +69,6 @@ private:
         static auto event_type_name = std::string{nameof::nameof_full_type<EventT>()};
         if (not FWD(self).event_streams_map.contains(event_type_name))
         {
-            bus_logger->debug("Creating event stream proxy for {}", event_type_name);
             auto *event_stream_ptr = new EventStream<EventT>{};
             FWD(self).stream_deleters_.push_back([event_stream_ptr] { delete event_stream_ptr; });
             FWD(self).event_streams_map[event_type_name] = event_stream_ptr;
@@ -78,11 +78,10 @@ private:
 
     constexpr auto getDynamicIDEventStream(this auto &&self) -> DynamicIDEventStreamProxy
     {
-        std::lock_guard guard(self.mutex_streams_);
+        std::lock_guard guard(self.mutex_streams_dynamic_);
         static auto event_type_name = std::string{nameof::nameof_full_type<PythonEvent>()};
         if (not FWD(self).dynamic_id_event_streams_map.contains(event_type_name))
         {
-            bus_logger->debug("Creating event stream proxy for {}", event_type_name);
             auto *event_stream_ptr = new DynamicIDEventStream{};
             FWD(self).stream_deleters_.push_back([event_stream_ptr] { delete event_stream_ptr; });
             FWD(self).dynamic_id_event_streams_map[event_type_name] = event_stream_ptr;
@@ -108,37 +107,18 @@ public:
     auto processEvents(this auto &&self) -> void
     {
         std::lock_guard _(FWD(self).mutex_process_);
-        std::unordered_map<std::string, EventStreamProxy> streams;
-        bool ret = true;
-        {
-            std::lock_guard write_guard(FWD(self).mutex_streams_);
-            std::swap(streams, FWD(self).event_streams_map);
-        }
+        std::unordered_map<std::string, EventStreamProxy> streams = FWD(self).event_streams_map;
 
         for (EventStreamProxy &event_stream : streams | std::views::values)
         {
             event_stream->processEvents();
         }
 
-        {
-            std::lock_guard write_guard(FWD(self).mutex_streams_);
-            std::swap(streams, FWD(self).event_streams_map);
-        }
-
-        std::unordered_map<std::string, DynamicIDEventStreamProxy> dynamic_id_streams;
-        {
-            std::lock_guard write_guard(FWD(self).mutex_streams_);
-            std::swap(dynamic_id_streams, FWD(self).dynamic_id_event_streams_map);
-        }
+        std::unordered_map<std::string, DynamicIDEventStreamProxy> dynamic_id_streams = FWD(self).dynamic_id_event_streams_map;
 
         for (DynamicIDEventStreamProxy &dynamic_id_event_stream : dynamic_id_streams | std::views::values)
         {
             dynamic_id_event_stream->processEvents();
-        }
-
-        {
-            std::lock_guard write_guard(FWD(self).mutex_streams_);
-            std::swap(dynamic_id_streams, FWD(self).dynamic_id_event_streams_map);
         }
     }
 
