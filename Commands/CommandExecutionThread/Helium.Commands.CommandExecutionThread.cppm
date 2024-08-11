@@ -40,16 +40,19 @@ private:
     auto mainCommandExecutionThreadLoop(std::stop_token st) -> void
     {
         logger->info("Command execution thread started");
-        std::vector<CommandInfo> commands{};
+        while (not st.stop_requested())
         {
-            std::unique_lock<std::mutex> lock(mutex_);
-            std::swap(commands, this->commands_queue_);
-        }
-        for (auto const &command : commands)
-        {
-            if (not CommandDispatcher::getInstance().tryExecuteCommand(command.source, command.command))
+            std::vector<CommandInfo> commands{};
             {
-                logger->error("Command {} failed to execute", command.command);
+                std::unique_lock<std::mutex> lock(mutex_);
+                std::swap(commands, this->commands_queue_);
+            }
+            for (auto const &command : commands)
+            {
+                if (not CommandDispatcher::getInstance().tryExecuteCommand(command.source, command.command))
+                {
+                    logger->error("Command {} failed to execute", command.command);
+                }
             }
         }
         logger->info("Command execution thread stopping");

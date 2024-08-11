@@ -27,8 +27,8 @@ import Helium.Base.HeliumObject;
 import Helium.Commands.CommandSource;
 import Helium.Commands.CommandDispatcher;
 import Helium.Commands.CommandExecutionThread;
-import Helium.Events;
 import Helium.Server;
+import Helium.Events;
 import Helium.Logger;
 import Helium.Utils.RunLoopExecutor;
 
@@ -426,6 +426,10 @@ private:
                     if (input_command.front() == '#')
                     {
                         commands::CommandExecutionThread::getInstance().addCommand(console_source, input_command);
+                        if (input_command == "#helium exit")
+                        {
+                            break;
+                        }
                     }
                     else
                     {
