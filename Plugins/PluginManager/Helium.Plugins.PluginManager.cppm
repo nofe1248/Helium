@@ -48,7 +48,7 @@ private:
 public:
     PluginManager()
     {
-        this->plugin_path_ = fs::absolute(fs::path{config::config.python_plugin.path});
+        this->plugin_path_ = fs::absolute(fs::path{config::HeliumConfig::getInstance().python_plugin.path});
         if (not fs::exists(this->plugin_path_))
         {
             fs::create_directories(this->plugin_path_);
@@ -67,7 +67,7 @@ public:
         manager_logger->info("Python {} interpreter finalized.", PY_VERSION);
     }
 
-    auto SearchPlugins() const -> std::vector<fs::path>
+    [[nodiscard]] auto SearchPlugins() const -> std::vector<fs::path>
     {
         py::gil_scoped_acquire acquire;
         std::vector<fs::path> plugin_paths;

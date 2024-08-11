@@ -82,10 +82,16 @@ private:
     }
 
 public:
+    static auto getInstancePointer() noexcept -> std::shared_ptr<ServerInstance>
+    {
+        static auto instance = std::make_shared<ServerInstance>();
+        return instance;
+    }
+
     explicit ServerInstance()
-        : io_context_(), server_process_ptr_(), server_path_(config::config.server.path), server_type_(config::config.server.type),
-          server_startup_executable_(config::config.server.startup_command_executable),
-          server_startup_parameters_(config::config.server.startup_command_parameters), server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
+        : io_context_(), server_process_ptr_(), server_path_(config::HeliumConfig::getInstance().server.path), server_type_(config::HeliumConfig::getInstance().server.type),
+          server_startup_executable_(config::HeliumConfig::getInstance().server.startup_command_executable),
+          server_startup_parameters_(config::HeliumConfig::getInstance().server.startup_command_parameters), server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
     {
         if (this->server_type_ == config::ServerType::VANILLA)
         {
@@ -227,7 +233,7 @@ public:
         }
 
         server_logger->info("Launching server");
-        events::main_event_bus->postponeEvent<events::ServerStarting>(events::ServerStarting{});
+        events::EventBus::getInstancePointer()->postponeEvent<events::ServerStarting>(events::ServerStarting{});
 
         FWD(self).server_process_ptr_ =
             std::make_shared<process::popen>(FWD(self).io_context_, FWD(self).server_startup_executable_, FWD(self).server_startup_parameters_,
@@ -295,13 +301,13 @@ public:
                 }
                 if (auto info_opt = self.parser_->parseServerOutput(output_buffer); info_opt.has_value())
                 {
-                    server_output_process_thread.addServerOutputInfo(info_opt.value());
+                    ServerOutputProcessThread::getInstance().addServerOutputInfo(info_opt.value());
                 }
                 logger_ptr->info(output_buffer);
                 output_buffer.clear();
             }
             self.setServerState(ServerState::SERVER_STATE_STOPPED);
-            events::main_event_bus->postponeEvent<events::ServerStopped>(events::ServerStopped{});
+            events::EventBus::getInstancePointer()->postponeEvent<events::ServerStopped>(events::ServerStopped{});
             server_logger->info("Server stopped with return code {}", self.server_process_ptr_->exit_code());
             server_logger->info("Server output processing thread stopping");
         });
@@ -377,6 +383,4 @@ public:
         return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
     }
 };
-
-std::shared_ptr<ServerInstance> server_instance = nullptr;
 } // namespace helium::server

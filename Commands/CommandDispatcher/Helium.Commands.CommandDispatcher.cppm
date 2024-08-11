@@ -43,6 +43,12 @@ private:
     plf::hive<Token> tokens_cache_;
 
 public:
+    static auto getInstance() noexcept -> CommandDispatcher &
+    {
+        static CommandDispatcher instance;
+        return instance;
+    }
+
     template <typename Command>
     constexpr auto registerCommand(Command &&command) -> void
         requires concepts::IsCommandNode<Command>

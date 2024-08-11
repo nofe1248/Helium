@@ -62,8 +62,9 @@ target_sources(
         Base/Version/Helium.Base.Version.cppm
         Base/Helium.Base.cppm
         CLI/Helium.CLI.cppm
-        CLI/CLIMainLoop/Helium.CLI.MainCLILoop.cppm
+        CLI/MainCLIThread/Helium.CLI.MainCLIThread.cppm
         Commands/BindingHelper/Helium.Commands.BindingHelper.cppm
+        Commands/BuiltinCommands/Helium.Commands.BuiltinCommands.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentFloatingPoint.cppm
@@ -71,6 +72,7 @@ target_sources(
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentQuotedString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentString.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.cppm
+        Commands/CommandExecutionThread/Helium.Commands.CommandExecutionThread.cppm
         Commands/CommandRoot/Helium.Commands.CommandRoot.cppm
         Commands/CommandBase/Helium.Commands.CommandBase.cppm
         Commands/CommandContext/Helium.Commands.CommandContext.cppm
@@ -91,7 +93,7 @@ target_sources(
         Events/EventListener/Helium.Events.EventListener.cppm
         Events/EventStream/Helium.Events.EventStream.cppm
         Events/Helium/Helium.Events.Helium.cppm
-        Events/MainEventLoop/Helium.Events.MainEventLoop.cppm
+        Events/EventDispatchThread/Helium.Events.EventDispatchThread.cppm
         Events/Test/Helium.Events.Test.cppm
         Events/Helium.Events.cppm
         Exceptions/TerminateHandler/Helium.Exceptions.TerminateHandler.cppm

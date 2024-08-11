@@ -66,43 +66,57 @@ struct HeliumConfig
     PythonPluginConfig python_plugin;
     ServerConfig server;
     DebugConfig debug;
-};
-HeliumConfig config{};
 
-auto readConfig() -> bool
-{
-    config_logger->info("Reading config from file");
-    if (not std::filesystem::exists("./helium_config.toml"))
+    static auto getInstance() noexcept -> HeliumConfig &
     {
-        config_logger->warn("Config file not found, creating with default value.");
-        auto const result = rfl::toml::save("./helium_config.toml", config);
-        if(not result)
+        static HeliumConfig instance{};
+        return instance;
+    }
+
+    static auto readConfig() -> bool
+    {
+        config_logger->info("Reading config from file");
+        if (not std::filesystem::exists("./helium_config.toml"))
         {
-            config_logger->error("Failed to create config file.");
+            config_logger->warn("Config file not found, creating with default value.");
+            if (auto const result = rfl::toml::save("./helium_config.toml", getInstance()); not result)
+            {
+                config_logger->error("Failed to create config file.");
+                return false;
+            }
+        }
+        if (rfl::Result<HeliumConfig> const result = rfl::toml::load<HeliumConfig>("./helium_config.toml"))
+        {
+            getInstance() = result.value();
+        }
+        else
+        {
+            config_logger->error("Failed to load config file, using default config values.");
             return false;
         }
+        return true;
     }
-    rfl::Result<HeliumConfig> const result = rfl::toml::load<HeliumConfig>("./helium_config.toml");
-    if (result)
+
+    static auto saveConfig() -> bool
     {
-        config = result.value();
+        config_logger->info("Saving config to file");
+        if (auto const result = rfl::toml::save("./helium_config.toml", getInstance()); not result)
+        {
+            config_logger->error("Failed to save config file.");
+        }
+        config_logger->info("Config saved");
+        return true;
     }
-    else
-    {
-        config_logger->error("Failed to load config file, using default config values.");
-        return false;
-    }
-    return true;
-}
-auto saveConfig() -> bool
+};
+struct ConfigHelper
 {
-    config_logger->info("Saving config to file");
-    auto const result = rfl::toml::save("./helium_config.toml", config);
-    if(not result)
+    ConfigHelper()
     {
-        config_logger->error("Failed to save config file.");
+        HeliumConfig::readConfig();
     }
-    config_logger->info("Config saved");
-    return true;
-}
+    ~ConfigHelper()
+    {
+        HeliumConfig::saveConfig();
+    }
+} config_helper;
 } // namespace helium::config

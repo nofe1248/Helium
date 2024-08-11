@@ -51,7 +51,7 @@ private:
 
         if (not spdlog::thread_pool())
         {
-            spdlog::init_thread_pool(2048, 4);
+            spdlog::init_thread_pool(4096, 1);
             spdlog::flush_every(std::chrono::seconds(1));
         }
 

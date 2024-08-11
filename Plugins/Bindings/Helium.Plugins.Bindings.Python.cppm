@@ -85,25 +85,23 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<config::HeliumConfig>(config_module, "HeliumConfig")
         .def_readwrite("python_plugin", &config::HeliumConfig::python_plugin)
         .def_readwrite("server", &config::HeliumConfig::server)
-        .def_readwrite("debug", &config::HeliumConfig::debug);
-
-    config_module.def("read_config", []() -> config::HeliumConfig & {
-        config::readConfig();
-        return config::config;
-    });
-    config_module.def("save_config", []() -> config::HeliumConfig & {
-        config::saveConfig();
-        return config::config;
-    });
-    config_module.def("get_config", []() -> config::HeliumConfig & { return config::config; });
+        .def_readwrite("debug", &config::HeliumConfig::debug)
+        .def_static("get_config", &config::HeliumConfig::getInstance)
+        .def_static("read_config", &config::HeliumConfig::readConfig)
+        .def_static("save_config", &config::HeliumConfig::saveConfig);
 
     auto command_module = m.def_submodule("commands");
     py::class_<commands::CommandSource>(command_module, "CommandSource")
         .def(py::init<std::string, std::string, std::optional<std::string>>(), py::arg("source_type"), py::arg("major_source"),
              py::arg("minor_source") = py::none{})
-        .def(py::init<>());
+        .def(py::init<>())
+        .def_property("source_type", &commands::CommandSource::getSourceType, &commands::CommandSource::setSourceType)
+        .def_property("major_source", &commands::CommandSource::getMajorSource, &commands::CommandSource::setMajorSource)
+        .def_property("minor_source", &commands::CommandSource::getMinorSource, &commands::CommandSource::setMinorSource);
 
-    py::class_<commands::CommandContext>(command_module, "CommandContext").def(py::init<commands::CommandSource>());
+    py::class_<commands::CommandContext>(command_module, "CommandContext")
+        .def(py::init<commands::CommandSource>())
+        .def("get_source", &commands::CommandContext::getSource);
 
     py::class_<commands::CommandNodeDescriptor, std::shared_ptr<commands::CommandNodeDescriptor>>(command_module, "CommandNodeDescriptor")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
@@ -270,14 +268,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::arg("show_all_results") = py::bool_{false});
 
     command_module.def("register_command", [](commands::bindings::AbstractCommandNodeBinding &node) {
-        cli::dispatcher.registerRawCommandNodeDescriptor(node.getNodeDescriptor());
+        commands::CommandDispatcher::getInstance().registerRawCommandNodeDescriptor(node.getNodeDescriptor());
     });
     command_module.def("try_execute_command", [](commands::CommandSource const &source, std::string const &command) -> bool {
-        return cli::dispatcher.tryExecuteCommand(source, command);
+        return commands::CommandDispatcher::getInstance().tryExecuteCommand(source, command);
     });
     command_module.def("get_suggestions",
                        [](std::string const &command, double similarity_cutoff, bool show_all_result = false) -> std::vector<std::string> {
-                           return cli::dispatcher.getSuggestions(command, similarity_cutoff, show_all_result);
+                           return commands::CommandDispatcher::getInstance().getSuggestions(command, similarity_cutoff, show_all_result);
                        });
 
     auto server_module = m.def_submodule("server");
@@ -344,8 +342,6 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def_readwrite("raw_content", &server::ServerOutputInfo::raw_content)
         .def_readwrite("content", &server::ServerOutputInfo::content)
         .def_readwrite("info", &server::ServerOutputInfo::info);
-
-    py::class_<server::binding::ServerInstanceBindingHelper>(server_module, "ServerInstance").def(py::init<>());
 
     py::class_<server::binding::ArclightServerOutputParserBindingHelper>(server_module, "ArclightServerOutputParser")
         .def(py::init<>())
@@ -590,6 +586,28 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("test_rcon_started", &server::binding::WaterfallServerOutputParserBindingHelper::testRCONStarted)
         .def("test_server_stopping", &server::binding::WaterfallServerOutputParserBindingHelper::testServerStopping);
 
+    py::enum_<server::ServerState>(server_module, "ServerState")
+        .value("ServerStateUninitialized", server::ServerState::SERVER_STATE_UNINITIALIZED)
+        .value("ServerStateStarting", server::ServerState::SERVER_STATE_STARTING)
+        .value("ServerStateRunning", server::ServerState::SERVER_STATE_RUNNING)
+        .value("ServerStateStopping", server::ServerState::SERVER_STATE_STOPPING)
+        .value("ServerStateStopped", server::ServerState::SERVER_STATE_STOPPED)
+        .export_values();
+    py::class_<server::binding::ServerInstanceBindingHelper>(server_module, "ServerInstance")
+        .def(py::init<>())
+        .def_static("send_raw_input", &server::binding::ServerInstanceBindingHelper::sendRawInput)
+        .def_static("start", &server::binding::ServerInstanceBindingHelper::start)
+        .def_static("stop", &server::binding::ServerInstanceBindingHelper::stop)
+        .def_static("kill", &server::binding::ServerInstanceBindingHelper::kill)
+        .def_static("get_server_state", &server::binding::ServerInstanceBindingHelper::getServerState)
+        .def_static("send_message",
+                    py::overload_cast<std::string const &, std::string const &>(&server::binding::ServerInstanceBindingHelper::sendMessage))
+        .def_static("send_message",
+                    py::overload_cast<std::string const &, utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::sendMessage))
+        .def_static("broadcast_message", py::overload_cast<std::string const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
+        .def_static("broadcast_message",
+                    py::overload_cast<utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage));
+
     auto events_module = m.def_submodule("events");
 
     py::class_<events::HeliumStarting>(events_module, "HeliumStartingEvent").def(py::init<>());
@@ -681,6 +699,19 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     auto utils_module = m.def_submodule("utils");
 
     auto rtext_module = utils_module.def_submodule("rtext");
+    py::class_<utils::rtext::RColorClassic::RColorClassicInternal>(rtext_module, "RColorClassicInternal")
+        .def(py::init<std::string const &, std::string const &, std::string const &>())
+        .def_readonly("name", &utils::rtext::RColorClassic::RColorClassicInternal::name)
+        .def_readonly("mc_code", &utils::rtext::RColorClassic::RColorClassicInternal::mc_code)
+        .def_readonly("console_code", &utils::rtext::RColorClassic::RColorClassicInternal::console_code);
+    py::class_<utils::rtext::RStyleClassic::RStyleClassicInternal>(rtext_module, "RStyleClassicInternal")
+        .def(py::init<std::string const &, std::string const &, std::string const &>())
+        .def_readonly("name", &utils::rtext::RStyleClassic::RStyleClassicInternal::name)
+        .def_readonly("mc_code", &utils::rtext::RStyleClassic::RStyleClassicInternal::mc_code)
+        .def_readonly("console_code", &utils::rtext::RStyleClassic::RStyleClassicInternal::console_code);
+    py::class_<utils::rtext::RAction::RActionInternal>(rtext_module, "RActionInternal")
+        .def(py::init<std::string const &>())
+        .def_readonly("action", &utils::rtext::RAction::RActionInternal::action);
     py::class_<utils::rtext::RStyleClassic>(rtext_module, "RStyleClassic")
         .def_readonly_static("bold", &utils::rtext::RStyleClassic::bold)
         .def_readonly_static("italic", &utils::rtext::RStyleClassic::italic)

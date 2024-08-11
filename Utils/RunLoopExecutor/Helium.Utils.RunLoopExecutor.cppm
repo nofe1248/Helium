@@ -6,9 +6,12 @@
 module;
 
 #include <any>
+#include <exception>
 #include <functional>
 
 #include <stdexec/execution.hpp>
+
+#include <pybind11/pybind11.h>
 
 export module Helium.Utils.RunLoopExecutor;
 
@@ -16,6 +19,7 @@ import Helium.Base.HeliumObject;
 import Helium.Logger;
 
 namespace stdex = stdexec;
+namespace py = pybind11;
 
 namespace helium::utils
 {
@@ -71,12 +75,48 @@ public:
     // use std::function instead of a templated function to sidestep a clang bug related to lambda name mangling in modules
     [[nodiscard]] auto execute(this auto &&self, std::function<std::any()> const &func, NeedReturn need_return) noexcept -> std::any
     {
-        return stdex::sync_wait(stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), func)).value();
+        return stdex::sync_wait(stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()),
+                                            [&func]() {
+                                                try
+                                                {
+                                                    return func();
+                                                }
+                                                catch (py::error_already_set const &e)
+                                                {
+                                                    executor_logger->error("Exception during execution: {}", e.what());
+                                                }
+                                                catch (std::exception const &e)
+                                                {
+                                                    executor_logger->error("Exception during execution: {}", e.what());
+                                                }
+                                                catch (...)
+                                                {
+                                                    executor_logger->error("Unknown exception during execution");
+                                                }
+                                            }))
+            .value();
     }
 
     auto execute(this auto &&self, std::function<void()> const &func) noexcept -> void
     {
-        stdex::sync_wait(stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), func));
+        stdex::sync_wait(stdex::then(stdex::schedule(std::forward<decltype(self)>(self).loop_.get_scheduler()), [&func]() {
+            try
+            {
+                func();
+            }
+            catch (py::error_already_set const &e)
+            {
+                executor_logger->error("Exception during execution: {}", e.what());
+            }
+            catch (std::exception const &e)
+            {
+                executor_logger->error("Exception during execution: {}", e.what());
+            }
+            catch (...)
+            {
+                executor_logger->error("Unknown exception during execution");
+            }
+        }));
     }
 };
 } // namespace helium::utils

@@ -18,6 +18,9 @@ import Helium.Server.ServerOutputParser.ServerOutputInfo;
 import Helium.Events.EventBus;
 import Helium.Events.Helium;
 import Helium.Logger;
+import Helium.Commands.CommandContext;
+import Helium.Commands.CommandSource;
+import Helium.Commands.CommandDispatcher;
 
 namespace helium::server
 {
@@ -47,48 +50,61 @@ private:
             {
                 if (output_info.info_type == ServerOutputInfoType::RCON_STARTED)
                 {
-                    events::main_event_bus->postponeEvent<events::RCONStarted>(events::RCONStarted{});
+                    events::EventBus::getInstancePointer()->postponeEvent<events::RCONStarted>(events::RCONStarted{});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::SERVER_STARTED)
                 {
-                    events::main_event_bus->postponeEvent<events::ServerStarted>(events::ServerStarted{});
+                    events::EventBus::getInstancePointer()->postponeEvent<events::ServerStarted>(events::ServerStarted{});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::SERVER_STOPPING)
                 {
-                    events::main_event_bus->postponeEvent<events::ServerStopping>(events::ServerStopping{});
+                    events::EventBus::getInstancePointer()->postponeEvent<events::ServerStopping>(events::ServerStopping{});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::SERVER_ADDRESS)
                 {
-                    events::main_event_bus->postponeEvent<events::ServerAddress>(
+                    events::EventBus::getInstancePointer()->postponeEvent<events::ServerAddress>(
                         events::ServerAddress{.info = std::get<ServerAddress>(output_info.info.value())});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::SERVER_VERSION)
                 {
-                    events::main_event_bus->postponeEvent<events::ServerVersion>(
+                    events::EventBus::getInstancePointer()->postponeEvent<events::ServerVersion>(
                         events::ServerVersion{.info = std::get<ServerVersion>(output_info.info.value())});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::PLAYER_MESSAGE)
                 {
-                    events::main_event_bus->postponeEvent<events::PlayerMessage>(
+                    auto message = std::get<PlayerMessage>(output_info.info.value()).player_message;
+                    if(message.front() == '#')
+                    {
+                        output_process_thread_logger->debug("executing command");
+                        commands::CommandSource command_source("player", std::get<PlayerMessage>(output_info.info.value()).player_name);
+                        commands::CommandDispatcher::getInstance().tryExecuteCommand(command_source, message);
+                    }
+                    events::EventBus::getInstancePointer()->postponeEvent<events::PlayerMessage>(
                         events::PlayerMessage{.info = std::get<PlayerMessage>(output_info.info.value())});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::PLAYER_JOINED)
                 {
-                    events::main_event_bus->postponeEvent<events::PlayerJoined>(
+                    events::EventBus::getInstancePointer()->postponeEvent<events::PlayerJoined>(
                         events::PlayerJoined{.info = std::get<PlayerJoined>(output_info.info.value())});
                 }
                 else if (output_info.info_type == ServerOutputInfoType::PLAYER_LEFT)
                 {
-                    events::main_event_bus->postponeEvent<events::PlayerLeft>(
+                    events::EventBus::getInstancePointer()->postponeEvent<events::PlayerLeft>(
                         events::PlayerLeft{.info = std::get<PlayerLeft>(output_info.info.value())});
                 }
-                events::main_event_bus->postponeEvent<events::ServerOutput>(events::ServerOutput{.info = output_info});
+                events::EventBus::getInstancePointer()->postponeEvent<events::ServerOutput>(events::ServerOutput{.info = output_info});
             }
         }
         output_process_thread_logger->info("Server output process thread stopping");
     }
 
 public:
+    static auto getInstance() noexcept -> ServerOutputProcessThread &
+    {
+        static ServerOutputProcessThread instance;
+        return instance;
+    }
+
     ServerOutputProcessThread() : info_queue_(), thread_()
     {
     }
@@ -98,13 +114,18 @@ public:
         this->thread_ = std::move(std::jthread(&ServerOutputProcessThread::mainServerOutputProcessLoop, this));
     }
 
-    ~ServerOutputProcessThread()
+    auto stop() -> void
     {
+        this->thread_.request_stop();
         if (this->thread_.joinable())
         {
-            this->thread_.request_stop();
             this->thread_.join();
         }
+    }
+
+    ~ServerOutputProcessThread()
+    {
+        this->stop();
     }
 
     auto addServerOutputInfo(ServerOutputInfo const &output_info) -> void
@@ -113,5 +134,4 @@ public:
         this->info_queue_.push_back(output_info);
     }
 };
-ServerOutputProcessThread server_output_process_thread;
 } // namespace helium::server

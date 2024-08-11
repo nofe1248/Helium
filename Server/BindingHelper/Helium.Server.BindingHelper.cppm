@@ -28,6 +28,79 @@ export namespace helium::server::binding
 {
 class ServerInstanceBindingHelper
 {
+public:
+    static auto sendRawInput(std::string const &input) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->sendRawInput(input);
+    }
+    static auto start() -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->start();
+    }
+    static auto stop() -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->stop();
+    }
+    static auto kill() -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->kill();
+    }
+    static auto getServerState() -> std::optional<ServerState>
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return std::nullopt;
+        }
+        return ServerInstance::getInstancePointer()->getServerState();
+    }
+    static auto sendMessage(std::string const &target, std::string const &info) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->sendMessage(target, info);
+    }
+    static auto sendMessage(std::string const &target, RText const &info) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->sendMessage(target, info);
+    }
+    static auto broadcastMessage(std::string const &info) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->broadcastMessage(info);
+    }
+    static auto broadcastMessage(RText const &info) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->broadcastMessage(info);
+    }
 };
 
 class ArclightServerOutputParserBindingHelper

@@ -64,16 +64,12 @@ auto heliumMain(int argc, const char *argv[]) -> int
     logger->info("Helium version {}, copyright Helium DevTeam 2024, distributed under MIT license.", base::helium_version.to_string());
     cxxopts::Options options{"Helium", "A lightweight extension system for any console applications"};
 
-    logger->info("Initializing Helium main event bus");
-    events::main_event_bus = std::make_shared<events::EventBus>();
-    events::EventEmitter event_emitter{events::main_event_bus};
-    std::jthread event_thread{events::mainEventLoop};
+    events::EventEmitter event_emitter{events::EventBus::getInstancePointer()};
+    events::EventDispatchThread::getInstance().run();
 
     event_emitter.postponeEvent(events::HeliumStarting{});
 
-    bool b = config::readConfig();
-
-    if (config::config.debug.debug_mode)
+    if (config::HeliumConfig::getInstance().debug.debug_mode)
     {
         logger::LoggerImpl::enableAllDebugLog();
         logger->debug("Entered debug mode.");
@@ -101,24 +97,18 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     event_emitter.postponeEvent(events::HeliumStarted{});
 
-    server::server_output_process_thread.run();
-    server::server_instance = std::make_shared<server::ServerInstance>();
+    server::ServerOutputProcessThread::getInstance().run();
+    server::ServerInstance::getInstancePointer()->start();
 
-    std::thread cli_thread{cli::mainCLILoop};
-    cli_thread.detach();
+    commands::CommandExecutionThread::getInstance().run();
+    cli::MainCLIThread::getInstance().run();
 
     utils::RunLoopExecutor::getInstance().run();
 
-    if (event_thread.joinable())
-    {
-        event_thread.request_stop();
-        event_thread.join();
-    }
-
-    config::saveConfig();
-
-    logger->info("Finalizing Helium main event bus");
-    events::main_event_bus.reset();
+    cli::MainCLIThread::getInstance().stop();
+    server::ServerOutputProcessThread::getInstance().stop();
+    events::EventDispatchThread::getInstance().stop();
+    commands::CommandExecutionThread::getInstance().stop();
 
     return 0;
 }

@@ -89,7 +89,6 @@ public:
             std::lock_guard write_guard(FWD(self).mutex_event_);
             std::swap(events, FWD(self).event_queue_);
         }
-        stream_logger->debug("Processing {} events: {}", events.size(), nameof::nameof_full_type<EventType>());
         for (auto const &event : events)
         {
             FWD(self).is_processing_ = true;

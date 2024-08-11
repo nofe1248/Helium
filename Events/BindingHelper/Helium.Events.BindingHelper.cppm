@@ -92,7 +92,7 @@ private:
     EventEmitter event_emitter_;
 
 public:
-    EventEmitterBinding() : event_emitter_(main_event_bus)
+    EventEmitterBinding() : event_emitter_(events::EventBus::getInstancePointer())
     {
     }
     EventEmitterBinding(EventBusBinding const &event_bus) : event_emitter_(event_bus.getEventBus())
@@ -194,7 +194,7 @@ private:
     EventListener event_listener_;
 
 public:
-    EventListenerBinding() : event_listener_(main_event_bus)
+    EventListenerBinding() : event_listener_(events::EventBus::getInstancePointer())
     {
     }
     EventListenerBinding(EventBusBinding const &event_bus) : event_listener_(event_bus.getEventBus())

@@ -129,6 +129,12 @@ public:
         }
     }
 
+    static auto getInstancePointer() noexcept -> std::shared_ptr<EventBus>
+    {
+        static auto instance = std::make_shared<EventBus>();
+        return instance;
+    }
+
     auto processEvents(this auto &&self) -> void
     {
         std::lock_guard _(FWD(self).mutex_process_);
@@ -224,5 +230,4 @@ public:
         return FWD(self).getDynamicIDEventStream()->hasListener(listener_id, event_id);
     }
 };
-std::shared_ptr<EventBus> main_event_bus = nullptr;
 } // namespace helium::events

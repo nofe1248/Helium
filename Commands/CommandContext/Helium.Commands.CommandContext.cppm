@@ -24,9 +24,9 @@ public:
     {
     }
 
-    constexpr auto getSource(this auto &&self) noexcept -> CommandSource const &
+    constexpr auto getSource() const noexcept -> CommandSource const &
     {
-        return std::forward<decltype(self)>(self).source_;
+        return this->source_;
     }
 };
 } // namespace helium::commands
