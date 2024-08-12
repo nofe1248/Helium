@@ -274,7 +274,6 @@ public:
                 }
                 catch (...)
                 {
-                    logger_ptr->info("exception");
                     break;
                 }
                 if (output_buffer.empty())
