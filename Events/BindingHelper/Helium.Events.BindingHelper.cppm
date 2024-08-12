@@ -49,6 +49,7 @@ enum class HeliumDefaultEventsBindingEnum
     SERVER_STOPPED,
     CONSOLE_INPUT,
     SERVER_OUTPUT,
+    SERVER_MESSAGE,
     PLAYER_MESSAGE,
     PLAYER_JOINED,
     PLAYER_LEFT,
@@ -153,6 +154,10 @@ public:
         else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
             this->event_emitter_.postponeEvent(ServerOutput{event_arg.cast<server::ServerOutputInfo>()});
+        }
+        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_MESSAGE)
+        {
+            this->event_emitter_.postponeEvent(ServerMessage{event_arg.cast<server::ServerMessage>()});
         }
         else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
@@ -280,6 +285,12 @@ public:
                 utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
             }));
         }
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_MESSAGE)
+        {
+            return this->event_listener_.listenToEvent<ServerMessage>(std::move([callback](ServerMessage const &event) -> void {
+                utils::RunLoopExecutor::getInstance().execute([callback, event] { callback(event); });
+            }));
+        }
         if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
             return this->event_listener_.listenToEvent<PlayerMessage>(std::move([callback](PlayerMessage const &event) -> void {
@@ -377,6 +388,10 @@ public:
         {
             this->event_listener_.unlistenToEvent<ServerOutput>();
         }
+        else if (event_type == HeliumDefaultEventsBindingEnum::SERVER_MESSAGE)
+        {
+            this->event_listener_.unlistenToEvent<ServerMessage>();
+        }
         else if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {
             this->event_listener_.unlistenToEvent<PlayerMessage>();
@@ -461,6 +476,10 @@ public:
         if (event_type == HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
         {
             return this->event_listener_.isListeningToEvent<ServerOutput>();
+        }
+        if (event_type == HeliumDefaultEventsBindingEnum::SERVER_MESSAGE)
+        {
+            return this->event_listener_.isListeningToEvent<ServerMessage>();
         }
         if (event_type == HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         {

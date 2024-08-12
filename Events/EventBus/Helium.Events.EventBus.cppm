@@ -70,7 +70,7 @@ private:
         if (not FWD(self).event_streams_map.contains(event_type_name))
         {
             auto *event_stream_ptr = new EventStream<EventT>{};
-            FWD(self).stream_deleters_.push_back([event_stream_ptr] { delete event_stream_ptr; });
+            FWD(self).stream_deleters_.emplace_back([event_stream_ptr] { delete event_stream_ptr; });
             FWD(self).event_streams_map[event_type_name] = event_stream_ptr;
         }
         return FWD(self).event_streams_map.at(event_type_name);
@@ -83,7 +83,7 @@ private:
         if (not FWD(self).dynamic_id_event_streams_map.contains(event_type_name))
         {
             auto *event_stream_ptr = new DynamicIDEventStream{};
-            FWD(self).stream_deleters_.push_back([event_stream_ptr] { delete event_stream_ptr; });
+            FWD(self).stream_deleters_.emplace_back([event_stream_ptr] { delete event_stream_ptr; });
             FWD(self).dynamic_id_event_streams_map[event_type_name] = event_stream_ptr;
         }
         return FWD(self).dynamic_id_event_streams_map.at(event_type_name);

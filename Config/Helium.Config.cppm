@@ -51,6 +51,7 @@ struct ServerConfig
     std::optional<std::string> custom_parser = std::nullopt;
     std::string startup_command_executable = "java";
     std::vector<std::string> startup_command_parameters = {"-jar server.jar", "nogui"};
+    bool auto_start = true;
     ServerRCONConfig rcon;
 };
 struct DebugConfig

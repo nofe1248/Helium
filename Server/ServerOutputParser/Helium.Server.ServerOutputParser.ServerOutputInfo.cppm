@@ -45,6 +45,11 @@ enum class ServerOutputInfoType
     RCON_STARTED,
     CUSTOM_INFO_TYPE
 };
+struct ServerMessage
+{
+    bool is_secure = false;
+    std::string message;
+};
 struct PlayerMessage
 {
     bool is_secure = false;

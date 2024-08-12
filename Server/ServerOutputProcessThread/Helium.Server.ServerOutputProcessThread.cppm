@@ -73,13 +73,28 @@ private:
                 else if (output_info.info_type == ServerOutputInfoType::PLAYER_MESSAGE)
                 {
                     auto message = std::get<PlayerMessage>(output_info.info.value()).player_message;
-                    if(message.front() == '#')
+                    if (std::get<PlayerMessage>(output_info.info.value()).player_name == "Server")
                     {
-                        commands::CommandSource command_source("player", std::get<PlayerMessage>(output_info.info.value()).player_name);
-                        commands::CommandDispatcher::getInstance().tryExecuteCommand(command_source, message);
+                        if (message.front() == '#')
+                        {
+                            commands::CommandSource command_source("server", "server");
+                            commands::CommandDispatcher::getInstance().tryExecuteCommand(command_source, message);
+                        }
+                        events::EventBus::getInstancePointer()->postponeEvent<events::ServerMessage>(events::ServerMessage{
+                            .info = ServerMessage{.is_secure = std::get<PlayerMessage>(output_info.info.value()).is_secure,
+                                                  .message = std::get<PlayerMessage>(output_info.info.value()).player_message}
+                        });
                     }
-                    events::EventBus::getInstancePointer()->postponeEvent<events::PlayerMessage>(
-                        events::PlayerMessage{.info = std::get<PlayerMessage>(output_info.info.value())});
+                    else
+                    {
+                        if (message.front() == '#')
+                        {
+                            commands::CommandSource command_source("player", std::get<PlayerMessage>(output_info.info.value()).player_name);
+                            commands::CommandDispatcher::getInstance().tryExecuteCommand(command_source, message);
+                        }
+                        events::EventBus::getInstancePointer()->postponeEvent<events::PlayerMessage>(
+                            events::PlayerMessage{.info = std::get<PlayerMessage>(output_info.info.value())});
+                    }
                 }
                 else if (output_info.info_type == ServerOutputInfoType::PLAYER_JOINED)
                 {

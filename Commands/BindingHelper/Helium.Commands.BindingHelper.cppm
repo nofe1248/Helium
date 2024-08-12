@@ -123,8 +123,8 @@ public:
     auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context) -> bool {
-            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context]() -> std::any { return bool{callback(context, py::none{}).cast<bool>()}; }, utils::need_return));
+            return utils::RunLoopExecutor::getInstance().execute<bool>(
+                [callback, context]() -> bool { return callback(context, py::none{}).cast<bool>(); });
         }));
         return *this;
     }
@@ -203,8 +203,8 @@ public:
     auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, bool param) -> bool {
-            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::bool_{param}).cast<bool>(); }, utils::need_return));
+            return utils::RunLoopExecutor::getInstance().execute<bool>(
+                [callback, context, param]() -> bool { return callback(context, py::bool_{param}).cast<bool>(); });
         }));
         return *this;
     }
@@ -278,8 +278,8 @@ public:
     auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, int_least64_t param) -> bool {
-            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::int_{param}).cast<bool>(); }, utils::need_return));
+            return utils::RunLoopExecutor::getInstance().execute<bool>(
+                [callback, context, param]() -> bool { return callback(context, py::int_{param}).cast<bool>(); });
         }));
         return *this;
     }
@@ -353,8 +353,8 @@ public:
     auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, double param) -> bool {
-            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::float_{param}).cast<bool>(); }, utils::need_return));
+            return utils::RunLoopExecutor::getInstance().execute<bool>(
+                [callback, context, param]() -> bool { return callback(context, py::float_{param}).cast<bool>(); });
         }));
         return *this;
     }
@@ -428,8 +428,8 @@ public:
     auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, std::string param) -> bool {
-            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::str{param}).cast<bool>(); }, utils::need_return));
+            return utils::RunLoopExecutor::getInstance().execute<bool>(
+                [callback, context, param]() -> bool { return callback(context, py::str{param}).cast<bool>(); });
         }));
         return *this;
     }
@@ -503,8 +503,8 @@ public:
     auto require(py::function callback) -> AbstractCommandNodeBinding & override
     {
         (void)this->real_node_.require(std::move([callback](CommandContext const &context, std::string const &param) -> bool {
-            return std::any_cast<bool>(utils::RunLoopExecutor::getInstance().execute(
-                [callback, context, param]() -> std::any { return callback(context, py::str{param}).cast<bool>(); }, utils::need_return));
+            return utils::RunLoopExecutor::getInstance().execute<bool>(
+                [callback, context, param]() -> bool { return callback(context, py::str{param}).cast<bool>(); });
         }));
         return *this;
     }

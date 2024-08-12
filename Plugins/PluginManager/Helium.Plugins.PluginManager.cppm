@@ -46,7 +46,13 @@ private:
     fs::path plugin_path_;
 
 public:
-    PluginManager()
+    static auto getInstance() noexcept -> PluginManager &
+    {
+        static PluginManager instance;
+        return instance;
+    }
+
+    PluginManager() : plugin_map_{}
     {
         this->plugin_path_ = fs::absolute(fs::path{config::HeliumConfig::getInstance().python_plugin.path});
         if (not fs::exists(this->plugin_path_))
@@ -67,7 +73,7 @@ public:
         manager_logger->info("Python {} interpreter finalized.", PY_VERSION);
     }
 
-    [[nodiscard]] auto SearchPlugins() const -> std::vector<fs::path>
+    [[nodiscard]] auto searchPlugins() const -> std::vector<fs::path>
     {
         py::gil_scoped_acquire acquire;
         std::vector<fs::path> plugin_paths;
@@ -81,7 +87,7 @@ public:
         return plugin_paths;
     }
 
-    auto RegisterPlugin(fs::path const &plugin_path) -> bool
+    auto registerPlugin(fs::path const &plugin_path) -> bool
     {
         py::gil_scoped_acquire acquire;
         if (not fs::exists(plugin_path))
@@ -127,7 +133,7 @@ public:
         return true;
     }
 
-    auto LoadAllPlugins() -> void
+    auto loadAllPlugins() -> void
     {
         py::gil_scoped_acquire acquire;
         manager_logger->info("Calculating plugin dependencies...");
@@ -257,19 +263,28 @@ public:
         }
     }
 
-    auto SearchAndLoadAllPlugins() -> void
+    auto searchAndLoadAllPlugins() -> void
     {
         py::gil_scoped_acquire acquire;
-        for (auto const &plugin_path : this->SearchPlugins())
+        for (auto const &plugin_path : this->searchPlugins())
         {
-            if (not this->RegisterPlugin(plugin_path))
+            if (not this->registerPlugin(plugin_path))
             {
                 manager_logger->critical("Plugin {} failed to register", plugin_path.string());
                 return;
             }
         }
-        this->LoadAllPlugins();
+        this->loadAllPlugins();
         manager_logger->flush();
+    }
+
+    [[nodiscard]] auto getPluginInstance(std::string const &id) const -> std::optional<std::shared_ptr<PluginInstance>>
+    {
+        if (not this->plugin_map_.contains(id))
+        {
+            return std::nullopt;
+        }
+        return this->plugin_map_.at(id);
     }
 };
 } // namespace helium::plugins

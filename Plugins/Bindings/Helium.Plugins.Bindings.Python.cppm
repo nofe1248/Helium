@@ -14,6 +14,7 @@ module;
 #include <pybind11/embed.h>
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl/filesystem.h>
 
 export module Helium.Plugins.Bindings.Python;
 
@@ -23,6 +24,9 @@ import Helium.Commands;
 import Helium.Config;
 import Helium.Events;
 import Helium.Logger;
+import Helium.Plugins.PluginMetadata;
+import Helium.Plugins.PluginManager;
+import Helium.Plugins.PluginInstance;
 import Helium.Server;
 import Helium.Utils;
 
@@ -76,8 +80,10 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<config::ServerConfig>(config_module, "ServerConfig")
         .def_readwrite("path", &config::ServerConfig::path)
         .def_readwrite("type", &config::ServerConfig::type)
+        .def_readwrite("custom_parser", &config::ServerConfig::custom_parser)
         .def_readwrite("startup_command_executable", &config::ServerConfig::startup_command_executable)
         .def_readwrite("startup_command_parameters", &config::ServerConfig::startup_command_parameters)
+        .def_readwrite("auto_start", &config::ServerConfig::auto_start)
         .def_readwrite("rcon", &config::ServerConfig::rcon);
 
     py::class_<config::PythonPluginConfig>(config_module, "PythonPluginConfig").def_readwrite("path", &config::PythonPluginConfig::path);
@@ -300,6 +306,10 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<server::ServerOutputInfoTimeStamp, std::string>())
         .def_readwrite("timestamp", &server::PreprocessedInfo::timestamp)
         .def_readwrite("log_level", &server::PreprocessedInfo::log_level);
+    py::class_<server::ServerMessage>(server_module, "ServerMessageInfo")
+            .def(py::init<bool, std::string const &>())
+            .def_readwrite("is_secure", &server::ServerMessage::is_secure)
+            .def_readwrite("message", &server::ServerMessage::message);
     py::class_<server::PlayerMessage>(server_module, "PlayerMessageInfo")
         .def(py::init<bool, std::string const &, std::string const &>())
         .def_readwrite("is_secure", &server::PlayerMessage::is_secure)
@@ -632,6 +642,9 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<events::ServerOutput>(events_module, "ServerOutputEvent")
         .def(py::init<server::ServerOutputInfo const &>())
         .def_readwrite("info", &events::ServerOutput::info);
+    py::class_<events::ServerMessage>(events_module, "ServerMessageEvent")
+            .def(py::init<server::ServerMessage const &>())
+            .def_readwrite("info", &events::ServerMessage::info);
     py::class_<events::PlayerMessage>(events_module, "PlayerMessageEvent")
         .def(py::init<server::PlayerMessage const &>())
         .def_readwrite("info", &events::PlayerMessage::info);
@@ -665,6 +678,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .value("EventServerStopped", events::binding::HeliumDefaultEventsBindingEnum::SERVER_STOPPED)
         .value("EventConsoleInput", events::binding::HeliumDefaultEventsBindingEnum::CONSOLE_INPUT)
         .value("EventServerOutput", events::binding::HeliumDefaultEventsBindingEnum::SERVER_OUTPUT)
+        .value("EventServerMessage", events::binding::HeliumDefaultEventsBindingEnum::SERVER_MESSAGE)
         .value("EventPlayerMessage", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_MESSAGE)
         .value("EventPlayerJoined", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_JOINED)
         .value("EventPlayerLeft", events::binding::HeliumDefaultEventsBindingEnum::PLAYER_LEFT)
@@ -695,6 +709,37 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("unlisten_all", &events::binding::EventListenerBinding::unlistenAll);
 
     auto plugins_module = m.def_submodule("plugins");
+
+    py::class_<plugins::PluginMetadata::PluginDependency>(plugins_module, "PluginDependency")
+        .def_readwrite("id", &plugins::PluginMetadata::PluginDependency::id)
+        .def_readwrite("version_range", &plugins::PluginMetadata::PluginDependency::version_range);
+    py::class_<plugins::PluginMetadata>(plugins_module, "PluginMetadata")
+        .def_readwrite("plugin_path", &plugins::PluginMetadata::plugin_path)
+        .def_readwrite("id", &plugins::PluginMetadata::id)
+        .def_readwrite("name", &plugins::PluginMetadata::name)
+        .def_readwrite("version", &plugins::PluginMetadata::version)
+        .def_readwrite("website", &plugins::PluginMetadata::website)
+        .def_readwrite("author", &plugins::PluginMetadata::author)
+        .def_readwrite("dependencies", &plugins::PluginMetadata::dependencies)
+        .def_readwrite("optional_dependencies", &plugins::PluginMetadata::optional_dependencies)
+        .def_readwrite("conflicts", &plugins::PluginMetadata::conflicts);
+
+    py::class_<plugins::PluginInstance, std::shared_ptr<plugins::PluginInstance>>(plugins_module, "PluginInstance")
+        .def(py::init<std::filesystem::path>())
+        .def("load", &plugins::PluginInstance::load)
+        .def("unload", &plugins::PluginInstance::unload)
+        .def("reload", &plugins::PluginInstance::reload)
+        .def("get_plugin", &plugins::PluginInstance::getPlugin)
+        .def("get_metadata", &plugins::PluginInstance::getMetadataReference)
+        .def("get_plugin", &plugins::PluginInstance::getPlugin);
+
+    py::class_<plugins::PluginManager>(plugins_module, "PluginManager")
+        .def(py::init<>())
+        .def_static("get_instance", &plugins::PluginManager::getInstance)
+        .def("search_plugins", &plugins::PluginManager::searchPlugins)
+        .def("register_plugin", &plugins::PluginManager::registerPlugin)
+        .def("load_all_plugins", &plugins::PluginManager::loadAllPlugins)
+        .def("search_and_load_all_plugins", &plugins::PluginManager::searchAndLoadAllPlugins);
 
     auto utils_module = m.def_submodule("utils");
 

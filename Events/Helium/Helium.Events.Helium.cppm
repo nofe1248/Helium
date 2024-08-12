@@ -62,6 +62,10 @@ struct PlayerMessage
 {
     server::PlayerMessage info{};
 };
+struct ServerMessage
+{
+    server::ServerMessage info{};
+};
 struct PlayerJoined
 {
     server::PlayerJoined info{};

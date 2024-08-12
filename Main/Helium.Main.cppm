@@ -92,13 +92,15 @@ auto heliumMain(int argc, const char *argv[]) -> int
         utils::test::testModule();*/
     }
 
-    plugins::PluginManager plugin_manager;
-    plugin_manager.SearchAndLoadAllPlugins();
+    plugins::PluginManager::getInstance().searchAndLoadAllPlugins();
 
     event_emitter.postponeEvent(events::HeliumStarted{});
 
     server::ServerOutputProcessThread::getInstance().run();
-    server::ServerInstance::getInstancePointer()->start();
+    if (config::HeliumConfig::getInstance().server.auto_start)
+    {
+        server::ServerInstance::getInstancePointer()->start();
+    }
 
     commands::CommandExecutionThread::getInstance().run();
     cli::MainCLIThread::getInstance().run();

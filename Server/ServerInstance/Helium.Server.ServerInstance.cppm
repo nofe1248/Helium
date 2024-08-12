@@ -177,8 +177,6 @@ public:
         }
 
         this->server_state_ = ServerState::SERVER_STATE_STOPPED;
-
-        this->start();
     }
 
     ~ServerInstance()
