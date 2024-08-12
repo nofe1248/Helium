@@ -89,9 +89,11 @@ public:
     }
 
     explicit ServerInstance()
-        : io_context_(), server_process_ptr_(), server_path_(config::HeliumConfig::getInstance().server.path), server_type_(config::HeliumConfig::getInstance().server.type),
+        : io_context_(), server_process_ptr_(), server_path_(config::HeliumConfig::getInstance().server.path),
+          server_type_(config::HeliumConfig::getInstance().server.type),
           server_startup_executable_(config::HeliumConfig::getInstance().server.startup_command_executable),
-          server_startup_parameters_(config::HeliumConfig::getInstance().server.startup_command_parameters), server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
+          server_startup_parameters_(config::HeliumConfig::getInstance().server.startup_command_parameters),
+          server_state_(ServerState::SERVER_STATE_UNINITIALIZED)
     {
         if (this->server_type_ == config::ServerType::VANILLA)
         {
@@ -216,18 +218,18 @@ public:
 
         FWD(self).server_state_ = ServerState::SERVER_STATE_STARTING;
 
-        if (FWD(self).server_process_ptr_)
-        {
-            FWD(self).server_process_ptr_.reset();
-        }
         if (FWD(self).output_processing_thread_)
         {
+            FWD(self).output_processing_thread_->request_stop();
             if (FWD(self).output_processing_thread_->joinable())
             {
-                FWD(self).output_processing_thread_->request_stop();
                 FWD(self).output_processing_thread_->join();
             }
             FWD(self).output_processing_thread_.reset();
+        }
+        if (FWD(self).server_process_ptr_)
+        {
+            FWD(self).server_process_ptr_.reset();
         }
 
         server_logger->info("Launching server");
@@ -254,12 +256,11 @@ public:
             server_logger->info("Server output processing thread started");
             boost::system::error_code ec;
             std::string output_buffer;
+            auto server_popen = self.server_process_ptr_;
 
             auto logger_ptr = std::make_shared<spdlog::async_logger>("helium_server_output_logger",
                                                                      std::make_shared<spdlog::sinks::stdout_color_sink_mt>(), spdlog::thread_pool());
             logger_ptr->set_pattern("%v");
-
-            spdlog::register_logger(logger_ptr);
 
             while (not st.stop_requested())
             {
@@ -269,10 +270,11 @@ public:
                 }
                 try
                 {
-                    asio::read_until(*self.server_process_ptr_, asio::dynamic_buffer(output_buffer), '\n');
+                    asio::read_until(*server_popen, asio::dynamic_buffer(output_buffer), '\n');
                 }
                 catch (...)
                 {
+                    logger_ptr->info("exception");
                     break;
                 }
                 if (output_buffer.empty())
@@ -326,9 +328,9 @@ public:
         FWD(self).server_state_ = ServerState::SERVER_STATE_STOPPED;
         if (FWD(self).output_processing_thread_)
         {
+            FWD(self).output_processing_thread_->request_stop();
             if (FWD(self).output_processing_thread_->joinable())
             {
-                FWD(self).output_processing_thread_->request_stop();
                 FWD(self).output_processing_thread_->join();
             }
             FWD(self).output_processing_thread_.reset();
@@ -347,9 +349,9 @@ public:
         FWD(self).server_state_ = ServerState::SERVER_STATE_STOPPED;
         if (FWD(self).output_processing_thread_)
         {
+            FWD(self).output_processing_thread_->request_stop();
             if (FWD(self).output_processing_thread_->joinable())
             {
-                FWD(self).output_processing_thread_->request_stop();
                 FWD(self).output_processing_thread_->join();
             }
             FWD(self).output_processing_thread_.reset();
@@ -379,6 +381,11 @@ public:
     auto broadcastMessage(this auto &&self, RText const &info) -> bool
     {
         return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
+    }
+
+    auto getPath(this auto &&self) -> fs::path
+    {
+        return FWD(self).server_path_;
     }
 };
 } // namespace helium::server

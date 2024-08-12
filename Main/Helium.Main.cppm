@@ -109,6 +109,7 @@ auto heliumMain(int argc, const char *argv[]) -> int
 
     cli::MainCLIThread::getInstance().stop();
     server::ServerOutputProcessThread::getInstance().stop();
+    plugins::PluginManager::getInstance().unregisterAll();
     events::EventDispatchThread::getInstance().stop();
     commands::CommandExecutionThread::getInstance().stop();
 

@@ -8,6 +8,7 @@ module;
 #include <optional>
 #include <string>
 #include <tuple>
+#include <filesystem>
 
 #include <pybind11/chrono.h>
 #include <pybind11/embed.h>
@@ -21,6 +22,7 @@ import Helium.Server.ServerOutputParser;
 import Helium.Utils.RText;
 
 namespace py = pybind11;
+namespace fs = std::filesystem;
 
 using RText = helium::utils::rtext::RText;
 
@@ -100,6 +102,10 @@ public:
             return false;
         }
         return ServerInstance::getInstancePointer()->broadcastMessage(info);
+    }
+    static auto getPath() -> fs::path
+    {
+        return ServerInstance::getInstancePointer()->getPath();
     }
 };
 

@@ -5,6 +5,8 @@
 
 module;
 
+#include <string>
+
 export module Helium.Commands.BuiltinCommands;
 
 import Helium.Logger;
@@ -40,6 +42,7 @@ struct BuiltinCommandRegisterHelper
                     utils::RunLoopExecutor::getInstance().finish();
                 }),
                 CommandStringLiteral("help"),
+                CommandStringLiteral("about"),
                 CommandStringLiteral("status"),
                 CommandStringLiteral("server")
                 .then(
@@ -158,7 +161,16 @@ struct BuiltinCommandRegisterHelper
                         {
                             logger->debug("Debug mode disabled.");
                         }
-                    })
+                    }),
+                    CommandStringLiteral("debug_logger")
+                    .then(
+                        CommandArgumentString("logger_name")
+                        .execute([](CommandContext const &ctx, std::string const &logger_name) -> void {
+                            if (logger_name == "all") {
+
+                            }
+                        })
+                    )
                 ),
                 CommandStringLiteral("config")
                 .then(

@@ -278,6 +278,15 @@ public:
         manager_logger->flush();
     }
 
+    auto unregisterAll() -> void
+    {
+        for (auto [id, ptr] : this->plugin_map_)
+        {
+            ptr.reset();
+            this->plugin_map_.erase(id);
+        }
+    }
+
     [[nodiscard]] auto getPluginInstance(std::string const &id) const -> std::optional<std::shared_ptr<PluginInstance>>
     {
         if (not this->plugin_map_.contains(id))

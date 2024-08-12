@@ -144,48 +144,57 @@ public:
         this->state_ = PluginState::PLUGIN_STATE_UNLOADED;
     }
 
-    auto load() -> void
+    auto load() -> bool
     {
         instance_logger->info("Loading plugin {}", this->metadata_.id);
         instance_logger->flush();
         if (this->state_ != PluginState::PLUGIN_STATE_UNLOADED)
         {
-            return;
+            return false;
         }
         try
         {
+            if (not this->plugin_module_.check())
+            {
+                this->plugin_module_ = py::module_::import(this->plugin_path_.filename().replace_extension("").string().c_str());
+            }
             if (this->on_load_.has_value())
             {
                 (void)this->on_load_.value()();
             }
             this->state_ = PluginState::PLUGIN_STATE_LOADED;
+            return true;
         }
         catch (py::error_already_set const &py_error)
         {
             instance_logger->error("Plugin {} failed to load due to exception : {}", this->plugin_path_.string(), py_error.what());
+            return false;
         }
         catch (cpptrace::exception const &exception)
         {
             instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
             instance_logger->error("Exception stacktrace :");
             exception.trace().print_with_snippets(std::cerr, true);
+            return false;
         }
         catch (std::exception const &exception)
         {
             instance_logger->error("Plugin {} failed to load due to exception : {}", this->plugin_path_.string(), exception.what());
+            return false;
         }
         catch (...)
         {
             instance_logger->error("Plugin {} failed to load due to unknown exception", this->plugin_path_.string());
+            return false;
         }
     }
 
-    auto unload() -> void
+    auto unload() -> bool
     {
         instance_logger->info("Unloading plugin {}", this->metadata_.id);
         if (this->state_ != PluginState::PLUGIN_STATE_LOADED)
         {
-            return;
+            return false;
         }
         try
         {
@@ -193,34 +202,43 @@ public:
             {
                 (void)this->on_unload_.value()();
             }
+            while (this->plugin_module_.ref_count() > 0)
+            {
+                (void)this->plugin_module_.dec_ref();
+            }
             this->state_ = PluginState::PLUGIN_STATE_UNLOADED;
+            return true;
         }
         catch (py::error_already_set const &py_error)
         {
             instance_logger->error("Plugin {} failed to unload due to exception : {}", this->plugin_path_.string(), py_error.what());
+            return false;
         }
         catch (cpptrace::exception const &exception)
         {
             instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
             instance_logger->error("Exception stacktrace :");
             exception.trace().print_with_snippets(std::cerr, true);
+            return false;
         }
         catch (std::exception const &exception)
         {
             instance_logger->error("Plugin {} failed to unload due to exception : {}", this->plugin_path_.string(), exception.what());
+            return false;
         }
         catch (...)
         {
             instance_logger->error("Plugin {} failed to unload due to unknown exception", this->plugin_path_.string());
+            return false;
         }
     }
 
-    auto reload() -> void
+    auto reload() -> bool
     {
         instance_logger->info("Reloading plugin {}", this->metadata_.id);
         if (this->state_ != PluginState::PLUGIN_STATE_LOADED)
         {
-            return;
+            return false;
         }
         try
         {
@@ -229,24 +247,29 @@ public:
             {
                 (void)this->on_reload_.value()();
             }
+            return true;
         }
         catch (py::error_already_set const &py_error)
         {
             instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), py_error.what());
+            return false;
         }
         catch (cpptrace::exception const &exception)
         {
             instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
             instance_logger->error("Exception stacktrace :");
             exception.trace().print_with_snippets(std::cerr, true);
+            return false;
         }
         catch (std::exception const &exception)
         {
             instance_logger->error("Plugin {} failed to reload due to exception : {}", this->plugin_path_.string(), exception.what());
+            return false;
         }
         catch (...)
         {
             instance_logger->error("Plugin {} failed to reload due to unknown exception", this->plugin_path_.string());
+            return false;
         }
     }
 

@@ -307,9 +307,9 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def_readwrite("timestamp", &server::PreprocessedInfo::timestamp)
         .def_readwrite("log_level", &server::PreprocessedInfo::log_level);
     py::class_<server::ServerMessage>(server_module, "ServerMessageInfo")
-            .def(py::init<bool, std::string const &>())
-            .def_readwrite("is_secure", &server::ServerMessage::is_secure)
-            .def_readwrite("message", &server::ServerMessage::message);
+        .def(py::init<bool, std::string const &>())
+        .def_readwrite("is_secure", &server::ServerMessage::is_secure)
+        .def_readwrite("message", &server::ServerMessage::message);
     py::class_<server::PlayerMessage>(server_module, "PlayerMessageInfo")
         .def(py::init<bool, std::string const &, std::string const &>())
         .def_readwrite("is_secure", &server::PlayerMessage::is_secure)
@@ -616,7 +616,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                     py::overload_cast<std::string const &, utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::sendMessage))
         .def_static("broadcast_message", py::overload_cast<std::string const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
         .def_static("broadcast_message",
-                    py::overload_cast<utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage));
+                    py::overload_cast<utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
+        .def_static("get_path", &server::binding::ServerInstanceBindingHelper::getPath);
 
     auto events_module = m.def_submodule("events");
 
@@ -643,8 +644,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def(py::init<server::ServerOutputInfo const &>())
         .def_readwrite("info", &events::ServerOutput::info);
     py::class_<events::ServerMessage>(events_module, "ServerMessageEvent")
-            .def(py::init<server::ServerMessage const &>())
-            .def_readwrite("info", &events::ServerMessage::info);
+        .def(py::init<server::ServerMessage const &>())
+        .def_readwrite("info", &events::ServerMessage::info);
     py::class_<events::PlayerMessage>(events_module, "PlayerMessageEvent")
         .def(py::init<server::PlayerMessage const &>())
         .def_readwrite("info", &events::PlayerMessage::info);
