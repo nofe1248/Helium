@@ -72,82 +72,131 @@ public:
             return false;
         }
         auto current_node = this->command_root_.getNodeDescriptor().lock();
-        CommandContext context{source};
+        CommandContext const context{source};
+        std::vector<std::shared_ptr<CommandNodeDescriptor>> all_forwarded_nodes{}, nodes_to_be_processed{};
         for (auto tok_it = this->tokens_cache_.begin(); tok_it != this->tokens_cache_.end(); ++tok_it)
         {
-            if (current_node->is_redirected)
-            {
-                bool matched = false;
-                if (current_node->forward_nodes.has_value())
+            auto find_all_forwarded = [&all_forwarded_nodes](this auto &&self, std::shared_ptr<CommandNodeDescriptor> const &node) -> void {
+                if (not node->is_redirected)
                 {
-                    for (auto redirect_node : current_node->forward_nodes.value())
+                    all_forwarded_nodes.push_back(node);
+                }
+                if (node->forward_nodes.has_value())
+                {
+                    for (auto const &redirect_node : node->forward_nodes.value())
                     {
-                        if (redirect_node->child_nodes.size() > 0)
+                        self(redirect_node);
+                    }
+                }
+            };
+
+            if (not current_node->is_redirected)
+            {
+                all_forwarded_nodes.push_back(current_node);
+            }
+            if (current_node->forward_nodes.has_value())
+            {
+                for (auto const &forward_node : current_node->forward_nodes.value())
+                {
+                    find_all_forwarded(forward_node);
+                }
+            }
+
+            for (auto const &forward_node : all_forwarded_nodes)
+            {
+                for (auto const &child_node : forward_node->child_nodes)
+                {
+                    nodes_to_be_processed.push_back(child_node);
+                }
+            }
+
+            auto try_to_match_optional =
+                [&tok_it, &context](this auto &&self,
+                                    std::shared_ptr<CommandNodeDescriptor> const &node) -> std::optional<std::shared_ptr<CommandNodeDescriptor>> {
+                if (node->tryAcceptToken(*tok_it))
+                {
+                    if (node->executeCallbacks(context, *tok_it))
+                    {
+                        return node;
+                    }
+                    return std::nullopt;
+                }
+
+                if (node->is_optional)
+                {
+                    std::vector<std::shared_ptr<CommandNodeDescriptor>> opt_forwarded_nodes{}, opt_nodes_to_be_processed{};
+
+                    auto find_all_forwarded_opt = [&opt_forwarded_nodes](this auto &&self,
+                                                                         std::shared_ptr<CommandNodeDescriptor> const &node) -> void {
+                        if (not node->is_redirected)
                         {
-                            for (auto child_node_of_redirected : redirect_node->child_nodes)
+                            opt_forwarded_nodes.push_back(node);
+                        }
+                        if (node->forward_nodes.has_value())
+                        {
+                            for (auto const &redirect_node : node->forward_nodes.value())
                             {
-                                if (child_node_of_redirected->tryAcceptToken(*tok_it))
-                                {
-                                    current_node = child_node_of_redirected;
-                                    matched = true;
-                                    break;
-                                }
+                                self(redirect_node);
                             }
+                        }
+                    };
+
+                    if (not node->is_redirected)
+                    {
+                        opt_forwarded_nodes.push_back(node);
+                    }
+                    if (node->forward_nodes.has_value())
+                    {
+                        for (auto const &forward_node : node->forward_nodes.value())
+                        {
+                            find_all_forwarded_opt(forward_node);
+                        }
+                    }
+
+                    for (auto const &forward_node : opt_forwarded_nodes)
+                    {
+                        for (auto const &child_node : forward_node->child_nodes)
+                        {
+                            opt_nodes_to_be_processed.push_back(child_node);
+                        }
+                    }
+
+                    for (auto const &process_node : opt_nodes_to_be_processed)
+                    {
+                        if (auto opt = self(process_node))
+                        {
+                            return opt;
                         }
                     }
                 }
-                if (not matched)
+
+                return std::nullopt;
+            };
+
+            for (auto const &node : nodes_to_be_processed)
+            {
+                if (node->is_optional)
                 {
-                    break;
+                    if (auto node_opt = try_to_match_optional(node))
+                    {
+                        current_node = node_opt.value();
+                        break;
+                    }
+                    return false;
                 }
-                if (not current_node->executeCallbacks(context, *tok_it))
+                if (node->tryAcceptToken(*tok_it))
                 {
+                    if (node->executeCallbacks(context, *tok_it))
+                    {
+                        current_node = node;
+                        break;
+                    }
                     return false;
                 }
             }
-            else
-            {
-                bool matched = false;
-                if (current_node->child_nodes.size() > 0)
-                {
-                    for (auto child_node : current_node->child_nodes)
-                    {
-                        if (child_node->tryAcceptToken(*tok_it))
-                        {
-                            current_node = child_node;
-                            matched = true;
-                            break;
-                        }
-                    }
-                }
-                if (current_node->forward_nodes.has_value() and not matched)
-                {
-                    for (auto forward_node : current_node->forward_nodes.value())
-                    {
-                        if (forward_node->child_nodes.size() > 0)
-                        {
-                            for (auto child_node_of_forked : forward_node->child_nodes)
-                            {
-                                if (child_node_of_forked->tryAcceptToken(*tok_it))
-                                {
-                                    current_node = child_node_of_forked;
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (not matched)
-                {
-                    break;
-                }
-                if (not current_node->executeCallbacks(context, *tok_it))
-                {
-                    return false;
-                }
-                dispatcher_logger->flush();
-            }
+
+            all_forwarded_nodes.clear();
+            nodes_to_be_processed.clear();
         }
         if (current_node->child_nodes.size() == 0)
         {
@@ -176,222 +225,162 @@ public:
         auto tok_it = this->tokens_cache_.begin();
         std::vector<std::pair<std::string, double>> node_similarity;
         bool has_full_match = false;
-
-        if (this->tokens_cache_.size() == 1)
-        {
-            if (current_node->is_redirected)
+        std::vector<std::shared_ptr<CommandNodeDescriptor>> all_forwarded_nodes{}, nodes_to_be_processed{};
+        auto find_all_forwarded = [&all_forwarded_nodes](this auto &&self, std::shared_ptr<CommandNodeDescriptor> const &node) -> void {
+            if (not node->is_redirected)
             {
-                if (current_node->forward_nodes.has_value())
+                all_forwarded_nodes.push_back(node);
+            }
+            if (node->forward_nodes.has_value())
+            {
+                for (auto const &redirect_node : node->forward_nodes.value())
                 {
-                    for (auto redirect_node : current_node->forward_nodes.value())
-                    {
-                        if (redirect_node->child_nodes.size() > 0)
-                        {
-                            for (auto child_node_of_redirected : redirect_node->child_nodes)
-                            {
-                                if (child_node_of_redirected->auto_completable)
-                                {
-                                    if (double similarity = child_node_of_redirected->token_similarity(*tok_it);
-                                        similarity >= similarity_cutoff or show_all_result)
-                                    {
-                                        if (similarity == 100.0f)
-                                        {
-                                            has_full_match = true;
-                                        }
-                                        node_similarity.push_back({child_node_of_redirected->node_name, similarity});
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    self(redirect_node);
                 }
             }
-            else
-            {
-                if (current_node->child_nodes.size() > 0)
-                {
-                    for (auto child_node : current_node->child_nodes)
-                    {
-                        if (child_node->auto_completable)
-                        {
-                            if (double similarity = child_node->token_similarity(*tok_it); similarity >= similarity_cutoff or show_all_result)
-                            {
-                                if (similarity == 100.0f)
-                                {
-                                    has_full_match = true;
-                                }
-                                node_similarity.push_back({child_node->node_name, similarity});
-                            }
-                        }
-                    }
-                }
-                if (current_node->forward_nodes.has_value())
-                {
-                    for (auto forward_node : current_node->forward_nodes.value())
-                    {
-                        if (forward_node->child_nodes.size() > 0)
-                        {
-                            for (auto child_node_of_forked : forward_node->child_nodes)
-                            {
-                                if (child_node_of_forked->auto_completable)
-                                {
-                                    if (double similarity = child_node_of_forked->token_similarity(*tok_it);
-                                        similarity >= similarity_cutoff or show_all_result)
-                                    {
-                                        if (similarity == 100.0f)
-                                        {
-                                            has_full_match = true;
-                                        }
-                                        node_similarity.push_back({child_node_of_forked->node_name, similarity});
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
-            return node_similarity | std::views::transform([](auto p) { return p.first; }) | std::ranges::to<std::vector<std::string>>();
-        }
+        };
 
         for (; std::distance(tok_it, this->tokens_cache_.end()) >= 2; ++tok_it)
         {
-            if (current_node->is_redirected)
+            if (not current_node->is_redirected)
             {
-                bool matched = false;
-                if (current_node->forward_nodes.has_value())
-                {
-                    for (auto redirect_node : current_node->forward_nodes.value())
-                    {
-                        if (redirect_node->child_nodes.size() > 0)
-                        {
-                            for (auto child_node_of_redirected : redirect_node->child_nodes)
-                            {
-                                if (child_node_of_redirected->tryAcceptToken(*tok_it))
-                                {
-                                    current_node = child_node_of_redirected;
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (not matched)
-                {
-                    return {};
-                }
-            }
-            else
-            {
-                bool matched = false;
-                if (current_node->child_nodes.size() > 0)
-                {
-                    for (auto child_node : current_node->child_nodes)
-                    {
-                        if (child_node->tryAcceptToken(*tok_it))
-                        {
-                            current_node = child_node;
-                            matched = true;
-                            break;
-                        }
-                    }
-                }
-                if (current_node->forward_nodes.has_value() and not matched)
-                {
-                    for (auto forward_node : current_node->forward_nodes.value())
-                    {
-                        if (forward_node->child_nodes.size() > 0)
-                        {
-                            for (auto child_node_of_forked : forward_node->child_nodes)
-                            {
-                                if (child_node_of_forked->tryAcceptToken(*tok_it))
-                                {
-                                    current_node = child_node_of_forked;
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (not matched)
-                {
-                    return {};
-                }
-            }
-        }
-        if (current_node->is_redirected)
-        {
-            if (current_node->forward_nodes.has_value())
-            {
-                for (auto redirect_node : current_node->forward_nodes.value())
-                {
-                    if (redirect_node->child_nodes.size() > 0)
-                    {
-                        for (auto child_node_of_redirected : redirect_node->child_nodes)
-                        {
-                            if (child_node_of_redirected->auto_completable)
-                            {
-                                if (double similarity = child_node_of_redirected->token_similarity(*tok_it);
-                                    similarity >= similarity_cutoff or show_all_result)
-                                {
-                                    if (similarity == 100.0f)
-                                    {
-                                        has_full_match = true;
-                                    }
-                                    node_similarity.push_back({child_node_of_redirected->node_name, similarity});
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (current_node->child_nodes.size() > 0)
-            {
-                for (auto child_node : current_node->child_nodes)
-                {
-                    if (child_node->auto_completable)
-                    {
-                        if (double similarity = child_node->token_similarity(*tok_it); similarity >= similarity_cutoff or show_all_result)
-                        {
-                            if (similarity == 100.0f)
-                            {
-                                has_full_match = true;
-                            }
-                            node_similarity.push_back({child_node->node_name, similarity});
-                        }
-                    }
-                }
+                all_forwarded_nodes.push_back(current_node);
             }
             if (current_node->forward_nodes.has_value())
             {
-                for (auto forward_node : current_node->forward_nodes.value())
+                for (auto const &forward_node : current_node->forward_nodes.value())
                 {
-                    if (forward_node->child_nodes.size() > 0)
-                    {
-                        for (auto child_node_of_forked : forward_node->child_nodes)
+                    find_all_forwarded(forward_node);
+                }
+            }
+
+            for (auto const &forward_node : all_forwarded_nodes)
+            {
+                for (auto const &child_node : forward_node->child_nodes)
+                {
+                    nodes_to_be_processed.push_back(child_node);
+                }
+            }
+
+            auto try_to_match_optional =
+                [&tok_it](this auto &&self,
+                          std::shared_ptr<CommandNodeDescriptor> const &node) -> std::optional<std::shared_ptr<CommandNodeDescriptor>> {
+                if (node->tryAcceptToken(*tok_it))
+                {
+                    return node;
+                }
+
+                if (node->is_optional)
+                {
+                    std::vector<std::shared_ptr<CommandNodeDescriptor>> opt_forwarded_nodes{}, opt_nodes_to_be_processed{};
+
+                    auto find_all_forwarded_opt = [&opt_forwarded_nodes](this auto &&self,
+                                                                         std::shared_ptr<CommandNodeDescriptor> const &node) -> void {
+                        if (not node->is_redirected)
                         {
-                            if (child_node_of_forked->auto_completable)
+                            opt_forwarded_nodes.push_back(node);
+                        }
+                        if (node->forward_nodes.has_value())
+                        {
+                            for (auto const &redirect_node : node->forward_nodes.value())
                             {
-                                if (double similarity = child_node_of_forked->token_similarity(*tok_it);
-                                    similarity >= similarity_cutoff or show_all_result)
-                                {
-                                    if (similarity == 100.0f)
-                                    {
-                                        has_full_match = true;
-                                    }
-                                    node_similarity.push_back({child_node_of_forked->node_name, similarity});
-                                }
+                                self(redirect_node);
                             }
+                        }
+                    };
+
+                    if (not node->is_redirected)
+                    {
+                        opt_forwarded_nodes.push_back(node);
+                    }
+                    if (node->forward_nodes.has_value())
+                    {
+                        for (auto const &forward_node : node->forward_nodes.value())
+                        {
+                            find_all_forwarded_opt(forward_node);
+                        }
+                    }
+
+                    for (auto const &forward_node : opt_forwarded_nodes)
+                    {
+                        for (auto const &child_node : forward_node->child_nodes)
+                        {
+                            opt_nodes_to_be_processed.push_back(child_node);
+                        }
+                    }
+
+                    for (auto const &process_node : opt_nodes_to_be_processed)
+                    {
+                        if (auto opt = self(process_node))
+                        {
+                            return opt;
                         }
                     }
                 }
+
+                return std::nullopt;
+            };
+
+            for (auto const &node : nodes_to_be_processed)
+            {
+                if (node->is_optional)
+                {
+                    if (auto node_opt = try_to_match_optional(node))
+                    {
+                        current_node = node_opt.value();
+                        break;
+                    }
+                }
+                if (node->tryAcceptToken(*tok_it))
+                {
+                    current_node = node;
+                    break;
+                }
+            }
+
+            all_forwarded_nodes.clear();
+            nodes_to_be_processed.clear();
+        }
+
+        all_forwarded_nodes.clear();
+        nodes_to_be_processed.clear();
+
+        if (not current_node->is_redirected)
+        {
+            all_forwarded_nodes.push_back(current_node);
+        }
+        if (current_node->forward_nodes.has_value())
+        {
+            for (auto const &forward_node : current_node->forward_nodes.value())
+            {
+                find_all_forwarded(forward_node);
             }
         }
+
+        for (auto const &forward_node : all_forwarded_nodes)
+        {
+            for (auto const &child_node : forward_node->child_nodes)
+            {
+                nodes_to_be_processed.push_back(child_node);
+            }
+        }
+
+        for (auto const &node : nodes_to_be_processed)
+        {
+            if (node->auto_completable)
+            {
+                if (double similarity = node->token_similarity(*tok_it);
+                    similarity >= similarity_cutoff or show_all_result)
+                {
+                    if (similarity == 100.0f)
+                    {
+                        has_full_match = true;
+                    }
+                    node_similarity.push_back({node->node_name, similarity});
+                }
+            }
+        }
+
         std::ranges::sort(node_similarity, [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
         if (has_full_match and not show_all_result)
         {

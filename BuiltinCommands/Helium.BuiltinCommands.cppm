@@ -46,6 +46,7 @@ struct BuiltinCommandRegisterHelper
                 CommandStringLiteral("help"),
                 CommandStringLiteral("about"),
                 CommandStringLiteral("status"),
+                CommandStringLiteral("test").then(CommandStringLiteral("opt").optional().then(CommandStringLiteral("opttest"))),
                 CommandStringLiteral("server")
                 .then(
                     CommandStringLiteral("start")

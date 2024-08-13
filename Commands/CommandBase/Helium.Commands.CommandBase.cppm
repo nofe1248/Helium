@@ -18,6 +18,9 @@ module;
 
 #include <plf_hive.h>
 
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid.hpp>
+
 export module Helium.Commands.CommandBase;
 
 import Helium.Base;
@@ -32,10 +35,13 @@ auto base_logger = logger::SharedLogger::getSharedLogger("CommandNodeBase", "Des
 class CommandNodeDescriptor final
 {
 public:
+    boost::uuids::uuid uuid = boost::uuids::random_generator()();
+
     std::shared_ptr<CommandNodeDescriptor> parent_node = nullptr;
     plf::hive<std::shared_ptr<CommandNodeDescriptor>> child_nodes{};
     bool is_redirected = false;
     std::optional<plf::hive<std::shared_ptr<CommandNodeDescriptor>>> forward_nodes;
+    bool is_optional = false;
 
     std::string node_name = "default_node_name";
     std::optional<std::string> node_description = std::nullopt;
@@ -106,6 +112,31 @@ public:
         }
         base_logger->flush();
         return true;
+    }
+
+    auto operator<=>(CommandNodeDescriptor const &that) const -> std::strong_ordering
+    {
+        if (this->uuid == that.uuid)
+        {
+            return std::strong_ordering::equal;
+        }
+        if (this->uuid > that.uuid)
+        {
+            return std::strong_ordering::greater;
+        }
+        if (this->uuid < that.uuid)
+        {
+            return std::strong_ordering::less;
+        }
+        std::unreachable();
+    }
+};
+
+struct CommandNodeDescriptorHash
+{
+    auto operator()(CommandNodeDescriptor const &node) const -> std::size_t
+    {
+        return hash_value(node.uuid);
     }
 };
 
@@ -240,6 +271,13 @@ public:
             FWD(self).node_descriptor_->forward_nodes = plf::hive<std::shared_ptr<CommandNodeDescriptor>>{};
         }
         FWD(self).node_descriptor_->forward_nodes.value().insert(forward_node);
+    }
+
+    [[nodiscard]] constexpr decltype(auto) optional(this auto &&self)
+        requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
+    {
+        FWD(self).getNodeDescriptor().lock()->is_optional = true;
+        return static_cast<std::decay_t<decltype(self)>>(FWD(self));
     }
 
     template <typename... Next_>
