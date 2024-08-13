@@ -369,8 +369,7 @@ public:
         {
             if (node->auto_completable)
             {
-                if (double similarity = node->token_similarity(*tok_it);
-                    similarity >= similarity_cutoff or show_all_result)
+                if (double similarity = node->token_similarity(*tok_it); similarity >= similarity_cutoff or show_all_result)
                 {
                     if (similarity == 100.0f)
                     {

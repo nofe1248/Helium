@@ -116,6 +116,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<commands::bindings::AbstractCommandNodeBinding>(command_module, "AbstractCommandNode")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::AbstractCommandNodeBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::then))
         .def("then",
              py::overload_cast<py::args>(&commands::bindings::AbstractCommandNodeBinding::then))
@@ -132,6 +133,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<commands::bindings::CommandLiteralBaseBinding, commands::bindings::AbstractCommandNodeBinding>(command_module, "CommandLiteralBase")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandLiteralBaseBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::then))
         .def("then",
              py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::then))
@@ -148,6 +150,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<commands::bindings::CommandLiteralStringBinding, commands::bindings::CommandLiteralBaseBinding>(command_module, "CommandLiteralString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandLiteralStringBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::then))
         .def("then",
              py::overload_cast<py::args>(&commands::bindings::CommandLiteralStringBinding::then))
@@ -164,6 +167,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
     py::class_<commands::bindings::CommandArgumentBaseBinding, commands::bindings::AbstractCommandNodeBinding>(command_module, "CommandArgumentBase")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandArgumentBaseBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::then))
         .def("then",
              py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::then))
@@ -181,6 +185,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                                                                                                   "CommandArgumentBoolean")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandArgumentBooleanBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::then))
         .def("then", py::overload_cast<py::args>(
                          &commands::bindings::CommandArgumentBooleanBinding::then))
@@ -198,6 +203,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                                                                                                   "CommandArgumentInteger")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandArgumentIntegerBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::then))
         .def("then", py::overload_cast<py::args>(
                          &commands::bindings::CommandArgumentIntegerBinding::then))
@@ -215,6 +221,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         command_module, "CommandArgumentFloatingPoint")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandArgumentFloatingPointBinding::optional)
         .def("then",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::then))
         .def("then", py::overload_cast<py::args>(
@@ -234,6 +241,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                                                                                                  "CommandArgumentString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandArgumentStringBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::then))
         .def("then", py::overload_cast<py::args>(
                          &commands::bindings::CommandArgumentStringBinding::then))
@@ -251,6 +259,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                                                                                                        "CommandArgumentQuotedString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
+        .def("optional", &commands::bindings::CommandArgumentQuotedStringBinding::optional)
         .def("then",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::then))
         .def("then", py::overload_cast<py::args>(

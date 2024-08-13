@@ -42,39 +42,43 @@ public:
 
     virtual auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor>
     {
-        return nullptr;
+        throw std::runtime_error("Not implemented");
+    }
+    virtual auto optional() -> AbstractCommandNodeBinding &
+    {
+        throw std::runtime_error("Not implemented");
     }
     virtual auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto then(py::args next_node) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto execute(py::function callback) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto require(py::function callback) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto fork(AbstractCommandNodeBinding &fork_node) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto fork(py::args fork_node) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto redirect(AbstractCommandNodeBinding &redirect_node) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
     virtual auto redirect(py::args redirect_node) -> AbstractCommandNodeBinding &
     {
-        return *this;
+        throw std::runtime_error("Not implemented");
     }
 };
 
@@ -99,6 +103,11 @@ public:
     auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor> override
     {
         return this->real_node_.getNodeDescriptor().lock();
+    }
+    auto optional() -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.optional();
+        return *this;
     }
     auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & override
     {
@@ -180,6 +189,11 @@ public:
     {
         return this->real_node_.getNodeDescriptor().lock();
     }
+    auto optional() -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.optional();
+        return *this;
+    }
     auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
@@ -254,6 +268,11 @@ public:
     auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor> override
     {
         return this->real_node_.getNodeDescriptor().lock();
+    }
+    auto optional() -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.optional();
+        return *this;
     }
     auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & override
     {
@@ -330,6 +349,11 @@ public:
     {
         return this->real_node_.getNodeDescriptor().lock();
     }
+    auto optional() -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.optional();
+        return *this;
+    }
     auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
@@ -405,6 +429,11 @@ public:
     {
         return this->real_node_.getNodeDescriptor().lock();
     }
+    auto optional() -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.optional();
+        return *this;
+    }
     auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & override
     {
         this->real_node_.addChildNode(next_node.getNodeDescriptor());
@@ -479,6 +508,11 @@ public:
     auto getNodeDescriptor() -> std::shared_ptr<CommandNodeDescriptor> override
     {
         return this->real_node_.getNodeDescriptor().lock();
+    }
+    auto optional() -> AbstractCommandNodeBinding & override
+    {
+        this->real_node_.optional();
+        return *this;
     }
     auto then(AbstractCommandNodeBinding &next_node) -> AbstractCommandNodeBinding & override
     {
