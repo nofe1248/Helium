@@ -13,7 +13,7 @@ export module Helium.Base.Version;
 
 export namespace helium::base
 {
-constexpr semver::version helium_version{0, 2, 9, semver::prerelease::alpha, 1};
+constexpr semver::version helium_version{0, 2, 10, semver::prerelease::alpha, 1};
 
 auto getHeliumVersionString() -> std::string
 {

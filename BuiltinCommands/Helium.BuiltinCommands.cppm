@@ -7,7 +7,9 @@ module;
 
 #include <string>
 
-export module Helium.Commands.BuiltinCommands;
+export module Helium.BuiltinCommands;
+
+export import Helium.BuiltinCommands.Implementations;
 
 import Helium.Logger;
 import Helium.Commands.CommandDispatcher;

@@ -6,6 +6,7 @@
 export module Helium.Utils;
 
 export import Helium.Utils.OverloadSet;
+export import Helium.Utils.Polymorphic;
 export import Helium.Utils.RText;
 export import Helium.Utils.RunLoopExecutor;
 export import Helium.Utils.Test;

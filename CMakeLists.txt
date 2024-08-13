@@ -63,8 +63,14 @@ target_sources(
         Base/Helium.Base.cppm
         CLI/Helium.CLI.cppm
         CLI/MainCLIThread/Helium.CLI.MainCLIThread.cppm
+        BuiltinCommands/Helium.BuiltinCommands.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Config.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Debug.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Plugins.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Misc.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Server.cppm
         Commands/BindingHelper/Helium.Commands.BindingHelper.cppm
-        Commands/BuiltinCommands/Helium.Commands.BuiltinCommands.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentFloatingPoint.cppm
@@ -130,6 +136,7 @@ target_sources(
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Waterfall.cppm
         Server/ServerOutputProcessThread/Helium.Server.ServerOutputProcessThread.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
+        Utils/Polymorphic/Helium.Utils.Polymorphic.cppm
         Utils/RText/Helium.Utils.RText.cppm
         Utils/RunLoopExecutor/Helium.Utils.RunLoopExecutor.cppm
         Utils/Test/Helium.Utils.Test.cppm
