@@ -8,7 +8,7 @@ module;
 
 export module Helium.Utils.Polymorphic;
 
-//P3019 polymorphic<> implementation from https://github.com/jbcoe/value_types/blob/main/polymorphic.h
+// P3019 polymorphic<> implementation from https://github.com/jbcoe/value_types/blob/main/polymorphic.h
 export namespace helium::utils
 {
 
