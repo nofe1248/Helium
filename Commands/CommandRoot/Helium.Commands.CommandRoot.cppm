@@ -6,6 +6,7 @@
 module;
 
 #include <memory>
+#include <optional>
 
 export module Helium.Commands.CommandRoot;
 
@@ -20,9 +21,9 @@ export namespace helium::commands {
 
         constexpr CommandRoot() : CommandNodeBase("root_node") {}
 
-        static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> bool
+        static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> TryAcceptTokenResult
         {
-            return false;
+            return TryAcceptTokenResult{.accepted = false, .argument = std::nullopt};
         }
         static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> double
         {

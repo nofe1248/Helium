@@ -11,19 +11,10 @@ export module Helium.BuiltinCommands;
 
 export import Helium.BuiltinCommands.Implementations;
 
-import Helium.Logger;
 import Helium.Commands.CommandDispatcher;
 import Helium.Commands.CommandLiteral;
 import Helium.Commands.CommandArgument;
 import Helium.Commands.CommandContext;
-import Helium.Events;
-import Helium.Server;
-import Helium.Utils.RunLoopExecutor;
-
-namespace helium::commands::builtins
-{
-auto logger = logger::SharedLogger::getSharedLogger("Commands", "Builtin");
-}
 
 export namespace helium::commands::builtins
 {
@@ -37,142 +28,103 @@ struct BuiltinCommandRegisterHelper
             CommandStringLiteral("#helium")
             .then(
                 CommandStringLiteral("exit")
-                .execute([](CommandContext const &ctx) -> void {
-                    events::EventEmitter emitter{events::EventBus::getInstancePointer()};
-                    emitter.postponeEvent(events::HeliumStopping{});
-                    server::ServerInstance::getInstancePointer()->stop();
-                    utils::RunLoopExecutor::getInstance().finish();
-                }),
-                CommandStringLiteral("help"),
-                CommandStringLiteral("about"),
-                CommandStringLiteral("status"),
+                .execute(heliumExit),
+                CommandStringLiteral("help")
+                .execute(heliumHelp),
+                CommandStringLiteral("about")
+                .execute(heliumAbout),
+                CommandStringLiteral("status")
+                .execute(heliumStatus),
                 CommandStringLiteral("server")
                 .then(
                     CommandStringLiteral("start")
-                    .execute([](CommandContext const &ctx) -> void {
-                        if (server::ServerInstance::getInstancePointer())
-                        {
-                            if (not server::ServerInstance::getInstancePointer()->start())
-                            {
-                                logger->error("Failed to start server");
-                            }
-                        }
-                    }),
+                    .execute(serverStart),
                     CommandStringLiteral("stop")
-                    .execute([](CommandContext const &ctx) -> void {
-                        if (server::ServerInstance::getInstancePointer())
-                        {
-                            if (not server::ServerInstance::getInstancePointer()->stop())
-                            {
-                            logger->error("Failed to stop server");
-                            }
-                        }
-                    }),
+                    .execute(serverStop),
                     CommandStringLiteral("terminate")
-                    .execute([](CommandContext const &ctx) -> void {
-                        if (server::ServerInstance::getInstancePointer())
-                        {
-                            if (not server::ServerInstance::getInstancePointer()->kill())
-                            {
-                            logger->error("Failed to terminate server");
-                            }
-                        }
-                    }),
+                    .execute(serverTerminate),
                     CommandStringLiteral("status")
+                    .execute(serverStatus)
                 ),
                 CommandStringLiteral("plugin")
                 .then(
-                    CommandStringLiteral("list"),
+                    CommandStringLiteral("list")
+                    .execute(pluginList),
                     CommandStringLiteral("load")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginLoad)
                     ),
                     CommandStringLiteral("unload")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginUnload)
                     ),
                     CommandStringLiteral("reload")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginReload)
                     ),
                     CommandStringLiteral("search")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                    .execute(pluginSearch)
                     ),
                     CommandStringLiteral("enable")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginEnable)
                     ),
                     CommandStringLiteral("disable")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginDisable)
                     ),
                     CommandStringLiteral("install")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginInstall)
                     ),
                     CommandStringLiteral("remove")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginRemove)
                     ),
                     CommandStringLiteral("status")
                     .then(
                         CommandArgumentQuotedString("plugin_name")
+                        .execute(pluginStatus)
                     ),
                     CommandStringLiteral("source")
                     .then(
-                        CommandStringLiteral("list"),
+                        CommandStringLiteral("list")
+                        .execute(pluginSourceList),
                         CommandStringLiteral("add")
                         .then(
                             CommandArgumentString("source_name")
                             .then(
                                 CommandArgumentQuotedString("source_url")
+                                .execute(pluginSourceAdd)
                             )
                         ),
                         CommandStringLiteral("remove")
                         .then(
                             CommandArgumentString("source_name")
+                            .execute(pluginSourceRemove)
                         ),
                         CommandStringLiteral("update")
                         .then(
                             CommandArgumentString("source_name")
+                            .execute(pluginSourceUpdate)
                         ),
                         CommandStringLiteral("update-all")
+                        .execute(pluginSourceUpdateAll)
                     )
-                ),
-                CommandStringLiteral("show")
-                .then(
-                    CommandStringLiteral("warranty")
-                    .execute([](CommandContext const &ctx) -> void {
-                        logger->debug("#helium show warranty command executed.");
-                    }),
-                    CommandStringLiteral("copyright")
-                    .execute([](CommandContext const &ctx) -> void {
-                        logger->debug("#helium show copyright command executed.");
-                    })
                 ),
                 CommandStringLiteral("debug")
                 .then(
-                    CommandArgumentBoolean("debug_enable")
-                    .execute([](CommandContext const &ctx, bool enabled) -> void {
-                        if(enabled)
-                        {
-                            logger->debug("Debug mode enabled.");
-                        }
-                        else
-                        {
-                            logger->debug("Debug mode disabled.");
-                        }
-                    }),
+                    CommandArgumentBoolean("debug_enable"),
                     CommandStringLiteral("debug_logger")
-                    .then(
-                        CommandArgumentString("logger_name")
-                        .execute([](CommandContext const &ctx, std::string const &logger_name) -> void {
-                            if (logger_name == "all") {
-
-                            }
-                        })
-                    )
                 ),
                 CommandStringLiteral("config")
                 .then(

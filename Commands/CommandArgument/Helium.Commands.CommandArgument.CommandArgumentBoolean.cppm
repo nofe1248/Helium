@@ -28,14 +28,14 @@ public:
     using CommandArgumentBase::CommandArgumentBase;
     using RawTokenStringConversionTarget = bool;
 
-    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> TryAcceptTokenResult
     {
         if (tok.token_type == TokenCategory::TOKEN_BOOLEAN)
         {
             node_descriptor->recent_accepted_token = tok;
-            return true;
+            return TryAcceptTokenResult{.accepted = true, .argument = CommandArgumentGeneric{convertRawTokenToTargetType(node_descriptor, tok)}};
         }
-        return false;
+        return TryAcceptTokenResult{.accepted = false, .argument = std::nullopt};
     }
     static auto convertRawTokenToTargetType(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
     {

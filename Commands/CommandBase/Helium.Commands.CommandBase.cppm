@@ -13,6 +13,7 @@ module;
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <tuple>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
@@ -32,6 +33,11 @@ import Helium.Logger;
 export namespace helium::commands
 {
 auto base_logger = logger::SharedLogger::getSharedLogger("CommandNodeBase", "Descriptor");
+struct TryAcceptTokenResult
+{
+    bool accepted = false;
+    std::optional<CommandArgumentGeneric> argument = std::nullopt;
+};
 class CommandNodeDescriptor final
 {
 public:
@@ -40,7 +46,7 @@ public:
     std::shared_ptr<CommandNodeDescriptor> parent_node = nullptr;
     plf::hive<std::shared_ptr<CommandNodeDescriptor>> child_nodes{};
     bool is_redirected = false;
-    std::optional<plf::hive<std::shared_ptr<CommandNodeDescriptor>>> forward_nodes;
+    std::optional<plf::hive<std::shared_ptr<CommandNodeDescriptor>>> forward_nodes{};
     bool is_optional = false;
 
     std::string node_name = "default_node_name";
@@ -52,11 +58,11 @@ public:
     std::optional<std::vector<std::function<bool(CommandContext const &, Token const &)>>> node_predicate = std::nullopt;
     std::optional<std::vector<std::function<void(CommandContext const &, Token const &)>>> node_callback = std::nullopt;
 
-    std::function<bool(Token const &)> try_accept_token;
+    std::function<TryAcceptTokenResult(Token const &)> try_accept_token{};
 
     bool auto_completable = false;
-    std::function<double(Token const &)> token_similarity;
-    std::function<std::string(Token const &)> get_suggestion;
+    std::function<double(Token const &)> token_similarity{};
+    std::function<std::string(Token const &)> get_suggestion{};
 
     CommandNodeDescriptor(std::string command_name, std::optional<std::string> command_description = std::nullopt,
                           std::optional<std::string> command_abbreviated_name = std::nullopt)
@@ -79,17 +85,13 @@ public:
         return std::format("CommandNodeDescriptor[.node_name = {}, .is_redirected = {}]", self.node_name, self.is_redirected);
     }
 
-    auto tryAcceptToken(this auto &&self, Token const &tok) noexcept -> bool
+    auto tryAcceptToken(this auto &&self, Token const &tok) noexcept -> std::optional<TryAcceptTokenResult>
     {
         if (not self.try_accept_token and not self.token_similarity)
         {
-            return false;
+            return std::nullopt;
         }
-        if (self.try_accept_token(tok))
-        {
-            return true;
-        }
-        return false;
+        return self.try_accept_token(tok);
     }
     auto executeCallbacks(this auto &&self, CommandContext const &context, Token const &tok) noexcept -> bool
     {
@@ -150,7 +152,7 @@ concept IsCommandNode = std::derived_from<std::decay_t<Command_>, commands::Comm
                         std::movable<std::decay_t<Command_>> and requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
                             {
                                 std::decay_t<Command_>::tryAcceptToken(descriptor, tok)
-                            } -> std::same_as<bool>;
+                            } -> std::same_as<TryAcceptTokenResult>;
                         };
 template <typename Command_>
 concept IsCommandNodeHasConversionTarget = IsCommandNode<Command_> and requires(std::shared_ptr<CommandNodeDescriptor> descriptor, Token tok) {
@@ -205,7 +207,7 @@ protected:
         if (not self.descriptor_initialized_)
         {
             self.node_descriptor_->try_accept_token = [descriptor = self.node_descriptor_](Token const &tok) noexcept(noexcept(SelfT::tryAcceptToken(
-                                                          std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> bool {
+                                                          std::declval<std::shared_ptr<CommandNodeDescriptor>>(), tok))) -> TryAcceptTokenResult {
                 return SelfT::tryAcceptToken(descriptor, tok);
             };
             if constexpr (concepts::IsCommandNodeAutocompletable<SelfT>)

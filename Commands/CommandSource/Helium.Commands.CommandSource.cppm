@@ -14,7 +14,7 @@ import Helium.Base.HeliumObject;
 
 export namespace helium::commands
 {
-class CommandSource : base::HeliumObject
+class CommandSource final : base::HeliumObject
 {
 private:
     std::string source_type_ = "unknown_command_source_type";

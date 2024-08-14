@@ -105,9 +105,24 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def_property("major_source", &commands::CommandSource::getMajorSource, &commands::CommandSource::setMajorSource)
         .def_property("minor_source", &commands::CommandSource::getMinorSource, &commands::CommandSource::setMinorSource);
 
+    py::class_<commands::CommandArgumentGeneric>(command_module, "CommandArgumentGeneric")
+        .def("get_bool", &commands::CommandArgumentGeneric::getBool)
+        .def("get_string", &commands::CommandArgumentGeneric::getString)
+        .def("get_int8", &commands::CommandArgumentGeneric::getInt8)
+        .def("get_int16", &commands::CommandArgumentGeneric::getInt16)
+        .def("get_int32", &commands::CommandArgumentGeneric::getInt32)
+        .def("get_int64", &commands::CommandArgumentGeneric::getInt64)
+        .def("get_uint8", &commands::CommandArgumentGeneric::getUInt8)
+        .def("get_uint16", &commands::CommandArgumentGeneric::getUInt16)
+        .def("get_uint32", &commands::CommandArgumentGeneric::getUInt32)
+        .def("get_uint64", &commands::CommandArgumentGeneric::getUInt64)
+        .def("get_float", &commands::CommandArgumentGeneric::getFloat)
+        .def("get_double", &commands::CommandArgumentGeneric::getDouble);
+
     py::class_<commands::CommandContext>(command_module, "CommandContext")
         .def(py::init<commands::CommandSource>())
-        .def("get_source", &commands::CommandContext::getSource);
+        .def("get_source", &commands::CommandContext::getSource)
+        .def("get_argumment", &commands::CommandContext::getArgument);
 
     py::class_<commands::CommandNodeDescriptor, std::shared_ptr<commands::CommandNodeDescriptor>>(command_module, "CommandNodeDescriptor")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
@@ -141,7 +156,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::redirect))
         .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::redirect));
 
-    py::class_<commands::bindings::CommandLiteralStringBinding, commands::bindings::CommandLiteralBaseBinding>(command_module, "CommandLiteralString")
+    py::class_<commands::bindings::CommandLiteralStringBinding, commands::bindings::CommandLiteralBaseBinding>(command_module, "Literal")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandLiteralStringBinding::optional)
@@ -169,8 +184,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::redirect))
         .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::redirect));
 
-    py::class_<commands::bindings::CommandArgumentBooleanBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
-                                                                                                                  "CommandArgumentBoolean")
+    py::class_<commands::bindings::CommandArgumentBooleanBinding, commands::bindings::CommandArgumentBaseBinding>(command_module, "ArgumentBoolean")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentBooleanBinding::optional)
@@ -184,8 +198,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::redirect))
         .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBooleanBinding::redirect));
 
-    py::class_<commands::bindings::CommandArgumentIntegerBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
-                                                                                                                  "CommandArgumentInteger")
+    py::class_<commands::bindings::CommandArgumentIntegerBinding, commands::bindings::CommandArgumentBaseBinding>(command_module, "ArgumentInteger")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentIntegerBinding::optional)
@@ -199,8 +212,8 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::redirect))
         .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentIntegerBinding::redirect));
 
-    py::class_<commands::bindings::CommandArgumentFloatingPointBinding, commands::bindings::CommandArgumentBaseBinding>(
-        command_module, "CommandArgumentFloatingPoint")
+    py::class_<commands::bindings::CommandArgumentFloatingPointBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
+                                                                                                                        "ArgumentFloatingPoint")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentFloatingPointBinding::optional)
@@ -216,8 +229,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::redirect))
         .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentFloatingPointBinding::redirect));
 
-    py::class_<commands::bindings::CommandArgumentStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
-                                                                                                                 "CommandArgumentString")
+    py::class_<commands::bindings::CommandArgumentStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module, "ArgumentString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentStringBinding::optional)
@@ -232,7 +244,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentStringBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentQuotedStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
-                                                                                                                       "CommandArgumentQuotedString")
+                                                                                                                       "ArgumentQuotedString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentQuotedStringBinding::optional)

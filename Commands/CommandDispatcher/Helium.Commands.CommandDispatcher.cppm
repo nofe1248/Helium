@@ -72,7 +72,7 @@ public:
             return false;
         }
         auto current_node = this->command_root_.getNodeDescriptor().lock();
-        CommandContext const context{source};
+        CommandContext context{source};
         std::vector<std::shared_ptr<CommandNodeDescriptor>> all_forwarded_nodes{}, nodes_to_be_processed{};
         for (auto tok_it = this->tokens_cache_.begin(); tok_it != this->tokens_cache_.end(); ++tok_it)
         {
@@ -113,8 +113,12 @@ public:
             auto try_to_match_optional =
                 [&tok_it, &context](this auto &&self,
                                     std::shared_ptr<CommandNodeDescriptor> const &node) -> std::optional<std::shared_ptr<CommandNodeDescriptor>> {
-                if (node->tryAcceptToken(*tok_it))
+                if (auto const opt = node->tryAcceptToken(*tok_it); opt.has_value() and opt.value().accepted)
                 {
+                    if (opt.value().argument.has_value())
+                    {
+                        context.addArgument(node->node_name, opt.value().argument.value());
+                    }
                     if (node->executeCallbacks(context, *tok_it))
                     {
                         return node;
@@ -184,8 +188,12 @@ public:
                     }
                     return false;
                 }
-                if (node->tryAcceptToken(*tok_it))
+                if (auto const opt = node->tryAcceptToken(*tok_it); opt.has_value() and opt.value().accepted)
                 {
+                    if (opt.value().argument.has_value())
+                    {
+                        context.addArgument(node->node_name, opt.value().argument.value());
+                    }
                     if (node->executeCallbacks(context, *tok_it))
                     {
                         current_node = node;
@@ -265,7 +273,7 @@ public:
             auto try_to_match_optional =
                 [&tok_it](this auto &&self,
                           std::shared_ptr<CommandNodeDescriptor> const &node) -> std::optional<std::shared_ptr<CommandNodeDescriptor>> {
-                if (node->tryAcceptToken(*tok_it))
+                if (auto const opt = node->tryAcceptToken(*tok_it); opt.has_value() and opt.value().accepted)
                 {
                     return node;
                 }
@@ -331,7 +339,7 @@ public:
                         break;
                     }
                 }
-                if (node->tryAcceptToken(*tok_it))
+                if (auto const opt = node->tryAcceptToken(*tok_it); opt.has_value() and opt.value().accepted)
                 {
                     current_node = node;
                     break;

@@ -29,26 +29,26 @@ class CommandStringLiteral : public CommandLiteralBase
 public:
     using CommandLiteralBase::CommandLiteralBase;
 
-    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> bool
+    static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> TryAcceptTokenResult
     {
         if (tok.token_type != TokenCategory::TOKEN_PLAIN_STRING)
         {
-            return false;
+            return TryAcceptTokenResult{.accepted = false, .argument = std::nullopt};
         }
         if (node_descriptor->node_abbreviated_name.has_value())
         {
             if (tok.token_string == node_descriptor->node_name or tok.token_string == node_descriptor->node_abbreviated_name.value())
             {
                 node_descriptor->recent_accepted_token = tok;
-                return true;
+                return TryAcceptTokenResult{.accepted = true, .argument = std::nullopt};
             }
         }
         if (tok.token_string == node_descriptor->node_name)
         {
             node_descriptor->recent_accepted_token = tok;
-            return true;
+            return TryAcceptTokenResult{.accepted = true, .argument = std::nullopt};
         }
-        return false;
+        return TryAcceptTokenResult{.accepted = false, .argument = std::nullopt};
     }
     static auto tokenSimilarity(std::shared_ptr<CommandNodeDescriptor> const &node_descriptor, Token const &tok) noexcept -> double
     {
