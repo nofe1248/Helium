@@ -13,21 +13,32 @@ module;
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include <rfl.hpp>
 #include <rfl/json.hpp>
+
+#include <pybind11/pybind11.h>
 
 #define FWD(x) ::std::forward<decltype(x)>(x)
 
 export module Helium.Utils.RText;
 
+import Helium.Logger;
+
 namespace ranges = std::ranges;
 namespace views = std::ranges::views;
+namespace py = pybind11;
 
 namespace helium::utils::rtext::internal
 {
 template <typename R, typename T>
 concept RangeOf = ranges::range<R> and std::convertible_to<std::decay_t<T>, ranges::range_value_t<R>>;
+}
+
+namespace helium::utils::rtext
+{
+auto rtext_logger = logger::SharedLogger::getSharedLogger("Utils", "RText");
 }
 
 export namespace helium::utils::rtext
@@ -219,7 +230,7 @@ public:
         }
         return std::format("{}{}{}", head, this->json_object_["text"].to_string().value_or(""), tail);
     }
-    [[nodiscard]] auto toLegacyText() -> std::string
+    [[nodiscard]] auto toLegacyText() const -> std::string
     {
         std::stringstream ss;
         if (this->color_.has_value())
@@ -276,6 +287,31 @@ public:
         else if (texts.size() == 1)
         {
             this->setText(*texts.begin());
+        }
+        return *this;
+    }
+    auto setText(py::args texts) -> RText &
+    {
+        try
+        {
+            if (texts.size() > 1)
+            {
+                this->setText(texts.begin()->cast<std::string>());
+                rfl::Generic::Array array;
+                for (auto it = texts.begin() + 1; it != texts.end(); ++it)
+                {
+                    array.emplace_back(it->cast<std::string>());
+                }
+                this->json_object_["extra"] = array;
+            }
+            else if (texts.size() == 1)
+            {
+                this->setText(texts.begin()->cast<std::string>());
+            }
+        }
+        catch (py::error_already_set const &e)
+        {
+            rtext_logger->error("Exception while setting texts of RText : {}", e.what());
         }
         return *this;
     }
@@ -340,6 +376,21 @@ public:
         }
         return *this;
     }
+    auto setStyle(py::args styles_list) -> RText &
+    {
+        for (auto const &style : styles_list)
+        {
+            try
+            {
+                this->setStyle(style.cast<RStyleClassic::RStyleClassicInternal>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                rtext_logger->error("Exception while setting style of RText : {}", e.what());
+            }
+        }
+        return *this;
+    }
     auto setClickEvent(RAction::RActionInternal const &action, std::string const &value) -> RText &
     {
         rfl::Generic::Object event;
@@ -369,6 +420,83 @@ public:
     {
         return rtext.toJSONString();
     }
+
+    [[nodiscard]] auto getRawJSONObject() const noexcept -> rfl::Generic::Object
+    {
+        return this->json_object_;
+    }
+};
+class RTextList final
+{
+private:
+    std::vector<RText> rtext_array_{};
+
+public:
+    RTextList() = default;
+    explicit RTextList(py::args rtext_list)
+    {
+        for (auto const &rtext : rtext_list)
+        {
+            try
+            {
+                this->rtext_array_.emplace_back(rtext.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                rtext_logger->error("Exception while creating RTextList : {}", e.what());
+            }
+        }
+    }
+    explicit RTextList(std::initializer_list<RText> rtext_list)
+    {
+        for (auto const &rtext : rtext_list)
+        {
+            this->rtext_array_.emplace_back(rtext);
+        }
+    }
+
+    auto addRText(RText const &rtext) noexcept -> RTextList &
+    {
+        this->rtext_array_.emplace_back(rtext);
+        return *this;
+    }
+
+    [[nodiscard]] auto toJSONString() const -> std::string
+    {
+        rfl::Generic::Array array;
+        for (auto const &rtext : this->rtext_array_)
+        {
+            array.emplace_back(rtext.getRawJSONObject());
+        }
+        return rfl::json::write(array);
+    }
+    [[nodiscard]] auto toPlainText() const -> std::string
+    {
+        std::stringstream ss;
+        for (auto const &rtext : this->rtext_array_)
+        {
+            ss << rtext.toPlainText();
+        }
+        return ss.str();
+    }
+    [[nodiscard]] auto toColoredText() const -> std::string
+    {
+        std::stringstream ss;
+        for (auto const &rtext : this->rtext_array_)
+        {
+            ss << rtext.toColoredText();
+        }
+        return ss.str();
+    }
+    [[nodiscard]] auto toLegacyText() const -> std::string
+    {
+        std::stringstream ss;
+        for (auto const &rtext : this->rtext_array_)
+        {
+            ss << rtext.toLegacyText();
+        }
+        return ss.str();
+    }
 };
 } // namespace helium::utils::rtext
 
@@ -386,6 +514,24 @@ struct std::formatter<helium::utils::rtext::RText>
     {
         std::ostringstream oss;
         oss << rtext.toJSONString();
+        return std::ranges::copy(std::move(oss).str(), ctx.out()).out;
+    }
+};
+
+export template <>
+struct std::formatter<helium::utils::rtext::RTextList>
+{
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) -> typename ParseContext::iterator
+    {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(helium::utils::rtext::RTextList const &rtext_list, FormatContext &ctx) const -> typename FormatContext::iterator
+    {
+        std::ostringstream oss;
+        oss << rtext_list.toJSONString();
         return std::ranges::copy(std::move(oss).str(), ctx.out()).out;
     }
 };

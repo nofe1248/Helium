@@ -20,11 +20,18 @@ export module Helium.Server.BindingHelper;
 import Helium.Server.ServerInstance;
 import Helium.Server.ServerOutputParser;
 import Helium.Utils.RText;
+import Helium.Logger;
 
 namespace py = pybind11;
 namespace fs = std::filesystem;
 
 using RText = helium::utils::rtext::RText;
+using RTextList = helium::utils::rtext::RTextList;
+
+namespace helium::server::binding
+{
+auto server_binding_logger = logger::SharedLogger::getSharedLogger("Server", "PythonBinding");
+}
 
 export namespace helium::server::binding
 {
@@ -87,6 +94,46 @@ public:
         }
         return ServerInstance::getInstancePointer()->sendMessage(target, info);
     }
+    static auto sendMessage(std::string const &target, RTextList const &info) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->sendMessage(target, info);
+    }
+    static auto sendMessage(py::args info_list) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("sendMessage should be called with at least 2 strings");
+            return false;
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return ServerInstance::getInstancePointer()->sendMessage(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
     static auto broadcastMessage(std::string const &info) -> bool
     {
         if (not ServerInstance::getInstancePointer())
@@ -102,6 +149,39 @@ public:
             return false;
         }
         return ServerInstance::getInstancePointer()->broadcastMessage(info);
+    }
+    static auto broadcastMessage(RTextList const &info) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        return ServerInstance::getInstancePointer()->broadcastMessage(info);
+    }
+    static auto broadcastMessage(py::args info_list) -> bool
+    {
+        if (not ServerInstance::getInstancePointer())
+        {
+            return false;
+        }
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("broadcastMessage should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return ServerInstance::getInstancePointer()->broadcastMessage(rtext_list);
     }
     static auto getPath() -> fs::path
     {
@@ -127,6 +207,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -135,6 +247,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -210,6 +347,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -218,6 +387,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -293,6 +487,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -301,6 +527,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -376,6 +627,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -384,6 +667,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -459,6 +767,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -467,6 +807,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -542,6 +907,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -550,6 +947,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -625,6 +1047,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -633,6 +1087,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -708,6 +1187,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -716,6 +1227,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -791,6 +1327,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -799,6 +1367,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -874,6 +1467,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -882,6 +1507,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string
@@ -957,6 +1607,38 @@ public:
     {
         return this->parser_.getSendMessageCommand(target, info);
     }
+    auto getSendMessageCommand(std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getSendMessageCommand(target, info);
+    }
+    auto getSendMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() <= 1)
+        {
+            server_binding_logger->error("getSendMessageCommand should be called with at least 2 strings");
+            return "";
+        }
+        for (auto it = info_list.begin() + 1; it < info_list.end(); ++it)
+        {
+            try
+            {
+                rtext_list.addRText(it->cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        try
+        {
+            return this->parser_.getSendMessageCommand(info_list.begin()->cast<std::string>(), rtext_list);
+        }
+        catch (py::error_already_set const &e)
+        {
+            server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
+        }
+    }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
     {
@@ -965,6 +1647,31 @@ public:
     auto getBroadcastMessageCommand(RText const &info) noexcept -> std::string
     {
         return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(RTextList const &info) noexcept -> std::string
+    {
+        return this->parser_.getBroadcastMessageCommand(info);
+    }
+    auto getBroadcastMessageCommand(py::args info_list) -> std::string
+    {
+        RTextList rtext_list;
+        if (info_list.size() == 0)
+        {
+            server_binding_logger->error("getBroadcastMessageCommand should be called with at least 1 strings");
+            return "";
+        }
+        for (auto const &info : info_list)
+        {
+            try
+            {
+                rtext_list.addRText(info.cast<RText>());
+            }
+            catch (py::error_already_set const &e)
+            {
+                server_binding_logger->error("Exception when constructing RTextList from py::args: {}", e.what());
+            }
+        }
+        return this->parser_.getBroadcastMessageCommand(rtext_list);
     }
 
     auto getStopCommand() noexcept -> std::string

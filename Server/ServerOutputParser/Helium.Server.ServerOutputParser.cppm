@@ -53,8 +53,14 @@ export namespace helium::server
 struct ServerOutputParserFacade : pro::facade_builder
     ::support_copy<pro::constraint_level::trivial>
     ::add_convention<proxy::MemberGetParserName, std::string()>
-    ::add_convention<proxy::MemberGetSendMessageCommand, std::string(std::string const &, std::string const&), std::string(std::string const &, utils::rtext::RText const&)>
-    ::add_convention<proxy::MemberGetBroadcastMessageCommand, std::string(std::string const &), std::string(utils::rtext::RText const&)>
+    ::add_convention<proxy::MemberGetSendMessageCommand,
+                        std::string(std::string const &, std::string const&),
+                        std::string(std::string const &, utils::rtext::RText const&),
+                        std::string(std::string const &, utils::rtext::RTextList const&)>
+    ::add_convention<proxy::MemberGetBroadcastMessageCommand,
+                        std::string(std::string const &),
+                        std::string(utils::rtext::RText const&),
+                        std::string(utils::rtext::RTextList const&)>
     ::add_convention<proxy::MemberGetStopCommand, std::string()>
     ::add_convention<proxy::MemberPreprocessServerOutput, std::optional<std::tuple<std::string, PreprocessedInfo>>(std::string const &)>
     ::add_convention<proxy::MemberParseServerOutput, std::optional<ServerOutputInfo>(std::string const &)>

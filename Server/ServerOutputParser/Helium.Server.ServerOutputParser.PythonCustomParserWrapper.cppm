@@ -28,6 +28,7 @@ namespace py = pybind11;
 export namespace helium::server
 {
 using RText = utils::rtext::RText;
+using RTextList = utils::rtext::RTextList;
 class PythonCustomParserWrapper final : public base::HeliumObject
 {
 public:
@@ -46,12 +47,22 @@ public:
         return "";
     }
 
+    constexpr auto getSendMessageCommand(this auto &&self, std::string const &target, RTextList const &info) noexcept -> std::string
+    {
+        return "";
+    }
+
     constexpr auto getBroadcastMessageCommand(this auto &&self, std::string const &info) noexcept -> std::string
     {
         return "";
     }
 
     constexpr auto getBroadcastMessageCommand(this auto &&self, RText const &info) noexcept -> std::string
+    {
+        return "";
+    }
+
+    constexpr auto getBroadcastMessageCommand(this auto &&self, RTextList const &info) noexcept -> std::string
     {
         return "";
     }

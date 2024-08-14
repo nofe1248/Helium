@@ -118,68 +118,56 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::AbstractCommandNodeBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::then))
-        .def("then",
-             py::overload_cast<py::args>(&commands::bindings::AbstractCommandNodeBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::AbstractCommandNodeBinding::then))
         .def("execute", &commands::bindings::AbstractCommandNodeBinding::execute)
         .def("require", &commands::bindings::AbstractCommandNodeBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::fork))
-        .def("fork",
-             py::overload_cast<py::args>(&commands::bindings::AbstractCommandNodeBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::AbstractCommandNodeBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::AbstractCommandNodeBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::AbstractCommandNodeBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::AbstractCommandNodeBinding::redirect));
 
     py::class_<commands::bindings::CommandLiteralBaseBinding, commands::bindings::AbstractCommandNodeBinding>(command_module, "CommandLiteralBase")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandLiteralBaseBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::then))
-        .def("then",
-             py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::then))
         .def("execute", &commands::bindings::CommandLiteralBaseBinding::execute)
         .def("require", &commands::bindings::CommandLiteralBaseBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::fork))
-        .def("fork",
-             py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralBaseBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandLiteralBaseBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandLiteralBaseBinding::redirect));
 
     py::class_<commands::bindings::CommandLiteralStringBinding, commands::bindings::CommandLiteralBaseBinding>(command_module, "CommandLiteralString")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandLiteralStringBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::then))
-        .def("then",
-             py::overload_cast<py::args>(&commands::bindings::CommandLiteralStringBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandLiteralStringBinding::then))
         .def("execute", &commands::bindings::CommandLiteralStringBinding::execute)
         .def("require", &commands::bindings::CommandLiteralStringBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::fork))
-        .def("fork",
-             py::overload_cast<py::args>(&commands::bindings::CommandLiteralStringBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandLiteralStringBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandLiteralStringBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandLiteralStringBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandLiteralStringBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentBaseBinding, commands::bindings::AbstractCommandNodeBinding>(command_module, "CommandArgumentBase")
         .def(py::init<std::string, std::optional<std::string>, std::optional<std::string>>(), py::arg("name"), py::arg("description") = py::none{},
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentBaseBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::then))
-        .def("then",
-             py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::then))
         .def("execute", &commands::bindings::CommandArgumentBaseBinding::execute)
         .def("require", &commands::bindings::CommandArgumentBaseBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::fork))
-        .def("fork",
-             py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBaseBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandArgumentBaseBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBaseBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentBooleanBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                   "CommandArgumentBoolean")
@@ -187,17 +175,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentBooleanBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::then))
-        .def("then", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentBooleanBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBooleanBinding::then))
         .def("execute", &commands::bindings::CommandArgumentBooleanBinding::execute)
         .def("require", &commands::bindings::CommandArgumentBooleanBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::fork))
-        .def("fork", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentBooleanBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBooleanBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentBooleanBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandArgumentBooleanBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentBooleanBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentIntegerBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                   "CommandArgumentInteger")
@@ -205,17 +190,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentIntegerBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::then))
-        .def("then", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentIntegerBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandArgumentIntegerBinding::then))
         .def("execute", &commands::bindings::CommandArgumentIntegerBinding::execute)
         .def("require", &commands::bindings::CommandArgumentIntegerBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::fork))
-        .def("fork", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentIntegerBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandArgumentIntegerBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentIntegerBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandArgumentIntegerBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentIntegerBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentFloatingPointBinding, commands::bindings::CommandArgumentBaseBinding>(
         command_module, "CommandArgumentFloatingPoint")
@@ -224,18 +206,15 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("optional", &commands::bindings::CommandArgumentFloatingPointBinding::optional)
         .def("then",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::then))
-        .def("then", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentFloatingPointBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandArgumentFloatingPointBinding::then))
         .def("execute", &commands::bindings::CommandArgumentFloatingPointBinding::execute)
         .def("require", &commands::bindings::CommandArgumentFloatingPointBinding::require)
         .def("fork",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::fork))
-        .def("fork", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentFloatingPointBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandArgumentFloatingPointBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentFloatingPointBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandArgumentFloatingPointBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentFloatingPointBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                  "CommandArgumentString")
@@ -243,17 +222,14 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::arg("abbreviated_name") = py::none{})
         .def("optional", &commands::bindings::CommandArgumentStringBinding::optional)
         .def("then", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::then))
-        .def("then", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentStringBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandArgumentStringBinding::then))
         .def("execute", &commands::bindings::CommandArgumentStringBinding::execute)
         .def("require", &commands::bindings::CommandArgumentStringBinding::require)
         .def("fork", py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::fork))
-        .def("fork", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentStringBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandArgumentStringBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentStringBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandArgumentStringBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentStringBinding::redirect));
 
     py::class_<commands::bindings::CommandArgumentQuotedStringBinding, commands::bindings::CommandArgumentBaseBinding>(command_module,
                                                                                                                        "CommandArgumentQuotedString")
@@ -262,18 +238,15 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("optional", &commands::bindings::CommandArgumentQuotedStringBinding::optional)
         .def("then",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::then))
-        .def("then", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentQuotedStringBinding::then))
+        .def("then", py::overload_cast<py::args>(&commands::bindings::CommandArgumentQuotedStringBinding::then))
         .def("execute", &commands::bindings::CommandArgumentQuotedStringBinding::execute)
         .def("require", &commands::bindings::CommandArgumentQuotedStringBinding::require)
         .def("fork",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::fork))
-        .def("fork", py::overload_cast<py::args>(
-                         &commands::bindings::CommandArgumentQuotedStringBinding::fork))
+        .def("fork", py::overload_cast<py::args>(&commands::bindings::CommandArgumentQuotedStringBinding::fork))
         .def("redirect",
              py::overload_cast<commands::bindings::AbstractCommandNodeBinding &>(&commands::bindings::CommandArgumentQuotedStringBinding::redirect))
-        .def("redirect", py::overload_cast<py::args>(
-                             &commands::bindings::CommandArgumentQuotedStringBinding::redirect));
+        .def("redirect", py::overload_cast<py::args>(&commands::bindings::CommandArgumentQuotedStringBinding::redirect));
 
     py::class_<commands::bindings::CommandDispatcherBinding>(command_module, "CommandDispatcher")
         .def(py::init<>())
@@ -369,10 +342,18 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command",
+             py::overload_cast<py::args>(&server::binding::ArclightServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command", py::overload_cast<utils::rtext::RTextList const &>(
+                                                  &server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::ArclightServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::ArclightServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::ArclightServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::ArclightServerOutputParserBindingHelper::parseServerOutput)
@@ -391,10 +372,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<py::args>(&server::binding::Beta18ServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RTextList const &>(&server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::Beta18ServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::Beta18ServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::Beta18ServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::Beta18ServerOutputParserBindingHelper::parseServerOutput)
@@ -413,10 +401,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<py::args>(&server::binding::BukkitServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RTextList const &>(&server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::BukkitServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::BukkitServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::BukkitServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::BukkitServerOutputParserBindingHelper::parseServerOutput)
@@ -435,10 +430,18 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command",
+             py::overload_cast<py::args>(&server::binding::BukkitLegacyServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command", py::overload_cast<utils::rtext::RText const &>(
                                                   &server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command", py::overload_cast<utils::rtext::RTextList const &>(
+                                                  &server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::BukkitLegacyServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::BukkitLegacyServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::BukkitLegacyServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::BukkitLegacyServerOutputParserBindingHelper::parseServerOutput)
@@ -457,10 +460,18 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command",
+             py::overload_cast<py::args>(&server::binding::BungeecordServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command", py::overload_cast<utils::rtext::RTextList const &>(
+                                                  &server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::BungeecordServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::BungeecordServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::BungeecordServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::BungeecordServerOutputParserBindingHelper::parseServerOutput)
@@ -479,10 +490,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
              py::overload_cast<std::string const &, std::string const &>(&server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<py::args>(&server::binding::CatServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RTextList const &>(&server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::CatServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::CatServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::CatServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::CatServerOutputParserBindingHelper::parseServerOutput)
@@ -501,10 +519,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<py::args>(&server::binding::ForgeServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RTextList const &>(&server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::ForgeServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::ForgeServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::ForgeServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::ForgeServerOutputParserBindingHelper::parseServerOutput)
@@ -523,10 +548,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<py::args>(&server::binding::PythonCustomParserWrapperBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RTextList const &>(&server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::PythonCustomParserWrapperBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::PythonCustomParserWrapperBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::PythonCustomParserWrapperBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::PythonCustomParserWrapperBindingHelper::parseServerOutput)
@@ -545,10 +577,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<py::args>(&server::binding::VanillaServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<utils::rtext::RTextList const &>(&server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::VanillaServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::VanillaServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::VanillaServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::VanillaServerOutputParserBindingHelper::parseServerOutput)
@@ -567,10 +606,18 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command",
+             py::overload_cast<py::args>(&server::binding::VelocityServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command", py::overload_cast<utils::rtext::RTextList const &>(
+                                                  &server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::VelocityServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::VelocityServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::VelocityServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::VelocityServerOutputParserBindingHelper::parseServerOutput)
@@ -589,10 +636,18 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                                              &server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RText const &>(
                                              &server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                             &server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand))
+        .def("get_send_message_command",
+             py::overload_cast<py::args>(&server::binding::WaterfallServerOutputParserBindingHelper::getSendMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<std::string const &>(&server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_broadcast_message_command",
              py::overload_cast<utils::rtext::RText const &>(&server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command", py::overload_cast<utils::rtext::RTextList const &>(
+                                                  &server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand))
+        .def("get_broadcast_message_command",
+             py::overload_cast<py::args>(&server::binding::WaterfallServerOutputParserBindingHelper::getBroadcastMessageCommand))
         .def("get_stop_command", &server::binding::WaterfallServerOutputParserBindingHelper::getStopCommand)
         .def("preprocess_server_output", &server::binding::WaterfallServerOutputParserBindingHelper::preprocessServerOutput)
         .def("parse_server_output", &server::binding::WaterfallServerOutputParserBindingHelper::parseServerOutput)
@@ -623,9 +678,15 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
                     py::overload_cast<std::string const &, std::string const &>(&server::binding::ServerInstanceBindingHelper::sendMessage))
         .def_static("send_message",
                     py::overload_cast<std::string const &, utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::sendMessage))
+        .def_static("send_message", py::overload_cast<std::string const &, utils::rtext::RTextList const &>(
+                                        &server::binding::ServerInstanceBindingHelper::sendMessage))
+        .def_static("send_message", py::overload_cast<py::args>(&server::binding::ServerInstanceBindingHelper::sendMessage))
         .def_static("broadcast_message", py::overload_cast<std::string const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
         .def_static("broadcast_message",
                     py::overload_cast<utils::rtext::RText const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
+        .def_static("broadcast_message",
+                    py::overload_cast<utils::rtext::RTextList const &>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
+        .def_static("broadcast_message", py::overload_cast<py::args>(&server::binding::ServerInstanceBindingHelper::broadcastMessage))
         .def_static("get_path", &server::binding::ServerInstanceBindingHelper::getPath);
 
     auto events_module = m.def_submodule("events");
@@ -814,6 +875,7 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("set_text", static_cast<utils::rtext::RText &(utils::rtext::RText::*)(std::string const &)>(&utils::rtext::RText::setText))
         .def("set_text",
              static_cast<utils::rtext::RText &(utils::rtext::RText::*)(std::initializer_list<std::string>)>(&utils::rtext::RText::setText))
+        .def("set_text", static_cast<utils::rtext::RText &(utils::rtext::RText::*)(py::args)>(&utils::rtext::RText::setText))
         .def("set_text", &utils::rtext::RText::setText<std::vector<std::string>>)
         .def("set_font", &utils::rtext::RText::setFont)
         .def("set_color", py::overload_cast<utils::rtext::RColorClassic::RColorClassicInternal const &>(&utils::rtext::RText::setColor))
@@ -823,8 +885,17 @@ PYBIND11_EMBEDDED_MODULE(helium, m)
         .def("set_style",
              static_cast<utils::rtext::RText &(utils::rtext::RText::*)(std::initializer_list<utils::rtext::RStyleClassic::RStyleClassicInternal>)>(
                  &utils::rtext::RText::setStyle))
+        .def("set_style", static_cast<utils::rtext::RText &(utils::rtext::RText::*)(py::args)>(&utils::rtext::RText::setStyle))
         .def("set_style", &utils::rtext::RText::setStyle<std::vector<utils::rtext::RStyleClassic::RStyleClassicInternal>>)
         .def("set_click_event", &utils::rtext::RText::setClickEvent)
         .def("set_hover_text", py::overload_cast<std::string const &>(&utils::rtext::RText::setHoverText))
         .def("set_hover_text", py::overload_cast<utils::rtext::RText const &>(&utils::rtext::RText::setHoverText));
+    py::class_<utils::rtext::RTextList>(rtext_module, "RTextList")
+        .def(py::init<py::args>())
+        .def(py::init<>())
+        .def("to_json_string", &utils::rtext::RTextList::toJSONString)
+        .def("to_plain_text", &utils::rtext::RTextList::toPlainText)
+        .def("to_colored_text", &utils::rtext::RTextList::toColoredText)
+        .def("to_legacy_text", &utils::rtext::RTextList::toLegacyText)
+        .def("add_rtext", &utils::rtext::RTextList::addRText);
 }

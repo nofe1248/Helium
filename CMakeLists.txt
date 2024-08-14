@@ -136,7 +136,6 @@ target_sources(
         Server/ServerOutputParser/Helium.Server.ServerOutputParser.Waterfall.cppm
         Server/ServerOutputProcessThread/Helium.Server.ServerOutputProcessThread.cppm
         Utils/OverloadSet/Helium.Utils.OverloadSet.cppm
-        Utils/Polymorphic/Helium.Utils.Polymorphic.cppm
         Utils/RText/Helium.Utils.RText.cppm
         Utils/RunLoopExecutor/Helium.Utils.RunLoopExecutor.cppm
         Utils/Test/Helium.Utils.Test.cppm

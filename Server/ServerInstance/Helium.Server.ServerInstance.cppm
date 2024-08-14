@@ -42,6 +42,7 @@ namespace process = boost::process::v2;
 namespace bstalgo = boost::algorithm;
 
 using RText = helium::utils::rtext::RText;
+using RTextList = helium::utils::rtext::RTextList;
 
 namespace helium::server
 {
@@ -373,11 +374,22 @@ public:
         return FWD(self).sendRawInput(FWD(self).parser_->getSendMessageCommand(target, info));
     }
 
+    auto sendMessage(this auto &&self, std::string const &target, RTextList const &info) -> bool
+    {
+        return FWD(self).sendRawInput(FWD(self).parser_->getSendMessageCommand(target, info));
+    }
+
     auto broadcastMessage(this auto &&self, std::string const &info) -> bool
     {
         return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
     }
+
     auto broadcastMessage(this auto &&self, RText const &info) -> bool
+    {
+        return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
+    }
+
+    auto broadcastMessage(this auto &&self, RTextList const &info) -> bool
     {
         return FWD(self).sendRawInput(FWD(self).parser_->getBroadcastMessageCommand(info));
     }
