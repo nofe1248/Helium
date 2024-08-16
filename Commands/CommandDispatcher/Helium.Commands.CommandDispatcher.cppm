@@ -123,7 +123,6 @@ public:
                     {
                         return node;
                     }
-                    return std::nullopt;
                 }
 
                 if (node->is_optional)
@@ -177,6 +176,7 @@ public:
                 return std::nullopt;
             };
 
+            bool founded = false;
             for (auto const &node : nodes_to_be_processed)
             {
                 if (node->is_optional)
@@ -184,9 +184,10 @@ public:
                     if (auto node_opt = try_to_match_optional(node))
                     {
                         current_node = node_opt.value();
+                        founded = true;
                         break;
                     }
-                    return false;
+                    continue;
                 }
                 if (auto const opt = node->tryAcceptToken(*tok_it); opt.has_value() and opt.value().accepted)
                 {
@@ -197,10 +198,15 @@ public:
                     if (node->executeCallbacks(context, *tok_it))
                     {
                         current_node = node;
+                        founded = true;
                         break;
                     }
-                    return false;
                 }
+            }
+
+            if (not founded)
+            {
+                return false;
             }
 
             all_forwarded_nodes.clear();
@@ -329,6 +335,7 @@ public:
                 return std::nullopt;
             };
 
+            bool matched = false;
             for (auto const &node : nodes_to_be_processed)
             {
                 if (node->is_optional)
@@ -336,14 +343,21 @@ public:
                     if (auto node_opt = try_to_match_optional(node))
                     {
                         current_node = node_opt.value();
+                        matched = true;
                         break;
                     }
                 }
                 if (auto const opt = node->tryAcceptToken(*tok_it); opt.has_value() and opt.value().accepted)
                 {
                     current_node = node;
+                    matched = true;
                     break;
                 }
+            }
+
+            if (not matched)
+            {
+                return {};
             }
 
             all_forwarded_nodes.clear();

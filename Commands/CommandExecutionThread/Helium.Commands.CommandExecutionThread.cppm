@@ -5,6 +5,7 @@
 
 module;
 
+#include <format>
 #include <mutex>
 #include <stop_token>
 #include <string>
@@ -17,6 +18,8 @@ import Helium.Base.HeliumObject;
 import Helium.Commands.CommandSource;
 import Helium.Commands.CommandDispatcher;
 import Helium.Logger;
+import Helium.Utils.RText;
+import Helium.Server.ServerInstance;
 
 namespace helium::commands
 {
@@ -51,7 +54,20 @@ private:
             {
                 if (not CommandDispatcher::getInstance().tryExecuteCommand(command.source, command.command))
                 {
-                    logger->error("Command {} failed to execute", command.command);
+                    if (command.source.getSourceType() == "console")
+                    {
+                        logger->error("Command {} failed to execute", command.command);
+                    }
+                    else if (command.source.getSourceType() == "player")
+                    {
+                        using namespace utils::rtext;
+                        server::ServerInstance::getInstancePointer()->sendMessage(
+                            command.source.getMajorSource(),
+                            RTextList()
+                                .addRText(RText{"[ERROR]"}.setColor(RColorClassic::red).setStyle(RStyleClassic::bold))
+                                .addRText(RText{" [Helium] "}.setColor(RColorClassic::gray))
+                                .addRText(RText{std::format("Command {} failed to execute", command.command)}.setColor(RColorClassic::white)));
+                    }
                 }
             }
         }

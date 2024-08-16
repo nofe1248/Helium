@@ -199,10 +199,10 @@ private:
 public:
     DynamicIDEventStream() = default;
 
-    DynamicIDEventStream(DynamicIDEventStream const &) noexcept = default;
-    DynamicIDEventStream &operator=(DynamicIDEventStream const &) noexcept = default;
-    DynamicIDEventStream(DynamicIDEventStream &&) noexcept = default;
-    DynamicIDEventStream &operator=(DynamicIDEventStream &&) noexcept = default;
+    DynamicIDEventStream(DynamicIDEventStream const & that) noexcept = delete;
+    DynamicIDEventStream &operator=(DynamicIDEventStream const &) noexcept = delete;
+    DynamicIDEventStream(DynamicIDEventStream &&) noexcept = delete;
+    DynamicIDEventStream &operator=(DynamicIDEventStream &&) noexcept = delete;
 
     auto postponeEvent(this auto &&self, std::any &&event) -> void
     {

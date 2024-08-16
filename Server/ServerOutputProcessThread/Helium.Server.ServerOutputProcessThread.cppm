@@ -18,7 +18,6 @@ import Helium.Server.ServerOutputParser.ServerOutputInfo;
 import Helium.Events.EventBus;
 import Helium.Events.Helium;
 import Helium.Logger;
-import Helium.Commands.CommandContext;
 import Helium.Commands.CommandSource;
 import Helium.Commands.CommandDispatcher;
 

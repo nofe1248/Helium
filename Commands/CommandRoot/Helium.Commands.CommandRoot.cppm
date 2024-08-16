@@ -19,7 +19,8 @@ export namespace helium::commands {
     public:
         using CommandNodeBase::CommandNodeBase;
 
-        constexpr CommandRoot() : CommandNodeBase("root_node") {
+        constexpr CommandRoot() : CommandNodeBase("root_node")
+        {
         }
 
         static auto tryAcceptToken(std::shared_ptr<CommandNodeDescriptor> node_descriptor, Token const &tok) noexcept -> TryAcceptTokenResult

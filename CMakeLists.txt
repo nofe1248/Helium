@@ -70,6 +70,7 @@ target_sources(
         BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Plugins.cppm
         BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Misc.cppm
         BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Server.cppm
+        BuiltinCommands/Implementations/Helium.BuiltinCommands.Implementations.Utils.cppm
         Commands/BindingHelper/Helium.Commands.BindingHelper.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBase.cppm
         Commands/CommandArgument/Helium.Commands.CommandArgument.CommandArgumentBoolean.cppm

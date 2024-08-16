@@ -14,7 +14,6 @@ export import Helium.BuiltinCommands.Implementations;
 import Helium.Commands.CommandDispatcher;
 import Helium.Commands.CommandLiteral;
 import Helium.Commands.CommandArgument;
-import Helium.Commands.CommandContext;
 
 export namespace helium::commands::builtins
 {
@@ -123,13 +122,15 @@ struct BuiltinCommandRegisterHelper
                 ),
                 CommandStringLiteral("debug")
                 .then(
-                    CommandArgumentBoolean("debug_enable"),
-                    CommandStringLiteral("debug_logger")
+                    CommandArgumentBoolean("debug_enable")
+                    .execute(heliumDebug)
                 ),
                 CommandStringLiteral("config")
                 .then(
-                    CommandStringLiteral("load"),
+                    CommandStringLiteral("load")
+                    .execute(configLoad),
                     CommandStringLiteral("save")
+                    .execute(configSave)
                 )
             )
         );

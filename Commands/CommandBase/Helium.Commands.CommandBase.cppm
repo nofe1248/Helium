@@ -275,7 +275,7 @@ public:
         FWD(self).node_descriptor_->forward_nodes.value().insert(forward_node);
     }
 
-    [[nodiscard]] constexpr decltype(auto) optional(this auto &&self)
+    constexpr decltype(auto) optional(this auto &&self)
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
         FWD(self).getNodeDescriptor().lock()->is_optional = true;
@@ -283,7 +283,7 @@ public:
     }
 
     template <typename... Next_>
-    [[nodiscard]] constexpr decltype(auto) then(this auto &&self, Next_ &&...next_node)
+    constexpr decltype(auto) then(this auto &&self, Next_ &&...next_node)
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>> and (concepts::IsCommandNode<Next_> and ...)
     {
         (FWD(self).addChildNode(FWD(next_node).getNodeDescriptor().lock()), ...);
@@ -292,7 +292,7 @@ public:
     }
 
     template <typename... Callback_>
-    [[nodiscard]] constexpr decltype(auto) execute(this auto &&self, Callback_ &&...callback)
+    constexpr decltype(auto) execute(this auto &&self, Callback_ &&...callback)
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
         auto descriptor = FWD(self).getNodeDescriptor().lock();
@@ -312,7 +312,7 @@ public:
     }
 
     template <typename... Pred_>
-    [[nodiscard]] constexpr decltype(auto) require(this auto &&self, Pred_ &&...pred)
+    constexpr decltype(auto) require(this auto &&self, Pred_ &&...pred)
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>> and
                  ((std::same_as<decltype(pred(std::declval<CommandContext const &>(),
                                               std::declval<typename std::decay_t<decltype(self)>::RawTokenStringConversionTarget>())),
@@ -337,7 +337,7 @@ public:
     }
 
     template <concepts::IsCommandNode... Fork_>
-    [[nodiscard]] constexpr decltype(auto) fork(this auto &&self, Fork_ &&...fork)
+    constexpr decltype(auto) fork(this auto &&self, Fork_ &&...fork)
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
         (FWD(self).addForwardNode(FWD(fork).getNodeDescriptor().lock()), ...);
@@ -345,7 +345,7 @@ public:
     }
 
     template <concepts::IsCommandNode... Redirect_>
-    [[nodiscard]] constexpr decltype(auto) redirect(this auto &&self, Redirect_ &&...redirect)
+    constexpr decltype(auto) redirect(this auto &&self, Redirect_ &&...redirect)
         requires concepts::IsCommandNode<std::decay_t<decltype(self)>>
     {
         FWD(self).node_descriptor_->is_redirected = true;

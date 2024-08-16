@@ -133,6 +133,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return false;
     }
     static auto broadcastMessage(std::string const &info) -> bool
     {
@@ -238,6 +239,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -378,6 +380,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -518,6 +521,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -658,6 +662,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -798,6 +803,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -938,6 +944,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -1078,6 +1085,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -1218,6 +1226,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -1358,6 +1367,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -1498,6 +1508,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string
@@ -1638,6 +1649,7 @@ public:
         {
             server_binding_logger->error("Exception when getting message target name from py::args: {}", e.what());
         }
+        return "";
     }
 
     auto getBroadcastMessageCommand(std::string const &info) noexcept -> std::string

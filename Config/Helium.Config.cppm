@@ -41,7 +41,7 @@ struct ServerRCONConfig
 {
     bool enable = false;
     std::string address;
-    int port;
+    uint16_t port = 0;
     std::string password;
 };
 struct ServerConfig

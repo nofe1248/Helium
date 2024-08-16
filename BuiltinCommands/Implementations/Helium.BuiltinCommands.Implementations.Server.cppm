@@ -5,10 +5,13 @@
 
 module;
 
+#include <string>
+
 export module Helium.BuiltinCommands.Implementations.Server;
 
 import Helium.Commands.CommandContext;
 import Helium.Server.ServerInstance;
+import Helium.BuiltinCommands.Implementations.Utils;
 import Helium.Logger;
 
 namespace helium::commands
@@ -18,38 +21,43 @@ auto server_logger = logger::SharedLogger::getSharedLogger("BuiltinCommands", "S
 
 export namespace helium::commands
 {
-auto serverStart(CommandContext const &) -> void
+auto serverStart(CommandContext const &ctx) -> void
 {
     if (server::ServerInstance::getInstancePointer())
     {
-        if (not server::ServerInstance::getInstancePointer()->start())
+        if (server::ServerInstance::getInstancePointer()->start())
         {
-            server_logger->error("Failed to start server");
+            sendMessageTo(ctx, server_logger, logger::LogLevel::info, "Server started");
+            return;
         }
     }
+    sendMessageTo(ctx, server_logger, logger::LogLevel::error, "Failed to start the server");
 }
-auto serverStop(CommandContext const &) -> void
+auto serverStop(CommandContext const &ctx) -> void
 {
     if (server::ServerInstance::getInstancePointer())
     {
-        if (not server::ServerInstance::getInstancePointer()->stop())
+        if (server::ServerInstance::getInstancePointer()->stop())
         {
-            server_logger->error("Failed to stop server");
+            sendMessageTo(ctx, server_logger, logger::LogLevel::info, "Server stopped");
+            return;
         }
     }
+    sendMessageTo(ctx, server_logger, logger::LogLevel::error, "Failed to stop the server");
 }
-auto serverTerminate(CommandContext const &) -> void
+auto serverTerminate(CommandContext const &ctx) -> void
 {
     if (server::ServerInstance::getInstancePointer())
     {
-        if (not server::ServerInstance::getInstancePointer()->kill())
+        if (server::ServerInstance::getInstancePointer()->kill())
         {
-            server_logger->error("Failed to terminate server");
+            sendMessageTo(ctx, server_logger, logger::LogLevel::info, "Server terminated");
+            return;
         }
     }
+    sendMessageTo(ctx, server_logger, logger::LogLevel::error, "Failed to terminate the server");
 }
-auto serverStatus(CommandContext const &) -> void
+auto serverStatus(CommandContext const &ctx) -> void
 {
-
 }
-}
+} // namespace helium::commands
